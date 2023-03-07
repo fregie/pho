@@ -1,0 +1,16 @@
+syntax = "proto3";
+package img_syncer;
+
+option go_package = "github.com/fregie/img_syncer/proto";
+
+service ImgSyncer {
+  rpc Hello (HelloRequest) returns (HelloResponse) {}
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
+}
