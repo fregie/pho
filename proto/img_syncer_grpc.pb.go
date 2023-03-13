@@ -21,7 +21,7 @@ type ImgSyncerClient interface {
 	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
 	Upload(ctx context.Context, opts ...grpc.CallOption) (ImgSyncer_UploadClient, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (ImgSyncer_GetClient, error)
-	GetThumbnail(ctx context.Context, in *GetThumbnailRequest, opts ...grpc.CallOption) (*GetThumbnailResponse, error)
+	GetThumbnail(ctx context.Context, in *GetThumbnailRequest, opts ...grpc.CallOption) (ImgSyncer_GetThumbnailClient, error)
 	ListByDate(ctx context.Context, in *ListByDateRequest, opts ...grpc.CallOption) (*ListByDateResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 	SetDriveSMB(ctx context.Context, in *SetDriveSMBRequest, opts ...grpc.CallOption) (*SetDriveSMBResponse, error)
@@ -113,13 +113,36 @@ func (x *imgSyncerGetClient) Recv() (*GetResponse, error) {
 	return m, nil
 }
 
-func (c *imgSyncerClient) GetThumbnail(ctx context.Context, in *GetThumbnailRequest, opts ...grpc.CallOption) (*GetThumbnailResponse, error) {
-	out := new(GetThumbnailResponse)
-	err := c.cc.Invoke(ctx, "/img_syncer.ImgSyncer/GetThumbnail", in, out, opts...)
+func (c *imgSyncerClient) GetThumbnail(ctx context.Context, in *GetThumbnailRequest, opts ...grpc.CallOption) (ImgSyncer_GetThumbnailClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ImgSyncer_ServiceDesc.Streams[2], "/img_syncer.ImgSyncer/GetThumbnail", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &imgSyncerGetThumbnailClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type ImgSyncer_GetThumbnailClient interface {
+	Recv() (*GetThumbnailResponse, error)
+	grpc.ClientStream
+}
+
+type imgSyncerGetThumbnailClient struct {
+	grpc.ClientStream
+}
+
+func (x *imgSyncerGetThumbnailClient) Recv() (*GetThumbnailResponse, error) {
+	m := new(GetThumbnailResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *imgSyncerClient) ListByDate(ctx context.Context, in *ListByDateRequest, opts ...grpc.CallOption) (*ListByDateResponse, error) {
@@ -183,7 +206,7 @@ type ImgSyncerServer interface {
 	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
 	Upload(ImgSyncer_UploadServer) error
 	Get(*GetRequest, ImgSyncer_GetServer) error
-	GetThumbnail(context.Context, *GetThumbnailRequest) (*GetThumbnailResponse, error)
+	GetThumbnail(*GetThumbnailRequest, ImgSyncer_GetThumbnailServer) error
 	ListByDate(context.Context, *ListByDateRequest) (*ListByDateResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	SetDriveSMB(context.Context, *SetDriveSMBRequest) (*SetDriveSMBResponse, error)
@@ -206,8 +229,8 @@ func (UnimplementedImgSyncerServer) Upload(ImgSyncer_UploadServer) error {
 func (UnimplementedImgSyncerServer) Get(*GetRequest, ImgSyncer_GetServer) error {
 	return status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedImgSyncerServer) GetThumbnail(context.Context, *GetThumbnailRequest) (*GetThumbnailResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetThumbnail not implemented")
+func (UnimplementedImgSyncerServer) GetThumbnail(*GetThumbnailRequest, ImgSyncer_GetThumbnailServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetThumbnail not implemented")
 }
 func (UnimplementedImgSyncerServer) ListByDate(context.Context, *ListByDateRequest) (*ListByDateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListByDate not implemented")
@@ -305,22 +328,25 @@ func (x *imgSyncerGetServer) Send(m *GetResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _ImgSyncer_GetThumbnail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetThumbnailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _ImgSyncer_GetThumbnail_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetThumbnailRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(ImgSyncerServer).GetThumbnail(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/img_syncer.ImgSyncer/GetThumbnail",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImgSyncerServer).GetThumbnail(ctx, req.(*GetThumbnailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(ImgSyncerServer).GetThumbnail(m, &imgSyncerGetThumbnailServer{stream})
+}
+
+type ImgSyncer_GetThumbnailServer interface {
+	Send(*GetThumbnailResponse) error
+	grpc.ServerStream
+}
+
+type imgSyncerGetThumbnailServer struct {
+	grpc.ServerStream
+}
+
+func (x *imgSyncerGetThumbnailServer) Send(m *GetThumbnailResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _ImgSyncer_ListByDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -443,10 +469,6 @@ var ImgSyncer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ImgSyncer_Hello_Handler,
 		},
 		{
-			MethodName: "GetThumbnail",
-			Handler:    _ImgSyncer_GetThumbnail_Handler,
-		},
-		{
 			MethodName: "ListByDate",
 			Handler:    _ImgSyncer_ListByDate_Handler,
 		},
@@ -480,6 +502,11 @@ var ImgSyncer_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "Get",
 			Handler:       _ImgSyncer_Get_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetThumbnail",
+			Handler:       _ImgSyncer_GetThumbnail_Handler,
 			ServerStreams: true,
 		},
 	},

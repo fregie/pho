@@ -10,6 +10,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"time"
 
 	"github.com/Workiva/go-datastructures/queue"
@@ -268,17 +270,94 @@ func (im *ImgManager) DeleteImg(paths []string) {
 
 func (im *ImgManager) RangeByDate(start time.Time, f func(path string, size int64) bool) {
 	t := start
-	if t.IsZero() {
+	year, month, day := t.Date()
+	yDir, err := im.listDir(".")
+	if err != nil {
+		im.logger.Println("Error listing year dir:", err)
+		return
+	}
+	sort.Sort(asc(yDir))
+	for _, yinfo := range yDir {
+		if !yinfo.IsDir() {
+			continue
+		}
+		yNum, err := strconv.Atoi(yinfo.Name())
+		if err != nil {
+			continue
+		}
+		if yNum < year {
+			continue
+		}
+		mDir, err := im.listDir(filepath.Base(yinfo.Name()))
+		if err != nil {
+			im.logger.Println("Error listing month dir:", err)
+			continue
+		}
+		sort.Sort(asc(mDir))
+		for _, minfo := range mDir {
+			if !minfo.IsDir() {
+				continue
+			}
+			mNum, err := strconv.Atoi(minfo.Name())
+			if err != nil {
+				continue
+			}
+			if yNum == year && mNum < int(month) {
+				continue
+			}
+			dDir, err := im.listDir(filepath.Join(yinfo.Name(), minfo.Name()))
+			if err != nil {
+				im.logger.Println("Error listing day dir:", err)
+				continue
+			}
+			sort.Sort(asc(dDir))
+			for _, dinfo := range dDir {
+				if !dinfo.IsDir() {
+					continue
+				}
+				dNum, err := strconv.Atoi(dinfo.Name())
+				if err != nil {
+					continue
+				}
+				if yNum == year && mNum == int(month) && dNum < day {
+					continue
+				}
+				dirPath := filepath.Join(yinfo.Name(), minfo.Name(), dinfo.Name())
+				var goOn bool
+				im.dri.Range(dirPath, func(info fs.FileInfo) bool {
+					goOn = f(filepath.Join(dirPath, info.Name()), info.Size())
+					return goOn
+				})
+				if !goOn {
+					goto BREAK
+				}
+			}
+		}
+	}
+BREAK:
+}
 
+func (im *ImgManager) listDir(path string) ([]fs.FileInfo, error) {
+	infos := make([]fs.FileInfo, 0)
+	im.dri.Range(path, func(info fs.FileInfo) bool {
+		infos = append(infos, info)
+		return true
+	})
+	return infos, nil
+}
+
+type asc []fs.FileInfo
+
+func (a asc) Len() int      { return len(a) }
+func (a asc) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a asc) Less(i, j int) bool {
+	yi, err := strconv.Atoi(a[i].Name())
+	if err != nil {
+		return false
 	}
-	continueRange := true
-	for continueRange {
-		dir := filepath.Join(t.Format("2006/01/02"))
-		im.dri.Range(dir, func(info fs.FileInfo) bool {
-			path := filepath.Join(dir, info.Name())
-			continueRange = f(path, info.Size())
-			return continueRange
-		})
-		t = t.AddDate(0, 0, 1)
+	yj, err := strconv.Atoi(a[j].Name())
+	if err != nil {
+		return true
 	}
+	return yi < yj
 }

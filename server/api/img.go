@@ -104,31 +104,48 @@ func (a *api) Get(req *pb.GetRequest, stream pb.ImgSyncer_GetServer) error {
 	return nil
 }
 
-func (a *api) GetThumbnail(ctx context.Context, req *pb.GetThumbnailRequest) (rsp *pb.GetThumbnailResponse, err error) {
-	rsp = &pb.GetThumbnailResponse{Success: true}
+func (a *api) GetThumbnail(req *pb.GetThumbnailRequest, stream pb.ImgSyncer_GetThumbnailServer) error {
+	if req.Path == "" {
+		return fmt.Errorf("param error: path is empty")
+	}
 	img, e := a.im.GetThumbnail(req.Path)
 	if e != nil {
-		rsp.Success, rsp.Message = false, e.Error()
-		return
+		return e
 	}
-	rsp.Data, e = io.ReadAll(img.Content)
-	if e != nil {
-		rsp.Success, rsp.Message = false, e.Error()
-		return
+	defer img.Content.Close()
+	for {
+		data := make([]byte, 64*1024)
+		n, err := img.Content.Read(data)
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return err
+			}
+		}
+		err = stream.Send(&pb.GetThumbnailResponse{Data: data[:n]})
+		if err != nil {
+			return err
+		}
 	}
-	return
+	return nil
 }
 
 func (a *api) ListByDate(ctx context.Context, req *pb.ListByDateRequest) (rsp *pb.ListByDateResponse, err error) {
 	rsp = &pb.ListByDateResponse{Success: true}
-	if req.Offset < 0 || req.MaxReturn < 0 {
-		rsp.Success, rsp.Message = false, "param error: offset or maxReturn is less than 0"
-		return
+	if req.MaxReturn <= 0 {
+		req.MaxReturn = 100
 	}
-	start, err := time.Parse("2006:01:02", req.Date)
-	if err != nil {
-		rsp.Success, rsp.Message = false, fmt.Sprintf("param error: date format error: %s", req.Date)
-		return
+	if req.Offset <= 0 {
+		req.Offset = 0
+	}
+	start := time.Unix(0, 0)
+	if req.Date != "" {
+		start, err = time.Parse("2006:01:02", req.Date)
+		if err != nil {
+			rsp.Success, rsp.Message = false, fmt.Sprintf("param error: date format error: %s", req.Date)
+			return
+		}
 	}
 	rsp.Paths = make([]string, 0, req.MaxReturn)
 	offset := req.Offset

@@ -56,6 +56,69 @@ func (s *ImageTestSuite) TestUploadGet() {
 	s.Equal(len(static.Pic1), len(data))
 }
 
+func (s *ImageTestSuite) TestGetThumnail() {
+	ctx := context.Background()
+	err := s.uploadPic1(ctx)
+	s.Nil(err)
+	s.Nil(waitfile(s.srv, pic1ShouldPath, 5*time.Second))
+	data, err := s.get(ctx, pic1ShouldPath)
+	s.Nilf(err, "get pic failed: %v", err)
+	s.Equal(static.Pic1, data)
+	cli, err := s.srv.GetThumbnail(ctx, &pb.GetThumbnailRequest{
+		Path: pic1ShouldPath,
+	})
+	s.Nil(err)
+	buf := new(bytes.Buffer)
+	for {
+		rsp, err := cli.Recv()
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				s.Nil(err)
+			}
+		}
+		_, err = buf.Write(rsp.Data)
+		s.Nil(err)
+	}
+	s.True(len(buf.Bytes()) > 0)
+}
+
+func (s *ImageTestSuite) TestList() {
+	ctx := context.Background()
+	rsp1, err := s.srv.ListByDate(ctx, &pb.ListByDateRequest{})
+	s.Nilf(err, "list failed: %v", err)
+	s.Truef(rsp1.Success, "list failed: %s", rsp1.Message)
+	s.Equal(0, len(rsp1.Paths))
+	err = s.uploadPic1(ctx)
+	s.Nil(err)
+	s.Nil(waitfile(s.srv, pic1ShouldPath, 5*time.Second))
+	rsp2, err := s.srv.ListByDate(ctx, &pb.ListByDateRequest{})
+	s.Nilf(err, "list failed: %v", err)
+	s.Truef(rsp2.Success, "list failed: %s", rsp2.Message)
+	s.Equal(1, len(rsp2.Paths))
+	s.Equalf(pic1ShouldPath, rsp2.Paths[0], "path: %s", rsp2.Paths[0])
+}
+
+func (s *ImageTestSuite) TestDelete() {
+	ctx := context.Background()
+	err := s.uploadPic1(ctx)
+	s.Nil(err)
+	s.Nil(waitfile(s.srv, pic1ShouldPath, 5*time.Second))
+	rsp2, err := s.srv.ListByDate(ctx, &pb.ListByDateRequest{})
+	s.Nilf(err, "list failed: %v", err)
+	s.Truef(rsp2.Success, "list failed: %s", rsp2.Message)
+	s.Equal(1, len(rsp2.Paths))
+	rsp3, err := s.srv.Delete(ctx, &pb.DeleteRequest{
+		Paths: []string{pic1ShouldPath},
+	})
+	s.Nilf(err, "delete failed: %v", err)
+	s.Truef(rsp3.Success, "delete: %s", rsp3.Message)
+	rsp4, err := s.srv.ListByDate(ctx, &pb.ListByDateRequest{})
+	s.Nilf(err, "list failed: %v", err)
+	s.Equal(0, len(rsp4.Paths))
+}
+
 func (s *ImageTestSuite) get(ctx context.Context, path string) ([]byte, error) {
 	cli, err := s.srv.Get(ctx, &pb.GetRequest{
 		Path: path,

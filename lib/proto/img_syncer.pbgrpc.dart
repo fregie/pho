@@ -91,10 +91,12 @@ class ImgSyncerClient extends $grpc.Client {
         options: options);
   }
 
-  $grpc.ResponseFuture<$0.GetThumbnailResponse> getThumbnail(
+  $grpc.ResponseStream<$0.GetThumbnailResponse> getThumbnail(
       $0.GetThumbnailRequest request,
       {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getThumbnail, request, options: options);
+    return $createStreamingCall(
+        _$getThumbnail, $async.Stream.fromIterable([request]),
+        options: options);
   }
 
   $grpc.ResponseFuture<$0.ListByDateResponse> listByDate(
@@ -163,7 +165,7 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
             'GetThumbnail',
             getThumbnail_Pre,
             false,
-            false,
+            true,
             ($core.List<$core.int> value) =>
                 $0.GetThumbnailRequest.fromBuffer(value),
             ($0.GetThumbnailResponse value) => value.writeToBuffer()));
@@ -229,10 +231,10 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
     yield* get(call, await request);
   }
 
-  $async.Future<$0.GetThumbnailResponse> getThumbnail_Pre(
+  $async.Stream<$0.GetThumbnailResponse> getThumbnail_Pre(
       $grpc.ServiceCall call,
-      $async.Future<$0.GetThumbnailRequest> request) async {
-    return getThumbnail(call, await request);
+      $async.Future<$0.GetThumbnailRequest> request) async* {
+    yield* getThumbnail(call, await request);
   }
 
   $async.Future<$0.ListByDateResponse> listByDate_Pre($grpc.ServiceCall call,
@@ -274,7 +276,7 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $async.Stream<$0.UploadRequest> request);
   $async.Stream<$0.GetResponse> get(
       $grpc.ServiceCall call, $0.GetRequest request);
-  $async.Future<$0.GetThumbnailResponse> getThumbnail(
+  $async.Stream<$0.GetThumbnailResponse> getThumbnail(
       $grpc.ServiceCall call, $0.GetThumbnailRequest request);
   $async.Future<$0.ListByDateResponse> listByDate(
       $grpc.ServiceCall call, $0.ListByDateRequest request);

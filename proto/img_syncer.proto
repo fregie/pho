@@ -7,7 +7,7 @@ service ImgSyncer {
   rpc Hello (HelloRequest) returns (HelloResponse) {}
   rpc Upload (stream UploadRequest) returns (UploadResponse) {}
   rpc Get (GetRequest) returns (stream GetResponse) {}
-  rpc GetThumbnail (GetThumbnailRequest) returns (GetThumbnailResponse) {}
+  rpc GetThumbnail (GetThumbnailRequest) returns (stream GetThumbnailResponse) {}
   rpc ListByDate (ListByDateRequest) returns (ListByDateResponse) {}
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
 
