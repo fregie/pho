@@ -1,5 +1,3 @@
-export GOSUMDB=off
-
 BUILD_VERSION   := $(shell git describe --tags)
 GIT_COMMIT_SHA1 := $(shell git rev-parse HEAD)
 BUILD_TIME      := $(shell date "+%F %T")
@@ -20,10 +18,10 @@ protobuf:
 
 .PHONY: server
 server: protobuf
-	go build -ldflags "\
+	CGO_ENABLED=0 go build -ldflags "\
 		-X '${VERSION_PACKAGE_NAME}.Version=${BUILD_VERSION}' \
 		-X '${VERSION_PACKAGE_NAME}.BuildTime=${BUILD_TIME}' \
 		-X '${VERSION_PACKAGE_NAME}.GitCommitSHA1=${GIT_COMMIT_SHA1}' \
 		-X '${VERSION_PACKAGE_NAME}.Describe=${DESCRIBE}' \
 		-X '${VERSION_PACKAGE_NAME}.Name=${BUILD_NAME}'" \
-    -o output/${BUILD_NAME} ./server
+    -o server/output/${BUILD_NAME} ./server

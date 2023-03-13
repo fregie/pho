@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  smb:
+    image: dperson/samba
+    environment:
+      - USER=fregie;password
+      - SHARE=photos;/tmp/photos;yes;no;no;fregie;fregie;fregie
+    privileged: true
+    ports:
+      - "139:139"
+      - "445:445"
+    networks:
+      - backend
+  
+  server:
+    build: ../server
+    ports:
+      - "50051:50051"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

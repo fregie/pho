@@ -5,7 +5,24 @@ option go_package = "github.com/fregie/img_syncer/proto";
 
 service ImgSyncer {
   rpc Hello (HelloRequest) returns (HelloResponse) {}
+  rpc Upload (stream UploadRequest) returns (UploadResponse) {}
+  rpc Get (GetRequest) returns (stream GetResponse) {}
+  rpc GetThumbnail (GetThumbnailRequest) returns (GetThumbnailResponse) {}
+  rpc ListByDate (ListByDateRequest) returns (ListByDateResponse) {}
+  rpc Delete (DeleteRequest) returns (DeleteResponse) {}
+
+  rpc SetDriveSMB (SetDriveSMBRequest) returns (SetDriveSMBResponse) {}
+  rpc ListDriveSMBShares (ListDriveSMBSharesRequest) returns (ListDriveSMBSharesResponse) {}
+  rpc ListDriveSMBDir (ListDriveSMBDirRequest) returns (ListDriveSMBDirResponse) {}
+  rpc SetDriveSMBShare (SetDriveSMBShareRequest) returns (SetDriveSMBShareResponse) {}
+
 }
+
+// enum ContentType {
+//   IMAGE_JPEG = 0;
+//   IMAGE_PNG = 1;
+//   IMAGE_GIF = 2;
+// }
 
 message HelloRequest {
   string name = 1;
@@ -13,4 +30,87 @@ message HelloRequest {
 
 message HelloResponse {
   string message = 1;
+}
+
+message UploadRequest {
+  bytes data = 1;
+  string name = 2;
+  string date = 3; // YYYY:MM:DD HH:MM:SS
+}
+message UploadResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetRequest {
+  string path = 1;
+}
+message GetResponse {
+  bytes data = 1;
+}
+
+message GetThumbnailRequest {
+  string path = 1;
+}
+message GetThumbnailResponse {
+  bool success = 1;
+  string message = 2;
+  bytes data = 3;
+}
+
+message ListByDateRequest {
+  string date = 1; // YYYY:MM:DD
+  int32 offset = 2;
+  int32 maxReturn = 3;
+}
+message ListByDateResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string paths = 3;
+}
+
+message DeleteRequest {
+  repeated string paths = 1;
+}
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message SetDriveSMBRequest {
+  string addr = 1;
+  string username = 2;
+  string password = 3;
+  string share = 4;
+  string root = 5;
+}
+message SetDriveSMBResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ListDriveSMBSharesRequest {}
+message ListDriveSMBSharesResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string shares = 3;
+}
+
+message ListDriveSMBDirRequest {
+  string share = 1;
+  string dir = 2;
+}
+message ListDriveSMBDirResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string dirs = 3;
+}
+
+message SetDriveSMBShareRequest {
+  string share = 1;
+  string root = 2;
+}
+message SetDriveSMBShareResponse {
+  bool success = 1;
+  string message = 2;
 }

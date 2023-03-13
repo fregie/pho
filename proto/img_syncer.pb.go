@@ -114,6 +114,1019 @@ func (x *HelloResponse) GetMessage() string {
 	return ""
 }
 
+type UploadRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Date string `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"` // YYYY:MM:DD HH:MM:SS
+}
+
+func (x *UploadRequest) Reset() {
+	*x = UploadRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UploadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadRequest) ProtoMessage() {}
+
+func (x *UploadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadRequest.ProtoReflect.Descriptor instead.
+func (*UploadRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UploadRequest) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *UploadRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UploadRequest) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+type UploadResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *UploadResponse) Reset() {
+	*x = UploadResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UploadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadResponse) ProtoMessage() {}
+
+func (x *UploadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadResponse.ProtoReflect.Descriptor instead.
+func (*UploadResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UploadResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *UploadResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type GetRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Path string `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+}
+
+func (x *GetRequest) Reset() {
+	*x = GetRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRequest) ProtoMessage() {}
+
+func (x *GetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRequest.ProtoReflect.Descriptor instead.
+func (*GetRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetRequest) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+type GetResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+}
+
+func (x *GetResponse) Reset() {
+	*x = GetResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetResponse) ProtoMessage() {}
+
+func (x *GetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetResponse.ProtoReflect.Descriptor instead.
+func (*GetResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetResponse) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type GetThumbnailRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Path string `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+}
+
+func (x *GetThumbnailRequest) Reset() {
+	*x = GetThumbnailRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetThumbnailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetThumbnailRequest) ProtoMessage() {}
+
+func (x *GetThumbnailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetThumbnailRequest.ProtoReflect.Descriptor instead.
+func (*GetThumbnailRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetThumbnailRequest) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+type GetThumbnailResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Data    []byte `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
+}
+
+func (x *GetThumbnailResponse) Reset() {
+	*x = GetThumbnailResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetThumbnailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetThumbnailResponse) ProtoMessage() {}
+
+func (x *GetThumbnailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetThumbnailResponse.ProtoReflect.Descriptor instead.
+func (*GetThumbnailResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetThumbnailResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *GetThumbnailResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *GetThumbnailResponse) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type ListByDateRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Date      string `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"` // YYYY:MM:DD
+	Offset    int32  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	MaxReturn int32  `protobuf:"varint,3,opt,name=maxReturn,proto3" json:"maxReturn,omitempty"`
+}
+
+func (x *ListByDateRequest) Reset() {
+	*x = ListByDateRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListByDateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListByDateRequest) ProtoMessage() {}
+
+func (x *ListByDateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListByDateRequest.ProtoReflect.Descriptor instead.
+func (*ListByDateRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListByDateRequest) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+func (x *ListByDateRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *ListByDateRequest) GetMaxReturn() int32 {
+	if x != nil {
+		return x.MaxReturn
+	}
+	return 0
+}
+
+type ListByDateResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool     `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Paths   []string `protobuf:"bytes,3,rep,name=paths,proto3" json:"paths,omitempty"`
+}
+
+func (x *ListByDateResponse) Reset() {
+	*x = ListByDateResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListByDateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListByDateResponse) ProtoMessage() {}
+
+func (x *ListByDateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListByDateResponse.ProtoReflect.Descriptor instead.
+func (*ListByDateResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListByDateResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ListByDateResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ListByDateResponse) GetPaths() []string {
+	if x != nil {
+		return x.Paths
+	}
+	return nil
+}
+
+type DeleteRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Paths []string `protobuf:"bytes,1,rep,name=paths,proto3" json:"paths,omitempty"`
+}
+
+func (x *DeleteRequest) Reset() {
+	*x = DeleteRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRequest) ProtoMessage() {}
+
+func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
+func (*DeleteRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeleteRequest) GetPaths() []string {
+	if x != nil {
+		return x.Paths
+	}
+	return nil
+}
+
+type DeleteResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *DeleteResponse) Reset() {
+	*x = DeleteResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteResponse) ProtoMessage() {}
+
+func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
+func (*DeleteResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *DeleteResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *DeleteResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type SetDriveSMBRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Addr     string `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Password string `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Share    string `protobuf:"bytes,4,opt,name=share,proto3" json:"share,omitempty"`
+	Root     string `protobuf:"bytes,5,opt,name=root,proto3" json:"root,omitempty"`
+}
+
+func (x *SetDriveSMBRequest) Reset() {
+	*x = SetDriveSMBRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetDriveSMBRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDriveSMBRequest) ProtoMessage() {}
+
+func (x *SetDriveSMBRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDriveSMBRequest.ProtoReflect.Descriptor instead.
+func (*SetDriveSMBRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *SetDriveSMBRequest) GetAddr() string {
+	if x != nil {
+		return x.Addr
+	}
+	return ""
+}
+
+func (x *SetDriveSMBRequest) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *SetDriveSMBRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *SetDriveSMBRequest) GetShare() string {
+	if x != nil {
+		return x.Share
+	}
+	return ""
+}
+
+func (x *SetDriveSMBRequest) GetRoot() string {
+	if x != nil {
+		return x.Root
+	}
+	return ""
+}
+
+type SetDriveSMBResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *SetDriveSMBResponse) Reset() {
+	*x = SetDriveSMBResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetDriveSMBResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDriveSMBResponse) ProtoMessage() {}
+
+func (x *SetDriveSMBResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDriveSMBResponse.ProtoReflect.Descriptor instead.
+func (*SetDriveSMBResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *SetDriveSMBResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *SetDriveSMBResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type ListDriveSMBSharesRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ListDriveSMBSharesRequest) Reset() {
+	*x = ListDriveSMBSharesRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListDriveSMBSharesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDriveSMBSharesRequest) ProtoMessage() {}
+
+func (x *ListDriveSMBSharesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDriveSMBSharesRequest.ProtoReflect.Descriptor instead.
+func (*ListDriveSMBSharesRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{14}
+}
+
+type ListDriveSMBSharesResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool     `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Shares  []string `protobuf:"bytes,3,rep,name=shares,proto3" json:"shares,omitempty"`
+}
+
+func (x *ListDriveSMBSharesResponse) Reset() {
+	*x = ListDriveSMBSharesResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListDriveSMBSharesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDriveSMBSharesResponse) ProtoMessage() {}
+
+func (x *ListDriveSMBSharesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDriveSMBSharesResponse.ProtoReflect.Descriptor instead.
+func (*ListDriveSMBSharesResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ListDriveSMBSharesResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ListDriveSMBSharesResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ListDriveSMBSharesResponse) GetShares() []string {
+	if x != nil {
+		return x.Shares
+	}
+	return nil
+}
+
+type ListDriveSMBDirRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Share string `protobuf:"bytes,1,opt,name=share,proto3" json:"share,omitempty"`
+	Dir   string `protobuf:"bytes,2,opt,name=dir,proto3" json:"dir,omitempty"`
+}
+
+func (x *ListDriveSMBDirRequest) Reset() {
+	*x = ListDriveSMBDirRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListDriveSMBDirRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDriveSMBDirRequest) ProtoMessage() {}
+
+func (x *ListDriveSMBDirRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDriveSMBDirRequest.ProtoReflect.Descriptor instead.
+func (*ListDriveSMBDirRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ListDriveSMBDirRequest) GetShare() string {
+	if x != nil {
+		return x.Share
+	}
+	return ""
+}
+
+func (x *ListDriveSMBDirRequest) GetDir() string {
+	if x != nil {
+		return x.Dir
+	}
+	return ""
+}
+
+type ListDriveSMBDirResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool     `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Dirs    []string `protobuf:"bytes,3,rep,name=dirs,proto3" json:"dirs,omitempty"`
+}
+
+func (x *ListDriveSMBDirResponse) Reset() {
+	*x = ListDriveSMBDirResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListDriveSMBDirResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDriveSMBDirResponse) ProtoMessage() {}
+
+func (x *ListDriveSMBDirResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDriveSMBDirResponse.ProtoReflect.Descriptor instead.
+func (*ListDriveSMBDirResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ListDriveSMBDirResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ListDriveSMBDirResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ListDriveSMBDirResponse) GetDirs() []string {
+	if x != nil {
+		return x.Dirs
+	}
+	return nil
+}
+
+type SetDriveSMBShareRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Share string `protobuf:"bytes,1,opt,name=share,proto3" json:"share,omitempty"`
+	Root  string `protobuf:"bytes,2,opt,name=root,proto3" json:"root,omitempty"`
+}
+
+func (x *SetDriveSMBShareRequest) Reset() {
+	*x = SetDriveSMBShareRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetDriveSMBShareRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDriveSMBShareRequest) ProtoMessage() {}
+
+func (x *SetDriveSMBShareRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDriveSMBShareRequest.ProtoReflect.Descriptor instead.
+func (*SetDriveSMBShareRequest) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SetDriveSMBShareRequest) GetShare() string {
+	if x != nil {
+		return x.Share
+	}
+	return ""
+}
+
+func (x *SetDriveSMBShareRequest) GetRoot() string {
+	if x != nil {
+		return x.Root
+	}
+	return ""
+}
+
+type SetDriveSMBShareResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *SetDriveSMBShareResponse) Reset() {
+	*x = SetDriveSMBShareResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_img_syncer_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetDriveSMBShareResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDriveSMBShareResponse) ProtoMessage() {}
+
+func (x *SetDriveSMBShareResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_img_syncer_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDriveSMBShareResponse.ProtoReflect.Descriptor instead.
+func (*SetDriveSMBShareResponse) Descriptor() ([]byte, []int) {
+	return file_proto_img_syncer_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *SetDriveSMBShareResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *SetDriveSMBShareResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_proto_img_syncer_proto protoreflect.FileDescriptor
 
 var file_proto_img_syncer_proto_rawDesc = []byte{
@@ -124,14 +1137,143 @@ var file_proto_img_syncer_proto_rawDesc = []byte{
 	0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x29, 0x0a, 0x0d, 0x48, 0x65, 0x6c, 0x6c,
 	0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73,
 	0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x32, 0x4b, 0x0a, 0x09, 0x49, 0x6d, 0x67, 0x53, 0x79, 0x6e, 0x63, 0x65, 0x72,
-	0x12, 0x3e, 0x0a, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x12, 0x18, 0x2e, 0x69, 0x6d, 0x67, 0x5f,
-	0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72,
-	0x2e, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
-	0x42, 0x24, 0x5a, 0x22, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x66,
-	0x72, 0x65, 0x67, 0x69, 0x65, 0x2f, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72,
-	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x67, 0x65, 0x22, 0x4b, 0x0a, 0x0d, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x12, 0x0a, 0x04,
+	0x64, 0x61, 0x74, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x64, 0x61, 0x74, 0x65,
+	0x22, 0x44, 0x0a, 0x0e, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x20, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x22, 0x21, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x29, 0x0a, 0x13, 0x47,
+	0x65, 0x74, 0x54, 0x68, 0x75, 0x6d, 0x62, 0x6e, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x22, 0x5e, 0x0a, 0x14, 0x47, 0x65, 0x74, 0x54, 0x68, 0x75,
+	0x6d, 0x62, 0x6e, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18,
+	0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c,
+	0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x5d, 0x0a, 0x11, 0x4c, 0x69, 0x73, 0x74, 0x42, 0x79,
+	0x44, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x64,
+	0x61, 0x74, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x64, 0x61, 0x74, 0x65, 0x12,
+	0x16, 0x0a, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52,
+	0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x6d, 0x61, 0x78, 0x52, 0x65,
+	0x74, 0x75, 0x72, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x6d, 0x61, 0x78, 0x52,
+	0x65, 0x74, 0x75, 0x72, 0x6e, 0x22, 0x5e, 0x0a, 0x12, 0x4c, 0x69, 0x73, 0x74, 0x42, 0x79, 0x44,
+	0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x73,
+	0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75,
+	0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12,
+	0x14, 0x0a, 0x05, 0x70, 0x61, 0x74, 0x68, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05,
+	0x70, 0x61, 0x74, 0x68, 0x73, 0x22, 0x25, 0x0a, 0x0d, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x70, 0x61, 0x74, 0x68, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x70, 0x61, 0x74, 0x68, 0x73, 0x22, 0x44, 0x0a, 0x0e,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18,
+	0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x22, 0x8a, 0x01, 0x0a, 0x12, 0x53, 0x65, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53,
+	0x4d, 0x42, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x61, 0x64, 0x64,
+	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x61, 0x64, 0x64, 0x72, 0x12, 0x1a, 0x0a,
+	0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73,
+	0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73,
+	0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x68, 0x61, 0x72, 0x65, 0x18, 0x04,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x73, 0x68, 0x61, 0x72, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x72,
+	0x6f, 0x6f, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x72, 0x6f, 0x6f, 0x74, 0x22,
+	0x49, 0x0a, 0x13, 0x53, 0x65, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73,
+	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
+	0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x1b, 0x0a, 0x19, 0x4c, 0x69,
+	0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x73,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x68, 0x0a, 0x1a, 0x4c, 0x69, 0x73, 0x74, 0x44,
+	0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x73, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12,
+	0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x68, 0x61,
+	0x72, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x06, 0x73, 0x68, 0x61, 0x72, 0x65,
+	0x73, 0x22, 0x40, 0x0a, 0x16, 0x4c, 0x69, 0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d,
+	0x42, 0x44, 0x69, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x73,
+	0x68, 0x61, 0x72, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x73, 0x68, 0x61, 0x72,
+	0x65, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x69, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
+	0x64, 0x69, 0x72, 0x22, 0x61, 0x0a, 0x17, 0x4c, 0x69, 0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65,
+	0x53, 0x4d, 0x42, 0x44, 0x69, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18,
+	0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x69, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x04, 0x64, 0x69, 0x72, 0x73, 0x22, 0x43, 0x0a, 0x17, 0x53, 0x65, 0x74, 0x44, 0x72, 0x69,
+	0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x68, 0x61, 0x72, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x05, 0x73, 0x68, 0x61, 0x72, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x72, 0x6f, 0x6f, 0x74, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x72, 0x6f, 0x6f, 0x74, 0x22, 0x4e, 0x0a, 0x18, 0x53,
+	0x65, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65,
+	0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73,
+	0x73, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x32, 0xab, 0x06, 0x0a, 0x09,
+	0x49, 0x6d, 0x67, 0x53, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x12, 0x3e, 0x0a, 0x05, 0x48, 0x65, 0x6c,
+	0x6c, 0x6f, 0x12, 0x18, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e,
+	0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x69,
+	0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x43, 0x0a, 0x06, 0x55, 0x70, 0x6c,
+	0x6f, 0x61, 0x64, 0x12, 0x19, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72,
+	0x2e, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a,
+	0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x55, 0x70, 0x6c, 0x6f,
+	0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x28, 0x01, 0x12, 0x3a,
+	0x0a, 0x03, 0x47, 0x65, 0x74, 0x12, 0x16, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63,
+	0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e,
+	0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x30, 0x01, 0x12, 0x53, 0x0a, 0x0c, 0x47, 0x65,
+	0x74, 0x54, 0x68, 0x75, 0x6d, 0x62, 0x6e, 0x61, 0x69, 0x6c, 0x12, 0x1f, 0x2e, 0x69, 0x6d, 0x67,
+	0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x68, 0x75, 0x6d, 0x62,
+	0x6e, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x69, 0x6d,
+	0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x68, 0x75, 0x6d,
+	0x62, 0x6e, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x4d, 0x0a, 0x0a, 0x4c, 0x69, 0x73, 0x74, 0x42, 0x79, 0x44, 0x61, 0x74, 0x65, 0x12, 0x1d, 0x2e,
+	0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x42,
+	0x79, 0x44, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x69,
+	0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x42, 0x79,
+	0x44, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x41,
+	0x0a, 0x06, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x12, 0x19, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73,
+	0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72,
+	0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x00, 0x12, 0x50, 0x0a, 0x0b, 0x53, 0x65, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42,
+	0x12, 0x1e, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x53, 0x65,
+	0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x1f, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x53, 0x65,
+	0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x12, 0x65, 0x0a, 0x12, 0x4c, 0x69, 0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65,
+	0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x73, 0x12, 0x25, 0x2e, 0x69, 0x6d, 0x67, 0x5f,
+	0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65,
+	0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x26, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x4c, 0x69,
+	0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5c, 0x0a, 0x0f, 0x4c, 0x69,
+	0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x44, 0x69, 0x72, 0x12, 0x22, 0x2e,
+	0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x44,
+	0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x44, 0x69, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x23, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x4c,
+	0x69, 0x73, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x44, 0x69, 0x72, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5f, 0x0a, 0x10, 0x53, 0x65, 0x74, 0x44,
+	0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x12, 0x23, 0x2e, 0x69,
+	0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x53, 0x65, 0x74, 0x44, 0x72, 0x69,
+	0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x24, 0x2e, 0x69, 0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2e, 0x53,
+	0x65, 0x74, 0x44, 0x72, 0x69, 0x76, 0x65, 0x53, 0x4d, 0x42, 0x53, 0x68, 0x61, 0x72, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x24, 0x5a, 0x22, 0x67, 0x69, 0x74,
+	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x66, 0x72, 0x65, 0x67, 0x69, 0x65, 0x2f, 0x69,
+	0x6d, 0x67, 0x5f, 0x73, 0x79, 0x6e, 0x63, 0x65, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -146,19 +1288,55 @@ func file_proto_img_syncer_proto_rawDescGZIP() []byte {
 	return file_proto_img_syncer_proto_rawDescData
 }
 
-var file_proto_img_syncer_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_proto_img_syncer_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_proto_img_syncer_proto_goTypes = []interface{}{
-	(*HelloRequest)(nil),  // 0: img_syncer.HelloRequest
-	(*HelloResponse)(nil), // 1: img_syncer.HelloResponse
+	(*HelloRequest)(nil),               // 0: img_syncer.HelloRequest
+	(*HelloResponse)(nil),              // 1: img_syncer.HelloResponse
+	(*UploadRequest)(nil),              // 2: img_syncer.UploadRequest
+	(*UploadResponse)(nil),             // 3: img_syncer.UploadResponse
+	(*GetRequest)(nil),                 // 4: img_syncer.GetRequest
+	(*GetResponse)(nil),                // 5: img_syncer.GetResponse
+	(*GetThumbnailRequest)(nil),        // 6: img_syncer.GetThumbnailRequest
+	(*GetThumbnailResponse)(nil),       // 7: img_syncer.GetThumbnailResponse
+	(*ListByDateRequest)(nil),          // 8: img_syncer.ListByDateRequest
+	(*ListByDateResponse)(nil),         // 9: img_syncer.ListByDateResponse
+	(*DeleteRequest)(nil),              // 10: img_syncer.DeleteRequest
+	(*DeleteResponse)(nil),             // 11: img_syncer.DeleteResponse
+	(*SetDriveSMBRequest)(nil),         // 12: img_syncer.SetDriveSMBRequest
+	(*SetDriveSMBResponse)(nil),        // 13: img_syncer.SetDriveSMBResponse
+	(*ListDriveSMBSharesRequest)(nil),  // 14: img_syncer.ListDriveSMBSharesRequest
+	(*ListDriveSMBSharesResponse)(nil), // 15: img_syncer.ListDriveSMBSharesResponse
+	(*ListDriveSMBDirRequest)(nil),     // 16: img_syncer.ListDriveSMBDirRequest
+	(*ListDriveSMBDirResponse)(nil),    // 17: img_syncer.ListDriveSMBDirResponse
+	(*SetDriveSMBShareRequest)(nil),    // 18: img_syncer.SetDriveSMBShareRequest
+	(*SetDriveSMBShareResponse)(nil),   // 19: img_syncer.SetDriveSMBShareResponse
 }
 var file_proto_img_syncer_proto_depIdxs = []int32{
-	0, // 0: img_syncer.ImgSyncer.Hello:input_type -> img_syncer.HelloRequest
-	1, // 1: img_syncer.ImgSyncer.Hello:output_type -> img_syncer.HelloResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: img_syncer.ImgSyncer.Hello:input_type -> img_syncer.HelloRequest
+	2,  // 1: img_syncer.ImgSyncer.Upload:input_type -> img_syncer.UploadRequest
+	4,  // 2: img_syncer.ImgSyncer.Get:input_type -> img_syncer.GetRequest
+	6,  // 3: img_syncer.ImgSyncer.GetThumbnail:input_type -> img_syncer.GetThumbnailRequest
+	8,  // 4: img_syncer.ImgSyncer.ListByDate:input_type -> img_syncer.ListByDateRequest
+	10, // 5: img_syncer.ImgSyncer.Delete:input_type -> img_syncer.DeleteRequest
+	12, // 6: img_syncer.ImgSyncer.SetDriveSMB:input_type -> img_syncer.SetDriveSMBRequest
+	14, // 7: img_syncer.ImgSyncer.ListDriveSMBShares:input_type -> img_syncer.ListDriveSMBSharesRequest
+	16, // 8: img_syncer.ImgSyncer.ListDriveSMBDir:input_type -> img_syncer.ListDriveSMBDirRequest
+	18, // 9: img_syncer.ImgSyncer.SetDriveSMBShare:input_type -> img_syncer.SetDriveSMBShareRequest
+	1,  // 10: img_syncer.ImgSyncer.Hello:output_type -> img_syncer.HelloResponse
+	3,  // 11: img_syncer.ImgSyncer.Upload:output_type -> img_syncer.UploadResponse
+	5,  // 12: img_syncer.ImgSyncer.Get:output_type -> img_syncer.GetResponse
+	7,  // 13: img_syncer.ImgSyncer.GetThumbnail:output_type -> img_syncer.GetThumbnailResponse
+	9,  // 14: img_syncer.ImgSyncer.ListByDate:output_type -> img_syncer.ListByDateResponse
+	11, // 15: img_syncer.ImgSyncer.Delete:output_type -> img_syncer.DeleteResponse
+	13, // 16: img_syncer.ImgSyncer.SetDriveSMB:output_type -> img_syncer.SetDriveSMBResponse
+	15, // 17: img_syncer.ImgSyncer.ListDriveSMBShares:output_type -> img_syncer.ListDriveSMBSharesResponse
+	17, // 18: img_syncer.ImgSyncer.ListDriveSMBDir:output_type -> img_syncer.ListDriveSMBDirResponse
+	19, // 19: img_syncer.ImgSyncer.SetDriveSMBShare:output_type -> img_syncer.SetDriveSMBShareResponse
+	10, // [10:20] is the sub-list for method output_type
+	0,  // [0:10] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_proto_img_syncer_proto_init() }
@@ -191,6 +1369,222 @@ func file_proto_img_syncer_proto_init() {
 				return nil
 			}
 		}
+		file_proto_img_syncer_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UploadRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UploadResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetThumbnailRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetThumbnailResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListByDateRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListByDateResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetDriveSMBRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetDriveSMBResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListDriveSMBSharesRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListDriveSMBSharesResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListDriveSMBDirRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListDriveSMBDirResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetDriveSMBShareRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_img_syncer_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetDriveSMBShareResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -198,7 +1592,7 @@ func file_proto_img_syncer_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_img_syncer_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
