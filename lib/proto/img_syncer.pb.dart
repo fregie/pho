@@ -288,15 +288,25 @@ class GetRequest extends $pb.GeneratedMessage {
 
 class GetResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GetResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
-    ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..a<$core.List<$core.int>>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
   GetResponse._() : super();
   factory GetResponse({
+    $core.bool? success,
+    $core.String? message,
     $core.List<$core.int>? data,
   }) {
     final _result = create();
+    if (success != null) {
+      _result.success = success;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
     if (data != null) {
       _result.data = data;
     }
@@ -324,13 +334,31 @@ class GetResponse extends $pb.GeneratedMessage {
   static GetResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$core.int> get data => $_getN(0);
+  $core.bool get success => $_getBF(0);
   @$pb.TagNumber(1)
-  set data($core.List<$core.int> v) { $_setBytes(0, v); }
+  set success($core.bool v) { $_setBool(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasData() => $_has(0);
+  $core.bool hasSuccess() => $_has(0);
   @$pb.TagNumber(1)
-  void clearData() => clearField(1);
+  void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.int> get data => $_getN(2);
+  @$pb.TagNumber(3)
+  set data($core.List<$core.int> v) { $_setBytes(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearData() => clearField(3);
 }
 
 class GetThumbnailRequest extends $pb.GeneratedMessage {

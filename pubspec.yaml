@@ -38,6 +38,10 @@ dependencies:
   photo_album_manager: ^1.2.0
   toast: ^0.3.0
   grpc: ^3.1.0
+  photo_manager: ^2.5.2
+  photo_view: ^0.14.0
+  date_format: ^2.0.7
+  image_picker: ^0.8.7
 
 dev_dependencies:
   flutter_test:
@@ -60,7 +64,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
+  assets:
+    - assets/images/20221108_123436_01.jpg
+    - assets/images/batgirl_artwork-2560x1440.jpg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

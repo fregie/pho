@@ -78,11 +78,13 @@ func (a *api) Upload(stream pb.ImgSyncer_UploadServer) error {
 
 func (a *api) Get(req *pb.GetRequest, stream pb.ImgSyncer_GetServer) error {
 	if req.Path == "" {
-		return fmt.Errorf("param error: path is empty")
+		stream.Send(&pb.GetResponse{Success: false, Message: "param error: path is empty"})
+		return nil
 	}
 	img, err := a.im.GetImg(req.Path)
 	if err != nil {
-		return err
+		stream.Send(&pb.GetResponse{Success: false, Message: err.Error()})
+		return nil
 	}
 	defer img.Content.Close()
 	for {
@@ -95,7 +97,7 @@ func (a *api) Get(req *pb.GetRequest, stream pb.ImgSyncer_GetServer) error {
 				return err
 			}
 		}
-		err = stream.Send(&pb.GetResponse{Data: data[:n]})
+		err = stream.Send(&pb.GetResponse{Data: data[:n], Success: true})
 		if err != nil {
 			return err
 		}
@@ -106,11 +108,13 @@ func (a *api) Get(req *pb.GetRequest, stream pb.ImgSyncer_GetServer) error {
 
 func (a *api) GetThumbnail(req *pb.GetThumbnailRequest, stream pb.ImgSyncer_GetThumbnailServer) error {
 	if req.Path == "" {
-		return fmt.Errorf("param error: path is empty")
+		stream.Send(&pb.GetThumbnailResponse{Success: false, Message: "param error: path is empty"})
+		return nil
 	}
 	img, e := a.im.GetThumbnail(req.Path)
 	if e != nil {
-		return e
+		stream.Send(&pb.GetThumbnailResponse{Success: false, Message: e.Error()})
+		return nil
 	}
 	defer img.Content.Close()
 	for {
@@ -123,7 +127,7 @@ func (a *api) GetThumbnail(req *pb.GetThumbnailRequest, stream pb.ImgSyncer_GetT
 				return err
 			}
 		}
-		err = stream.Send(&pb.GetThumbnailResponse{Data: data[:n]})
+		err = stream.Send(&pb.GetThumbnailResponse{Data: data[:n], Success: true})
 		if err != nil {
 			return err
 		}

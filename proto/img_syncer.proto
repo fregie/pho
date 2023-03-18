@@ -46,7 +46,9 @@ message GetRequest {
   string path = 1;
 }
 message GetResponse {
-  bytes data = 1;
+  bool success = 1;
+  string message = 2;
+  bytes data = 3;
 }
 
 message GetThumbnailRequest {

@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.6"
+  args:
+    dependency: transitive
+    description:
+      name: args
+      sha256: "4cab82a83ffef80b262ddedf47a0a8e56ee6fbf7fe21e6e768b02792034dd440"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   async:
     dependency: transitive
     description:
@@ -57,6 +65,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  cross_file:
+    dependency: transitive
+    description:
+      name: cross_file
+      sha256: "0b0036e8cccbfbe0555fd83c1d31a6f30b77a96b598b35a5d36dd41f718695e9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.3+4"
   crypto:
     dependency: transitive
     description:
@@ -73,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  date_format:
+    dependency: "direct main"
+    description:
+      name: date_format
+      sha256: "8e5154ca363411847220c8cbc43afcf69c08e8debe40ba09d57710c25711760c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.7"
   fake_async:
     dependency: transitive
     description:
@@ -102,6 +126,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: c224ac897bed083dabf11f238dd11a239809b446740be0c2044608c50029ffdf
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.9"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -116,10 +148,10 @@ packages:
     dependency: transitive
     description:
       name: googleapis_auth
-      sha256: "127b1bbd32170ab8312f503bd57f1d654d8e4039ddfbc63c027d3f7ade0eff74"
+      sha256: f59be210ede1e22718962e4ef48a08ae783eb67fe19b0f4c16b204e20df0869c
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.1"
+    version: "1.4.0"
   grpc:
     dependency: "direct main"
     description:
@@ -152,6 +184,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  image_picker:
+    dependency: "direct main"
+    description:
+      name: image_picker
+      sha256: "64b21d9f0e065f9ab0e4dde458076226c97382cc0c6949144cb874c62bf8e9f8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.7"
+  image_picker_android:
+    dependency: transitive
+    description:
+      name: image_picker_android
+      sha256: b81db5f5ed8a69d54d5f0932c2af8120e8c0518a037d8beee494eec671da4d4c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.6+5"
+  image_picker_for_web:
+    dependency: transitive
+    description:
+      name: image_picker_for_web
+      sha256: "98f50d6b9f294c8ba35e25cc0d13b04bfddd25dbc8d32fa9d566a6572f2c081c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.12"
+  image_picker_ios:
+    dependency: transitive
+    description:
+      name: image_picker_ios
+      sha256: "50e882fe0a06bf0c8f7f5bce78d30975f279213293afc9471dc35f05617c50ff"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.7+1"
+  image_picker_platform_interface:
+    dependency: transitive
+    description:
+      name: image_picker_platform_interface
+      sha256: "1991219d9dbc42a99aff77e663af8ca51ced592cd6685c9485e3458302d3d4f8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.6.3"
   js:
     dependency: transitive
     description:
@@ -220,10 +292,26 @@ packages:
     dependency: "direct main"
     description:
       name: photo_album_manager
-      sha256: ddbedd5f84ff7a99ca711291ed9821e917f56e321f81c705bfd7a85c1c315e89
+      sha256: f4a2b0494a8b84add66f293ea644d0b1e087b2d906e9e4744b63a2abe9da2188
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.3.0"
+  photo_manager:
+    dependency: "direct main"
+    description:
+      name: photo_manager
+      sha256: "55d50ad1b8f984c57fa7c4bd4980f4760e80d3d9355263cf72624a6ff1bf2b5b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.2"
+  photo_view:
+    dependency: "direct main"
+    description:
+      name: photo_view
+      sha256: "8036802a00bae2a78fc197af8a158e3e2f7b500561ed23b4c458107685e645bb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.14.0"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -236,10 +324,10 @@ packages:
     dependency: transitive
     description:
       name: pointycastle
-      sha256: db7306cf0249f838d1a24af52b5a5887c5bf7f31d8bb4e827d071dc0939ad346
+      sha256: "57b6b78df14175658f09c5dfcfc51a46ad9561a3504fe679913dab404d0cc0f2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.6.2"
+    version: "3.7.0"
   protobuf:
     dependency: transitive
     description:
@@ -327,4 +415,4 @@ packages:
     version: "2.1.4"
 sdks:
   dart: ">=2.19.1 <3.0.0"
-  flutter: ">=2.5.0"
+  flutter: ">=3.3.0"
