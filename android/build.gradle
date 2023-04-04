@@ -15,6 +15,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        flatDir {
+            dirs 'libs' // 添加这一行，表示在libs目录下寻找.aar文件
+        }
     }
 }
 

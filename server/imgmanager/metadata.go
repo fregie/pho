@@ -30,6 +30,9 @@ func GetImageMetadata(content []byte) (ImageMetadata, error) {
 		return ImageMetadata{}, err
 	}
 	rootIfd := index.RootIfd
+	// for _, v := range rootIfd.DumpTags() {
+	// 	log.Println(v.TagName())
+	// }
 	im := ImageMetadata{}
 	im.Model, _ = getExifValue(rootIfd, "Model")
 	im.Datetime, _ = getExifValue(rootIfd, "DateTime")

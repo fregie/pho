@@ -2,6 +2,7 @@ package imgmanager
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -12,6 +13,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/Workiva/go-datastructures/queue"
@@ -78,9 +81,10 @@ const (
 )
 
 type action struct {
-	t       actType
-	path    string
-	content []byte
+	t            actType
+	path         string
+	content      []byte
+	lastModified time.Time
 }
 
 func (im *ImgManager) runWorker() {
@@ -99,7 +103,7 @@ func (im *ImgManager) runWorker() {
 			err := im.dri.Upload(
 				act.path,
 				io.NopCloser(bytes.NewReader(act.content)),
-				int64(len(act.content)))
+				int64(len(act.content)), act.lastModified)
 			if err != nil {
 				im.logger.Println("Error uploading image:", err)
 			}
@@ -120,11 +124,15 @@ func (im *ImgManager) runWorker() {
 func (im *ImgManager) GenerateThumbnail(path string, content []byte) error {
 	var err error
 	var imghdl image.Image
-	switch filepath.Ext(path) {
+	switch strings.ToLower(filepath.Ext(path)) {
 	case JpegSuffix:
 		imghdl, err = jpeg.Decode(bytes.NewReader(content))
 	case PngSuffix:
 		imghdl, err = png.Decode(bytes.NewReader(content))
+	// case DngSuffix:
+	// 	imghdl, err = dng.Decode(bytes.NewReader(content))
+	default:
+		return fmt.Errorf("unsupported image format: %s", filepath.Ext(path))
 	}
 	if err != nil {
 		return err
@@ -136,7 +144,7 @@ func (im *ImgManager) GenerateThumbnail(path string, content []byte) error {
 		return err
 	}
 	thumbPath := filepath.Join(defaultThumbnailDir, path)
-	err = im.dri.Upload(thumbPath, io.NopCloser(buf), int64(buf.Len()))
+	err = im.dri.Upload(thumbPath, io.NopCloser(buf), int64(buf.Len()), time.Time{})
 	if err != nil {
 		return err
 	}
@@ -144,11 +152,12 @@ func (im *ImgManager) GenerateThumbnail(path string, content []byte) error {
 	return nil
 }
 
-func (im *ImgManager) UploadImgAsync(path string, content []byte) {
+func (im *ImgManager) UploadImgAsync(path string, content []byte, lastModified time.Time) {
 	im.actQueue.Put(action{
-		t:       actUpload,
-		path:    path,
-		content: content,
+		t:            actUpload,
+		path:         path,
+		content:      content,
+		lastModified: lastModified,
 	})
 }
 
@@ -160,32 +169,46 @@ func (im *ImgManager) GenerateThumbnailAsync(path string, content []byte) {
 	})
 }
 
-func (im *ImgManager) UploadImg(content io.Reader, name, date string) error {
-	data, err := io.ReadAll(content)
+func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date string) error {
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	var data []byte
+	var thumbData []byte
+	var err error
+	go func() {
+		defer wg.Done()
+		data, err = io.ReadAll(content)
+	}()
+	go func() {
+		defer wg.Done()
+		thumbData, err = io.ReadAll(thumbnailContent)
+	}()
+	wg.Wait()
 	if err != nil {
 		return err
 	}
 	var imgTime time.Time
-	// try to get image time from metadata
-	meta, err := GetImageMetadata(data)
-	if err == nil {
-		im.logger.Printf("Image metadata: %+v", meta)
-		var date string
-		if meta.Datetime != "" {
-			date = meta.Datetime
-		} else if meta.DateTimeOriginal != "" {
-			date = meta.DateTimeOriginal
-		} else if meta.CreateDate != "" {
-			date = meta.CreateDate
-		} else if meta.ModifyDate != "" {
-			date = meta.ModifyDate
-		}
-		t, err := time.Parse("2006:01:02 15:04:05", date)
+	if date == "" {
+		// try to get image time from metadata
+		meta, err := GetImageMetadata(data)
 		if err == nil {
-			imgTime = t
+			im.logger.Printf("Image metadata: %+v", meta)
+			if meta.Datetime != "" {
+				date = meta.Datetime
+			} else if meta.DateTimeOriginal != "" {
+				date = meta.DateTimeOriginal
+			} else if meta.CreateDate != "" {
+				date = meta.CreateDate
+			} else if meta.ModifyDate != "" {
+				date = meta.ModifyDate
+			}
+		} else {
+			im.logger.Println("Error getting image metadata:", err)
 		}
-	} else {
-		im.logger.Println("Error getting image metadata:", err)
+	}
+	t, err := time.Parse("2006:01:02 15:04:05", date)
+	if err == nil {
+		imgTime = t
 	}
 	// try to get image time from given date
 	if imgTime.IsZero() {
@@ -198,10 +221,28 @@ func (im *ImgManager) UploadImg(content io.Reader, name, date string) error {
 		// use current time
 		imgTime = time.Now()
 	}
-	path := filepath.Join(imgTime.Format("2006/01/02"), name)
+	var path string
+	path = filepath.Join(imgTime.Format("2006/01/02"), name)
 	// TODO: check if file exist
 
-	im.UploadImgAsync(path, data)
+	// im.UploadImgAsync(path, data, imgTime)
+	err = im.dri.Upload(path,
+		io.NopCloser(bytes.NewReader(data)),
+		int64(len(data)), imgTime)
+	if err != nil {
+		im.logger.Println("Error uploading image:", err)
+		return err
+	}
+	if len(thumbData) > 0 {
+		err = im.dri.Upload(filepath.Join(defaultThumbnailDir, path),
+			io.NopCloser(bytes.NewReader(thumbData)),
+			int64(len(thumbData)), imgTime)
+		if err != nil {
+			im.logger.Println("Error uploading thumbnail:", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -222,26 +263,26 @@ func (im *ImgManager) GetThumbnail(path string) (*Image, error) {
 	thumbnailPath := filepath.Join(defaultThumbnailDir, path)
 	exist, err := im.dri.IsExist(thumbnailPath)
 	if err != nil {
-		return img, err
+		return img, fmt.Errorf("error checking thumbnail exist: %w", err)
 	}
 	if !exist {
 		img.Content, img.Size, err = im.dri.Download(path)
 		if err != nil {
-			return img, err
+			return img, fmt.Errorf("error downloading image: %w", err)
 		}
 		content, err := io.ReadAll(img.Content)
 		if err != nil {
-			return img, err
+			return img, fmt.Errorf("error reading image content: %w", err)
 		}
 		img.Content.Close()
 		err = im.GenerateThumbnail(path, content)
 		if err != nil {
-			return img, err
+			return img, fmt.Errorf("error generating thumbnail: %w", err)
 		}
 	}
 	img.Content, img.Size, err = im.dri.Download(thumbnailPath)
 	if err != nil {
-		return img, err
+		return img, fmt.Errorf("error downloading thumbnail: %w", err)
 	}
 	img.Path = thumbnailPath
 	return img, nil
@@ -268,15 +309,18 @@ func (im *ImgManager) DeleteImg(paths []string) {
 	}
 }
 
-func (im *ImgManager) RangeByDate(start time.Time, f func(path string, size int64) bool) {
-	t := start
+func (im *ImgManager) RangeByDate(date time.Time, f func(path string, size int64) bool) {
+	t := date
+	if t.IsZero() {
+		t = time.Now()
+	}
 	year, month, day := t.Date()
 	yDir, err := im.listDir(".")
 	if err != nil {
 		im.logger.Println("Error listing year dir:", err)
 		return
 	}
-	sort.Sort(asc(yDir))
+	sort.Sort(desc(yDir))
 	for _, yinfo := range yDir {
 		if !yinfo.IsDir() {
 			continue
@@ -285,7 +329,7 @@ func (im *ImgManager) RangeByDate(start time.Time, f func(path string, size int6
 		if err != nil {
 			continue
 		}
-		if yNum < year {
+		if yNum > year {
 			continue
 		}
 		mDir, err := im.listDir(filepath.Base(yinfo.Name()))
@@ -293,7 +337,7 @@ func (im *ImgManager) RangeByDate(start time.Time, f func(path string, size int6
 			im.logger.Println("Error listing month dir:", err)
 			continue
 		}
-		sort.Sort(asc(mDir))
+		sort.Sort(desc(mDir))
 		for _, minfo := range mDir {
 			if !minfo.IsDir() {
 				continue
@@ -302,7 +346,7 @@ func (im *ImgManager) RangeByDate(start time.Time, f func(path string, size int6
 			if err != nil {
 				continue
 			}
-			if yNum == year && mNum < int(month) {
+			if yNum == year && mNum > int(month) {
 				continue
 			}
 			dDir, err := im.listDir(filepath.Join(yinfo.Name(), minfo.Name()))
@@ -310,7 +354,7 @@ func (im *ImgManager) RangeByDate(start time.Time, f func(path string, size int6
 				im.logger.Println("Error listing day dir:", err)
 				continue
 			}
-			sort.Sort(asc(dDir))
+			sort.Sort(desc(dDir))
 			for _, dinfo := range dDir {
 				if !dinfo.IsDir() {
 					continue
@@ -319,7 +363,7 @@ func (im *ImgManager) RangeByDate(start time.Time, f func(path string, size int6
 				if err != nil {
 					continue
 				}
-				if yNum == year && mNum == int(month) && dNum < day {
+				if yNum == year && mNum == int(month) && dNum > day {
 					continue
 				}
 				dirPath := filepath.Join(yinfo.Name(), minfo.Name(), dinfo.Name())
@@ -360,4 +404,20 @@ func (a asc) Less(i, j int) bool {
 		return true
 	}
 	return yi < yj
+}
+
+type desc []fs.FileInfo
+
+func (d desc) Len() int      { return len(d) }
+func (d desc) Swap(i, j int) { d[i], d[j] = d[j], d[i] }
+func (d desc) Less(i, j int) bool {
+	yi, err := strconv.Atoi(d[i].Name())
+	if err != nil {
+		return false
+	}
+	yj, err := strconv.Atoi(d[j].Name())
+	if err != nil {
+		return true
+	}
+	return yi > yj
 }

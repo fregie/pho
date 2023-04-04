@@ -25,3 +25,6 @@ server: protobuf
 		-X '${VERSION_PACKAGE_NAME}.Describe=${DESCRIBE}' \
 		-X '${VERSION_PACKAGE_NAME}.Name=${BUILD_NAME}'" \
     -o server/output/${BUILD_NAME} ./server
+
+server-aar: protobuf
+	CGO_ENABLED=0 gomobile bind -target=android -androidapi 19 -o android/app/libs/server.aar ./server/run

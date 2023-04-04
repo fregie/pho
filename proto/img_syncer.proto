@@ -10,6 +10,7 @@ service ImgSyncer {
   rpc GetThumbnail (GetThumbnailRequest) returns (stream GetThumbnailResponse) {}
   rpc ListByDate (ListByDateRequest) returns (ListByDateResponse) {}
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
+  rpc FilterNotUploaded (FilterNotUploadedRequest) returns (FilterNotUploadedResponse) {}
 
   rpc SetDriveSMB (SetDriveSMBRequest) returns (SetDriveSMBResponse) {}
   rpc ListDriveSMBShares (ListDriveSMBSharesRequest) returns (ListDriveSMBSharesResponse) {}
@@ -36,6 +37,7 @@ message UploadRequest {
   bytes data = 1;
   string name = 2;
   string date = 3; // YYYY:MM:DD HH:MM:SS
+  bytes thumbnailData = 4;
 }
 message UploadResponse {
   bool success = 1;
@@ -77,6 +79,15 @@ message DeleteRequest {
 message DeleteResponse {
   bool success = 1;
   string message = 2;
+}
+
+message FilterNotUploadedRequest {
+  repeated string names = 1;
+}
+message FilterNotUploadedResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string notUploaed = 3;
 }
 
 message SetDriveSMBRequest {

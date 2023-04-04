@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -148,7 +149,7 @@ func (s *Smb) SetRootPath(rootPath string) error {
 	return nil
 }
 
-func (s *Smb) Upload(path string, content io.ReadCloser, size int64) error {
+func (s *Smb) Upload(path string, content io.ReadCloser, size int64, lastModified time.Time) error {
 	defer content.Close()
 	if err := s.checkConn(); err != nil {
 		return err
@@ -166,11 +167,17 @@ func (s *Smb) Upload(path string, content io.ReadCloser, size int64) error {
 		s.cleanLastConnTime()
 		return err
 	}
-	defer f.Close()
 	_, err = io.Copy(f, content)
 	if err != nil {
 		s.cleanLastConnTime()
 		return err
+	}
+	f.Close()
+	if !lastModified.IsZero() {
+		err = s.fs.Chtimes(fullPath, time.Now(), lastModified)
+		if err != nil {
+			return err
+		}
 	}
 	s.updateLastConnTime()
 
@@ -211,13 +218,13 @@ func (s *Smb) Download(path string) (io.ReadCloser, int64, error) {
 		s.cleanLastConnTime()
 		return nil, 0, err
 	}
-	fi, err := f.Stat()
-	if err != nil {
-		s.cleanLastConnTime()
-		return nil, 0, err
-	}
+	// fi, err := f.Stat()
+	// if err != nil {
+	// 	s.cleanLastConnTime()
+	// 	return nil, 0, err
+	// }
 	s.updateLastConnTime()
-	return f, fi.Size(), nil
+	return f, 0, nil
 }
 
 func (s *Smb) Delete(path string) error {
@@ -252,9 +259,18 @@ func (s *Smb) Range(dir string, deal func(fs.FileInfo) bool) {
 		return
 	}
 	s.updateLastConnTime()
+	sort.Sort(desc(infos))
 	for _, info := range infos {
 		if !deal(info) {
 			break
 		}
 	}
+}
+
+type desc []fs.FileInfo
+
+func (d desc) Len() int      { return len(d) }
+func (d desc) Swap(i, j int) { d[i], d[j] = d[j], d[i] }
+func (d desc) Less(i, j int) bool {
+	return d[i].ModTime().After(d[j].ModTime())
 }

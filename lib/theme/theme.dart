@@ -30,6 +30,7 @@ ThemeData customLightTheme = ThemeData(
     selectedItemColor: Colors.indigo,
   ),
   cardTheme: const CardTheme(
+    color: Colors.cyan,
     surfaceTintColor: Colors.transparent,
   ),
   drawerTheme: DrawerThemeData(

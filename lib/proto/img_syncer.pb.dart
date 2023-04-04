@@ -108,6 +108,7 @@ class UploadRequest extends $pb.GeneratedMessage {
     ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'data', $pb.PbFieldType.OY)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'date')
+    ..a<$core.List<$core.int>>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'thumbnailData', $pb.PbFieldType.OY, protoName: 'thumbnailData')
     ..hasRequiredFields = false
   ;
 
@@ -116,6 +117,7 @@ class UploadRequest extends $pb.GeneratedMessage {
     $core.List<$core.int>? data,
     $core.String? name,
     $core.String? date,
+    $core.List<$core.int>? thumbnailData,
   }) {
     final _result = create();
     if (data != null) {
@@ -126,6 +128,9 @@ class UploadRequest extends $pb.GeneratedMessage {
     }
     if (date != null) {
       _result.date = date;
+    }
+    if (thumbnailData != null) {
+      _result.thumbnailData = thumbnailData;
     }
     return _result;
   }
@@ -176,6 +181,15 @@ class UploadRequest extends $pb.GeneratedMessage {
   $core.bool hasDate() => $_has(2);
   @$pb.TagNumber(3)
   void clearDate() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.List<$core.int> get thumbnailData => $_getN(3);
+  @$pb.TagNumber(4)
+  set thumbnailData($core.List<$core.int> v) { $_setBytes(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasThumbnailData() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearThumbnailData() => clearField(4);
 }
 
 class UploadResponse extends $pb.GeneratedMessage {
@@ -727,6 +741,116 @@ class DeleteResponse extends $pb.GeneratedMessage {
   $core.bool hasMessage() => $_has(1);
   @$pb.TagNumber(2)
   void clearMessage() => clearField(2);
+}
+
+class FilterNotUploadedRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FilterNotUploadedRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..pPS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'names')
+    ..hasRequiredFields = false
+  ;
+
+  FilterNotUploadedRequest._() : super();
+  factory FilterNotUploadedRequest({
+    $core.Iterable<$core.String>? names,
+  }) {
+    final _result = create();
+    if (names != null) {
+      _result.names.addAll(names);
+    }
+    return _result;
+  }
+  factory FilterNotUploadedRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FilterNotUploadedRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FilterNotUploadedRequest clone() => FilterNotUploadedRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FilterNotUploadedRequest copyWith(void Function(FilterNotUploadedRequest) updates) => super.copyWith((message) => updates(message as FilterNotUploadedRequest)) as FilterNotUploadedRequest; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FilterNotUploadedRequest create() => FilterNotUploadedRequest._();
+  FilterNotUploadedRequest createEmptyInstance() => create();
+  static $pb.PbList<FilterNotUploadedRequest> createRepeated() => $pb.PbList<FilterNotUploadedRequest>();
+  @$core.pragma('dart2js:noInline')
+  static FilterNotUploadedRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FilterNotUploadedRequest>(create);
+  static FilterNotUploadedRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.String> get names => $_getList(0);
+}
+
+class FilterNotUploadedResponse extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FilterNotUploadedResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..pPS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notUploaed', protoName: 'notUploaed')
+    ..hasRequiredFields = false
+  ;
+
+  FilterNotUploadedResponse._() : super();
+  factory FilterNotUploadedResponse({
+    $core.bool? success,
+    $core.String? message,
+    $core.Iterable<$core.String>? notUploaed,
+  }) {
+    final _result = create();
+    if (success != null) {
+      _result.success = success;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
+    if (notUploaed != null) {
+      _result.notUploaed.addAll(notUploaed);
+    }
+    return _result;
+  }
+  factory FilterNotUploadedResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FilterNotUploadedResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FilterNotUploadedResponse clone() => FilterNotUploadedResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FilterNotUploadedResponse copyWith(void Function(FilterNotUploadedResponse) updates) => super.copyWith((message) => updates(message as FilterNotUploadedResponse)) as FilterNotUploadedResponse; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FilterNotUploadedResponse create() => FilterNotUploadedResponse._();
+  FilterNotUploadedResponse createEmptyInstance() => create();
+  static $pb.PbList<FilterNotUploadedResponse> createRepeated() => $pb.PbList<FilterNotUploadedResponse>();
+  @$core.pragma('dart2js:noInline')
+  static FilterNotUploadedResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FilterNotUploadedResponse>(create);
+  static FilterNotUploadedResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.String> get notUploaed => $_getList(2);
 }
 
 class SetDriveSMBRequest extends $pb.GeneratedMessage {

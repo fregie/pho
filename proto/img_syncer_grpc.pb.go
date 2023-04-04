@@ -24,6 +24,7 @@ type ImgSyncerClient interface {
 	GetThumbnail(ctx context.Context, in *GetThumbnailRequest, opts ...grpc.CallOption) (ImgSyncer_GetThumbnailClient, error)
 	ListByDate(ctx context.Context, in *ListByDateRequest, opts ...grpc.CallOption) (*ListByDateResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+	FilterNotUploaded(ctx context.Context, in *FilterNotUploadedRequest, opts ...grpc.CallOption) (*FilterNotUploadedResponse, error)
 	SetDriveSMB(ctx context.Context, in *SetDriveSMBRequest, opts ...grpc.CallOption) (*SetDriveSMBResponse, error)
 	ListDriveSMBShares(ctx context.Context, in *ListDriveSMBSharesRequest, opts ...grpc.CallOption) (*ListDriveSMBSharesResponse, error)
 	ListDriveSMBDir(ctx context.Context, in *ListDriveSMBDirRequest, opts ...grpc.CallOption) (*ListDriveSMBDirResponse, error)
@@ -163,6 +164,15 @@ func (c *imgSyncerClient) Delete(ctx context.Context, in *DeleteRequest, opts ..
 	return out, nil
 }
 
+func (c *imgSyncerClient) FilterNotUploaded(ctx context.Context, in *FilterNotUploadedRequest, opts ...grpc.CallOption) (*FilterNotUploadedResponse, error) {
+	out := new(FilterNotUploadedResponse)
+	err := c.cc.Invoke(ctx, "/img_syncer.ImgSyncer/FilterNotUploaded", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *imgSyncerClient) SetDriveSMB(ctx context.Context, in *SetDriveSMBRequest, opts ...grpc.CallOption) (*SetDriveSMBResponse, error) {
 	out := new(SetDriveSMBResponse)
 	err := c.cc.Invoke(ctx, "/img_syncer.ImgSyncer/SetDriveSMB", in, out, opts...)
@@ -209,6 +219,7 @@ type ImgSyncerServer interface {
 	GetThumbnail(*GetThumbnailRequest, ImgSyncer_GetThumbnailServer) error
 	ListByDate(context.Context, *ListByDateRequest) (*ListByDateResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
+	FilterNotUploaded(context.Context, *FilterNotUploadedRequest) (*FilterNotUploadedResponse, error)
 	SetDriveSMB(context.Context, *SetDriveSMBRequest) (*SetDriveSMBResponse, error)
 	ListDriveSMBShares(context.Context, *ListDriveSMBSharesRequest) (*ListDriveSMBSharesResponse, error)
 	ListDriveSMBDir(context.Context, *ListDriveSMBDirRequest) (*ListDriveSMBDirResponse, error)
@@ -237,6 +248,9 @@ func (UnimplementedImgSyncerServer) ListByDate(context.Context, *ListByDateReque
 }
 func (UnimplementedImgSyncerServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedImgSyncerServer) FilterNotUploaded(context.Context, *FilterNotUploadedRequest) (*FilterNotUploadedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FilterNotUploaded not implemented")
 }
 func (UnimplementedImgSyncerServer) SetDriveSMB(context.Context, *SetDriveSMBRequest) (*SetDriveSMBResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDriveSMB not implemented")
@@ -385,6 +399,24 @@ func _ImgSyncer_Delete_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ImgSyncer_FilterNotUploaded_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilterNotUploadedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImgSyncerServer).FilterNotUploaded(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/img_syncer.ImgSyncer/FilterNotUploaded",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImgSyncerServer).FilterNotUploaded(ctx, req.(*FilterNotUploadedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ImgSyncer_SetDriveSMB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetDriveSMBRequest)
 	if err := dec(in); err != nil {
@@ -475,6 +507,10 @@ var ImgSyncer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _ImgSyncer_Delete_Handler,
+		},
+		{
+			MethodName: "FilterNotUploaded",
+			Handler:    _ImgSyncer_FilterNotUploaded_Handler,
 		},
 		{
 			MethodName: "SetDriveSMB",

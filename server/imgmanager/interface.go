@@ -4,10 +4,11 @@ import (
 	"errors"
 	"io"
 	"io/fs"
+	"time"
 )
 
 type StorageDrive interface {
-	Upload(string, io.ReadCloser, int64) error
+	Upload(string, io.ReadCloser, int64, time.Time) error
 	IsExist(path string) (bool, error)
 	Download(path string) (io.ReadCloser, int64, error)
 	Delete(path string) error
@@ -28,11 +29,12 @@ const (
 
 	JpegSuffix = ".jpg"
 	PngSuffix  = ".png"
+	DngSuffix  = ".dng"
 )
 
 type UnimplementedDrive struct{}
 
-func (d *UnimplementedDrive) Upload(_ string, _ io.ReadCloser, _ int64) error {
+func (d *UnimplementedDrive) Upload(_ string, _ io.ReadCloser, _ int64, _ time.Time) error {
 	return errors.New("no available drive")
 }
 

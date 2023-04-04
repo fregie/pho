@@ -35,11 +35,12 @@ const UploadRequest$json = const {
     const {'1': 'data', '3': 1, '4': 1, '5': 12, '10': 'data'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     const {'1': 'date', '3': 3, '4': 1, '5': 9, '10': 'date'},
+    const {'1': 'thumbnailData', '3': 4, '4': 1, '5': 12, '10': 'thumbnailData'},
   ],
 };
 
 /// Descriptor for `UploadRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List uploadRequestDescriptor = $convert.base64Decode('Cg1VcGxvYWRSZXF1ZXN0EhIKBGRhdGEYASABKAxSBGRhdGESEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkYXRlGAMgASgJUgRkYXRl');
+final $typed_data.Uint8List uploadRequestDescriptor = $convert.base64Decode('Cg1VcGxvYWRSZXF1ZXN0EhIKBGRhdGEYASABKAxSBGRhdGESEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkYXRlGAMgASgJUgRkYXRlEiQKDXRodW1ibmFpbERhdGEYBCABKAxSDXRodW1ibmFpbERhdGE=');
 @$core.Deprecated('Use uploadResponseDescriptor instead')
 const UploadResponse$json = const {
   '1': 'UploadResponse',
@@ -140,6 +141,28 @@ const DeleteResponse$json = const {
 
 /// Descriptor for `DeleteResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List deleteResponseDescriptor = $convert.base64Decode('Cg5EZWxldGVSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2U=');
+@$core.Deprecated('Use filterNotUploadedRequestDescriptor instead')
+const FilterNotUploadedRequest$json = const {
+  '1': 'FilterNotUploadedRequest',
+  '2': const [
+    const {'1': 'names', '3': 1, '4': 3, '5': 9, '10': 'names'},
+  ],
+};
+
+/// Descriptor for `FilterNotUploadedRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List filterNotUploadedRequestDescriptor = $convert.base64Decode('ChhGaWx0ZXJOb3RVcGxvYWRlZFJlcXVlc3QSFAoFbmFtZXMYASADKAlSBW5hbWVz');
+@$core.Deprecated('Use filterNotUploadedResponseDescriptor instead')
+const FilterNotUploadedResponse$json = const {
+  '1': 'FilterNotUploadedResponse',
+  '2': const [
+    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+    const {'1': 'notUploaed', '3': 3, '4': 3, '5': 9, '10': 'notUploaed'},
+  ],
+};
+
+/// Descriptor for `FilterNotUploadedResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List filterNotUploadedResponseDescriptor = $convert.base64Decode('ChlGaWx0ZXJOb3RVcGxvYWRlZFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSGAoHbWVzc2FnZRgCIAEoCVIHbWVzc2FnZRIeCgpub3RVcGxvYWVkGAMgAygJUgpub3RVcGxvYWVk');
 @$core.Deprecated('Use setDriveSMBRequestDescriptor instead')
 const SetDriveSMBRequest$json = const {
   '1': 'SetDriveSMBRequest',

@@ -1,14 +1,14 @@
-import 'dart:ffi';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
-import 'package:toast/toast.dart';
 import 'package:date_format/date_format.dart';
 import 'package:path/path.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:photo_manager/photo_manager.dart';
+
+RemoteStorage storage = RemoteStorage("127.0.0.1", 10000);
 
 class RemoteStorage {
   int bufferSize = 1024 * 1024;
@@ -36,21 +36,41 @@ class RemoteStorage {
     final date = formatDate(
         lastModified, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
     final dataReader = file.openRead();
-    return upload(dataReader, name, date);
+    return cli.upload(
+        uploadStream(dataReader, const Stream<Uint8List>.empty(), name, date));
   }
 
-  Future<UploadResponse> upload(
-      Stream<Uint8List> dataReader, String name, date) async {
-    final rsp = await cli.upload(uploadStream(dataReader, name, date));
-    return rsp;
+  Future<UploadResponse> uploadAssetEntity(AssetEntity asset) async {
+    final name = asset.title;
+    if (name == null) {
+      throw Exception("asset name is null");
+    }
+    final createDate = asset.createDateTime;
+    final date = formatDate(
+        createDate, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
+    final f = await asset.file;
+    if (f == null) {
+      throw Exception("asset file is null");
+    }
+    final dataReader = f.openRead().map((e) => e as Uint8List);
+    final thumbnailData = await asset.thumbnailData;
+    if (thumbnailData == null) {
+      throw Exception("asset thumbnail is null");
+    }
+    final thumbnailDataReader = Stream.value(thumbnailData);
+    return cli
+        .upload(uploadStream(dataReader, thumbnailDataReader, name, date));
   }
 
   @protected
-  Stream<UploadRequest> uploadStream(
-      Stream<Uint8List> dataReader, String name, date) async* {
+  Stream<UploadRequest> uploadStream(Stream<Uint8List> dataReader,
+      Stream<Uint8List> thumbnailReader, String name, date) async* {
     yield UploadRequest(name: name, date: date);
     await for (var data in dataReader) {
       yield UploadRequest(data: data);
+    }
+    await for (var data in thumbnailReader) {
+      yield UploadRequest(thumbnailData: data);
     }
   }
 
@@ -61,14 +81,13 @@ class RemoteStorage {
       offset: offset,
       maxReturn: maxReturn,
     ));
-    print("path: ${rsp.paths}");
     return rsp.paths.map((e) => RemoteImage(cli, e)).toList();
   }
 }
 
 class RemoteImage {
   ImgSyncerClient cli;
-  late String path;
+  String path;
   Uint8List? data;
   Uint8List? thumbnailData;
 
@@ -94,16 +113,10 @@ class RemoteImage {
       return thumbnailData!;
     }
     var currentData = BytesBuilder();
-    try {
-      var dataStream = thumbnailStream();
-      await for (var d in dataStream) {
-        print("thumbnail $path length: ${d.length}");
-        currentData.add(d);
-      }
-    } catch (e) {
-      print(e);
+    var dataStream = thumbnailStream();
+    await for (var d in dataStream) {
+      currentData.add(d);
     }
-    print("finish");
     thumbnailData = currentData.takeBytes();
     return thumbnailData!;
   }
@@ -123,16 +136,10 @@ class RemoteImage {
       return data!;
     }
     var currentData = BytesBuilder();
-    try {
-      var stream = dataStream();
-      await for (var d in stream) {
-        print("image $path length: ${d.length}");
-        currentData.add(d);
-      }
-    } catch (e) {
-      print(e);
+    var stream = dataStream();
+    await for (var d in stream) {
+      currentData.add(d);
     }
-    print("finish");
     data = currentData.takeBytes();
     return data!;
   }

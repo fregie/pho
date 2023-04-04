@@ -44,6 +44,12 @@ class ImgSyncerClient extends $grpc.Client {
           '/img_syncer.ImgSyncer/Delete',
           ($0.DeleteRequest value) => value.writeToBuffer(),
           ($core.List<$core.int> value) => $0.DeleteResponse.fromBuffer(value));
+  static final _$filterNotUploaded = $grpc.ClientMethod<
+          $0.FilterNotUploadedRequest, $0.FilterNotUploadedResponse>(
+      '/img_syncer.ImgSyncer/FilterNotUploaded',
+      ($0.FilterNotUploadedRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) =>
+          $0.FilterNotUploadedResponse.fromBuffer(value));
   static final _$setDriveSMB =
       $grpc.ClientMethod<$0.SetDriveSMBRequest, $0.SetDriveSMBResponse>(
           '/img_syncer.ImgSyncer/SetDriveSMB',
@@ -108,6 +114,12 @@ class ImgSyncerClient extends $grpc.Client {
   $grpc.ResponseFuture<$0.DeleteResponse> delete($0.DeleteRequest request,
       {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$delete, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.FilterNotUploadedResponse> filterNotUploaded(
+      $0.FilterNotUploadedRequest request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$filterNotUploaded, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.SetDriveSMBResponse> setDriveSMB(
@@ -183,6 +195,15 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.DeleteRequest.fromBuffer(value),
         ($0.DeleteResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FilterNotUploadedRequest,
+            $0.FilterNotUploadedResponse>(
+        'FilterNotUploaded',
+        filterNotUploaded_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.FilterNotUploadedRequest.fromBuffer(value),
+        ($0.FilterNotUploadedResponse value) => value.writeToBuffer()));
     $addMethod(
         $grpc.ServiceMethod<$0.SetDriveSMBRequest, $0.SetDriveSMBResponse>(
             'SetDriveSMB',
@@ -247,6 +268,12 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
     return delete(call, await request);
   }
 
+  $async.Future<$0.FilterNotUploadedResponse> filterNotUploaded_Pre(
+      $grpc.ServiceCall call,
+      $async.Future<$0.FilterNotUploadedRequest> request) async {
+    return filterNotUploaded(call, await request);
+  }
+
   $async.Future<$0.SetDriveSMBResponse> setDriveSMB_Pre($grpc.ServiceCall call,
       $async.Future<$0.SetDriveSMBRequest> request) async {
     return setDriveSMB(call, await request);
@@ -282,6 +309,8 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.ListByDateRequest request);
   $async.Future<$0.DeleteResponse> delete(
       $grpc.ServiceCall call, $0.DeleteRequest request);
+  $async.Future<$0.FilterNotUploadedResponse> filterNotUploaded(
+      $grpc.ServiceCall call, $0.FilterNotUploadedRequest request);
   $async.Future<$0.SetDriveSMBResponse> setDriveSMB(
       $grpc.ServiceCall call, $0.SetDriveSMBRequest request);
   $async.Future<$0.ListDriveSMBSharesResponse> listDriveSMBShares(

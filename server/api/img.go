@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
+	"runtime/pprof"
 	"time"
 
 	pb "github.com/fregie/img_syncer/proto"
@@ -36,11 +39,15 @@ func (a *api) Upload(stream pb.ImgSyncer_UploadServer) error {
 		return stream.SendAndClose(rsp)
 	}
 	reader, writer := io.Pipe()
+	thumbReader, thumbWriter := io.Pipe()
 	defer reader.Close()
+	defer thumbReader.Close()
 	defer writer.Close()
+	defer thumbWriter.Close()
 	var e error
 	go func() {
 		defer writer.Close()
+		defer thumbWriter.Close()
 		if len(req.Data) > 0 {
 			_, err = writer.Write(req.Data)
 			if err != nil {
@@ -58,14 +65,23 @@ func (a *api) Upload(stream pb.ImgSyncer_UploadServer) error {
 					return
 				}
 			}
-			_, err = writer.Write(req.Data)
-			if err != nil {
-				e = err
-				return
+			if len(req.Data) > 0 {
+				_, err = writer.Write(req.Data)
+				if err != nil {
+					e = err
+					return
+				}
+			}
+			if len(req.ThumbnailData) > 0 {
+				_, err = thumbWriter.Write(req.ThumbnailData)
+				if err != nil {
+					e = err
+					return
+				}
 			}
 		}
 	}()
-	err = a.im.UploadImg(reader, req.Name, req.Date)
+	err = a.im.UploadImg(reader, thumbReader, req.Name, req.Date)
 	if err != nil {
 		rsp.Success, rsp.Message = false, err.Error()
 		return stream.SendAndClose(rsp)
@@ -117,8 +133,8 @@ func (a *api) GetThumbnail(req *pb.GetThumbnailRequest, stream pb.ImgSyncer_GetT
 		return nil
 	}
 	defer img.Content.Close()
+	data := make([]byte, 64*1024)
 	for {
-		data := make([]byte, 64*1024)
 		n, err := img.Content.Read(data)
 		if err != nil {
 			if err == io.EOF {
@@ -143,7 +159,7 @@ func (a *api) ListByDate(ctx context.Context, req *pb.ListByDateRequest) (rsp *p
 	if req.Offset <= 0 {
 		req.Offset = 0
 	}
-	start := time.Unix(0, 0)
+	start := time.Now()
 	if req.Date != "" {
 		start, err = time.Parse("2006:01:02", req.Date)
 		if err != nil {
@@ -170,4 +186,47 @@ func (a *api) Delete(ctx context.Context, req *pb.DeleteRequest) (rsp *pb.Delete
 	rsp = &pb.DeleteResponse{Success: true}
 	a.im.DeleteImg(req.Paths)
 	return
+}
+
+func (a *api) FilterNotUploaded(ctx context.Context, req *pb.FilterNotUploadedRequest) (rsp *pb.FilterNotUploadedResponse, err error) {
+	rsp = &pb.FilterNotUploadedResponse{Success: true}
+	if len(req.Names) == 0 {
+		rsp.Success, rsp.Message = false, "param error: names is empty"
+		return
+	}
+	all := make(map[string]bool)
+	a.im.RangeByDate(time.Now(), func(path string, size int64) bool {
+		name := filepath.Base(path)
+		all[name] = true
+		return true
+	})
+	rsp.NotUploaed = make([]string, 0, 100)
+	for _, name := range req.Names {
+		if !all[name] {
+			rsp.NotUploaed = append(rsp.NotUploaed, name)
+		}
+	}
+	return
+}
+
+func saveGoroutineProfile() {
+	f, err := os.Create("goroutine_profile.out")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to create goroutine profile file: %v\n", err)
+		return
+	}
+	defer f.Close()
+
+	p := pprof.Lookup("goroutine")
+	if p == nil {
+		fmt.Fprintf(os.Stderr, "Failed to find goroutine profile\n")
+		return
+	}
+
+	err = p.WriteTo(f, 1)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to write goroutine profile: %v\n", err)
+	} else {
+		fmt.Println("Goroutine profile saved to goroutine_profile.out")
+	}
 }

@@ -5,6 +5,9 @@ import (
 	"net"
 	"os"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	version "github.com/fregie/PrintVersion"
 	pb "github.com/fregie/img_syncer/proto"
 	"github.com/fregie/img_syncer/server/api"
@@ -31,6 +34,8 @@ func main() {
 	}
 	if *debug {
 		Debug.SetOutput(os.Stdout)
+		Debug.Printf("pprof listen at 0.0.0.0:6060")
+		go http.ListenAndServe("0.0.0.0:6060", nil)
 	}
 	imgManager = imgmanager.NewImgManager(imgmanager.Option{})
 

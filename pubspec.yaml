@@ -42,6 +42,17 @@ dependencies:
   photo_view: ^0.14.0
   date_format: ^2.0.7
   image_picker: ^0.8.7
+  provider: ^6.0.5
+  path: ^1.8.2
+  shared_preferences: ^2.0.18
+  event_bus: ^2.0.0
+  exif: ^3.1.4
+  adaptive_theme: ^3.2.0
+  dynamic_color: ^1.6.2
+  synchronized: ^3.0.1
+  rxdart: ^0.27.7
+  intl: ^0.18.0
+  image: ^4.0.15
 
 dev_dependencies:
   flutter_test:
