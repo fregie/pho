@@ -12,6 +12,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:img_syncer/state_model.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'event_bus.dart';
 
@@ -200,98 +201,126 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: const Color(0x00000000),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
+  void deleteCurrent(BuildContext context) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Delete this photo?'),
+        content: const Text("This action can't be undone."),
+        actions: <Widget>[
+          TextButton(
             onPressed: () {
-              showDialog<String>(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: const Text('Delete this photo?'),
-                  content: const Text("This action can't be undone."),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        all[currentIndex].delete().then((value) {
-                          try {
-                            if (all[currentIndex].hasLocal) {
-                              eventBus.fire(LocalRefreshEvent());
-                            } else {
-                              eventBus.fire(RemoteRefreshEvent());
-                            }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(e.toString()),
-                            ));
-                          }
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
-                        });
-                      },
-                      child: const Text('Yes'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                  ],
-                ),
-              );
+              all[currentIndex].delete().then((value) {
+                try {
+                  if (all[currentIndex].hasLocal) {
+                    eventBus.fire(LocalRefreshEvent());
+                  } else {
+                    eventBus.fire(RemoteRefreshEvent());
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(e.toString()),
+                  ));
+                }
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              });
             },
+            child: const Text('Yes'),
           ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () {
-              all[currentIndex].imageDataAsync().then(
-                    (value) => showImageInfo(context),
-                  );
-            },
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            scrollPhysics: const BouncingScrollPhysics(),
-            pageController: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                currentIndex = index;
-              });
-              all[index].readInfoFromData();
-              if (all.length - index < 5) {
-                if (widget.useLocal) {
-                  assetModel.getLocalPhotos();
-                } else {
-                  assetModel.getRemotePhotos();
-                }
-              }
-            },
-            builder: (BuildContext context, int index) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: all[index],
-                initialScale: PhotoViewComputedScale.contained,
-                minScale: PhotoViewComputedScale.contained * 0.5,
-                maxScale: PhotoViewComputedScale.covered * 3,
-                heroAttributes: PhotoViewHeroAttributes(
-                    tag:
-                        "image-${widget.useLocal ? "local" : "remote"}-$index"),
-              );
-            },
-            loadingBuilder: (context, event) {
-              return PhotoView(
-                imageProvider: MemoryImage(all[currentIndex].thumbnailData()),
-                minScale: PhotoViewComputedScale.contained * 0.5,
-                maxScale: PhotoViewComputedScale.covered * 3,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: const Color(0x00000000),
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => deleteCurrent(context),
+            ),
+            IconButton(
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () async {
+                final data = await all[currentIndex].imageDataAsync();
+                Share.shareXFiles([
+                  XFile.fromData(data,
+                      name: all[currentIndex].name(),
+                      mimeType: all[currentIndex].mimeType())
+                ]);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () {
+                all[currentIndex].imageDataAsync().then(
+                      (value) => showImageInfo(context),
+                    );
+              },
+            ),
+          ],
+        ),
+        body: Container(
+          constraints: BoxConstraints.expand(
+            height: MediaQuery.of(context).size.height,
+          ),
+          child: Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              PhotoViewGallery.builder(
+                scrollPhysics: const BouncingScrollPhysics(),
+                pageController: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    currentIndex = index;
+                  });
+                  all[index].readInfoFromData().then((value) {
+                    for (int i = -2; i != 0 && i <= 2; i++) {
+                      if (index + i >= 0 && index + i < all.length) {
+                        all[index + i].readInfoFromData();
+                      }
+                    }
+                  });
+                  if (all.length - index < 5) {
+                    if (widget.useLocal) {
+                      assetModel.getLocalPhotos();
+                    } else {
+                      assetModel.getRemotePhotos();
+                    }
+                  }
+                },
+                builder: (BuildContext context, int index) {
+                  return PhotoViewGalleryPageOptions(
+                    imageProvider: all[index],
+                    disableGestures: true,
+                    initialScale: PhotoViewComputedScale.contained,
+                    minScale: PhotoViewComputedScale.contained * 0.5,
+                    maxScale: PhotoViewComputedScale.covered * 3,
+                    gestureDetectorBehavior: HitTestBehavior.deferToChild,
+                    heroAttributes: PhotoViewHeroAttributes(
+                        tag:
+                            "image-${widget.useLocal ? "local" : "remote"}-$index"),
+                  );
+                },
+                loadingBuilder: (context, event) {
+                  return PhotoView(
+                    imageProvider: all[currentIndex].thumbnailProvider(),
+                    minScale: PhotoViewComputedScale.contained,
+                    maxScale: PhotoViewComputedScale.covered,
+                  );
+                },
                 scaleStateChangedCallback: (value) {
                   if (value == PhotoViewScaleState.initial) {
                     setState(() {
@@ -303,32 +332,20 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
                     });
                   }
                 },
-              );
-            },
-            scaleStateChangedCallback: (value) {
-              if (value == PhotoViewScaleState.initial) {
-                setState(() {
-                  _isOriginalScale = true;
-                });
-              } else {
-                setState(() {
-                  _isOriginalScale = false;
-                });
-              }
-            },
-            itemCount: all.length,
+                itemCount: all.length,
+              ),
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onVerticalDragUpdate: _isOriginalScale
+                    ? (details) {
+                        if (details.delta.dy < 0) {
+                          showImageInfo(context);
+                        }
+                      }
+                    : null,
+              ),
+            ],
           ),
-          GestureDetector(
-            onVerticalDragUpdate: _isOriginalScale
-                ? (details) {
-                    if (details.delta.dy < 0) {
-                      showImageInfo(context);
-                    }
-                  }
-                : null,
-          ),
-        ],
-      ),
-    );
+        ));
   }
 }

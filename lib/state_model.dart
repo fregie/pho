@@ -7,6 +7,7 @@ import 'package:img_syncer/storage/storage.dart';
 
 StateModel stateModel = StateModel();
 AssetModel assetModel = AssetModel();
+SelectionModeModel selectionModeModel = SelectionModeModel();
 
 class StateModel extends ChangeNotifier {
   String localFolder = "";
@@ -33,6 +34,18 @@ class StateModel extends ChangeNotifier {
   }
 }
 
+class SelectionModeModel extends ChangeNotifier {
+  bool _isSelectionMode = false;
+
+  bool get isSelectionMode => _isSelectionMode;
+
+  void setSelectionMode(bool mode) {
+    if (_isSelectionMode == mode) return;
+    _isSelectionMode = mode;
+    notifyListeners();
+  }
+}
+
 class AssetModel extends ChangeNotifier {
   AssetModel() {
     eventBus.on<LocalRefreshEvent>().listen((event) => refreshLocal());
@@ -55,25 +68,28 @@ class AssetModel extends ChangeNotifier {
   }
 
   Future<void> refreshLocal() async {
-    localHasMore = true;
-    localAssets = [];
     if (localGetting != null) {
       await localGetting!.future;
     }
+    localHasMore = true;
+    localAssets = [];
+    notifyListeners();
     await getLocalPhotos();
   }
 
   Future<void> refreshRemote() async {
-    remoteHasMore = true;
-    remoteAssets = [];
     if (remoteGetting != null) {
       await remoteGetting!.future;
     }
+    remoteHasMore = true;
+    remoteAssets = [];
+    notifyListeners();
     await getRemotePhotos();
   }
 
   Future<void> getLocalPhotos() async {
     if (localGetting != null) {
+      await localGetting?.future;
       return;
     }
     localGetting = Completer<bool>();
@@ -86,7 +102,7 @@ class AssetModel extends ChangeNotifier {
             filterOptionGroup: FilterOptionGroup(
           orders: [
             const OrderOption(
-              type: OrderOptionType.createDate,
+              type: OrderOptionType.updateDate,
               asc: false,
             ),
           ],
@@ -113,6 +129,7 @@ class AssetModel extends ChangeNotifier {
 
   Future<void> getRemotePhotos() async {
     if (remoteGetting != null) {
+      await remoteGetting!.future;
       return;
     }
     remoteGetting = Completer<bool>();
@@ -126,7 +143,7 @@ class AssetModel extends ChangeNotifier {
     for (var image in images) {
       try {
         final asset = Asset(remote: image);
-        await asset.thumbnailDataAsync();
+        final thumbnailData = await asset.thumbnailDataAsync();
         remoteAssets.add(asset);
         notifyListeners();
       } catch (e) {

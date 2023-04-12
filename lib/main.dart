@@ -69,6 +69,7 @@ void main() {
           providers: [
             ChangeNotifierProvider(create: (context) => stateModel),
             ChangeNotifierProvider(create: (context) => assetModel),
+            ChangeNotifierProvider(create: (context) => selectionModeModel),
           ],
           child: const MyApp(),
         ),
@@ -191,51 +192,56 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
     }
-    return Scaffold(
-      appBar: appBar,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          const GalleryBody(
-            useLocal: true,
-          ),
-          const GalleryBody(useLocal: false),
-          Consumer<StateModel>(
-            builder: (context, model, child) {
-              return SyncBody(
-                localFolder: model.localFolder,
-              );
-            },
-          ),
-          const SettingBody(),
-        ],
-      ),
-      floatingActionButton: floatingActionButton,
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: _onItemTapped,
-        selectedIndex: _selectedIndex,
-        destinations: <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.phone_android,
-                color: Theme.of(context).iconTheme.color),
-            label: 'Local',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.cloud, color: Theme.of(context).iconTheme.color),
-            label: 'Cloud',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.cloud_sync,
-                color: Theme.of(context).iconTheme.color),
-            label: 'Sync',
-          ),
-          NavigationDestination(
-            icon:
-                Icon(Icons.settings, color: Theme.of(context).iconTheme.color),
-            label: 'Setting',
-          ),
-        ],
+    return Consumer<SelectionModeModel>(
+      builder: (context, model, child) => Scaffold(
+        appBar: appBar,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            const GalleryBody(
+              useLocal: true,
+            ),
+            const GalleryBody(useLocal: false),
+            Consumer<StateModel>(
+              builder: (context, model, child) {
+                return SyncBody(
+                  localFolder: model.localFolder,
+                );
+              },
+            ),
+            const SettingBody(),
+          ],
+        ),
+        floatingActionButton: floatingActionButton,
+        bottomNavigationBar: model.isSelectionMode
+            ? null
+            : NavigationBar(
+                onDestinationSelected: _onItemTapped,
+                selectedIndex: _selectedIndex,
+                destinations: <Widget>[
+                  NavigationDestination(
+                    icon: Icon(Icons.phone_android,
+                        color: Theme.of(context).iconTheme.color),
+                    label: 'Local',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.cloud,
+                        color: Theme.of(context).iconTheme.color),
+                    label: 'Cloud',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.cloud_sync,
+                        color: Theme.of(context).iconTheme.color),
+                    label: 'Sync',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.settings,
+                        color: Theme.of(context).iconTheme.color),
+                    label: 'Setting',
+                  ),
+                ],
+              ),
       ),
     );
   }

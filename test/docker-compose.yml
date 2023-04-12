@@ -13,6 +13,18 @@ services:
     networks:
       - backend
   
+  webdav:
+    image: bytemark/webdav
+    restart: always
+    ports:
+      - "8000:80"
+    environment:
+      AUTH_TYPE: Digest
+      USERNAME: fregie
+      PASSWORD: password
+    networks:
+      - backend
+
   server:
     build: ../server
     ports:

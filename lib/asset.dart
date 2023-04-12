@@ -14,13 +14,13 @@ import 'package:intl/intl.dart';
 import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 class Asset extends ImageProvider<Asset> {
   bool hasLocal = false;
   bool hasRemote = false;
   AssetEntity? local;
   RemoteImage? remote;
-  final Uint8List _defaultData = Uint8List.fromList([]);
   Completer<Uint8List>? _thumbnailDataCompleter;
   Uint8List? _thumbnailData;
   Completer<Uint8List>? _dataAsyncCompleter;
@@ -60,11 +60,99 @@ class Asset extends ImageProvider<Asset> {
     return "";
   }
 
-  Uint8List thumbnailData() {
-    if (_thumbnailData != null) {
-      return _thumbnailData!;
+  String? mimeType() {
+    if (name() == null) {
+      return null;
     }
-    return _defaultData;
+    final RegExp regex = RegExp(r'\.([a-zA-Z0-9]+)$');
+    final Match? match = regex.firstMatch(name()!);
+
+    if (match != null && match.groupCount > 0) {
+      final String extension = match.group(1)?.toLowerCase() ?? '';
+
+      switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+          return 'image/jpeg';
+        case 'png':
+          return 'image/png';
+        case 'gif':
+          return 'image/gif';
+        case 'bmp':
+          return 'image/bmp';
+        case 'webp':
+          return 'image/webp';
+        case 'heic':
+          return 'image/heic';
+        case 'heif':
+          return 'image/heif';
+        case 'dng':
+          return 'image/x-adobe-dng';
+        case 'tif':
+        case 'tiff':
+          return 'image/tiff';
+        case 'cr2':
+          return 'image/x-canon-cr2';
+        case 'nef':
+          return 'image/x-nikon-nef';
+        case 'arw':
+          return 'image/x-sony-arw';
+        case 'rw2':
+          return 'image/x-panasonic-rw2';
+        case 'orf':
+          return 'image/x-olympus-orf';
+        case 'pef':
+          return 'image/x-pentax-pef';
+        case 'raf':
+          return 'image/x-fuji-raf';
+        case 'x3f':
+          return 'image/x-sigma-x3f';
+        case 'srw':
+          return 'image/x-samsung-srw';
+        default:
+          return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  DateTime dateCreated() {
+    if (hasLocal) {
+      return local!.modifiedDateTime;
+    }
+    if (hasRemote) {
+      RegExp datePattern = RegExp(r'(\d{4})/(\d{2})/(\d{2})');
+      Match? match = datePattern.firstMatch(remote!.path);
+
+      if (match != null) {
+        if (match.groupCount != 3) {
+          return DateTime.now();
+        }
+        int year = int.parse(match.group(1)!);
+        int month = int.parse(match.group(2)!);
+        int day = int.parse(match.group(3)!);
+
+        return DateTime(year, month, day);
+      } else {
+        return DateTime.now();
+      }
+    }
+    return DateTime.now();
+  }
+
+  // Uint8List thumbnailData() {
+  //   if (_thumbnailData != null) {
+  //     return _thumbnailData!;
+  //   }
+  //   return Uint8List(0);
+  // }
+
+  ImageProvider thumbnailProvider() {
+    if (_thumbnailData != null && _thumbnailData!.isNotEmpty) {
+      return MemoryImage(_thumbnailData!);
+    }
+    return Image.asset("assets/images/broken.png").image;
   }
 
   Future<Uint8List> thumbnailDataAsync() async {
@@ -82,9 +170,10 @@ class Asset extends ImageProvider<Asset> {
     if (hasRemote) {
       data = await remote!.thumbnail();
     }
-    if (data == null) {
-      _thumbnailDataCompleter!.complete(_defaultData);
-      return _defaultData;
+    if (data == null || data.isEmpty) {
+      final brokenData = await rootBundle.load("assets/images/broken.png");
+      _thumbnailDataCompleter!.complete(brokenData.buffer.asUint8List());
+      return brokenData.buffer.asUint8List();
     } else {
       _thumbnailDataCompleter!.complete(data);
       _thumbnailData = data;
@@ -111,9 +200,10 @@ class Asset extends ImageProvider<Asset> {
     } catch (e) {
       print(e);
     }
-    if (data == null) {
-      _dataAsyncCompleter!.complete(_defaultData);
-      return _defaultData;
+    if (data == null || data.isEmpty) {
+      final brokenData = await rootBundle.load("assets/images/broken.png");
+      _dataAsyncCompleter!.complete(brokenData.buffer.asUint8List());
+      return brokenData.buffer.asUint8List();
     } else {
       _dataAsyncCompleter!.complete(data);
       _data = data;
@@ -160,7 +250,7 @@ class Asset extends ImageProvider<Asset> {
     return _isSizeInfoReadedFinished && _isExifInfoReadedFinished;
   }
 
-  void readInfoFromData() async {
+  Future<void> readInfoFromData() async {
     if (_isInfoReaded) {
       return;
     }
@@ -260,9 +350,9 @@ class Asset extends ImageProvider<Asset> {
   }
 
   Future<ImageInfo> _loadAsync(Asset key, DecoderBufferCallback decode) async {
-    final Uint8List data = await imageDataAsync();
+    Uint8List data = await imageDataAsync();
     if (data.isEmpty) {
-      throw Exception("no data");
+      data = await thumbnailDataAsync();
     }
     final ui.Codec codec = await ui.instantiateImageCodec(data);
     final ui.FrameInfo fi = await codec.getNextFrame();

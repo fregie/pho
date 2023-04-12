@@ -53,6 +53,8 @@ dependencies:
   rxdart: ^0.27.7
   intl: ^0.18.0
   image: ^4.0.15
+  share_plus: ^6.3.1
+  image_gallery_saver: ^1.7.1
 
 dev_dependencies:
   flutter_test:
@@ -75,12 +77,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-  assets:
-    - assets/images/20221108_123436_01.jpg
-    - assets/images/batgirl_artwork-2560x1440.jpg
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/broken.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

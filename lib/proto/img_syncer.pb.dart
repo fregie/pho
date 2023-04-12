@@ -1367,3 +1367,269 @@ class SetDriveSMBShareResponse extends $pb.GeneratedMessage {
   void clearMessage() => clearField(2);
 }
 
+class SetDriveWebdavRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetDriveWebdavRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'addr')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'password')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'root')
+    ..hasRequiredFields = false
+  ;
+
+  SetDriveWebdavRequest._() : super();
+  factory SetDriveWebdavRequest({
+    $core.String? addr,
+    $core.String? username,
+    $core.String? password,
+    $core.String? root,
+  }) {
+    final _result = create();
+    if (addr != null) {
+      _result.addr = addr;
+    }
+    if (username != null) {
+      _result.username = username;
+    }
+    if (password != null) {
+      _result.password = password;
+    }
+    if (root != null) {
+      _result.root = root;
+    }
+    return _result;
+  }
+  factory SetDriveWebdavRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetDriveWebdavRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetDriveWebdavRequest clone() => SetDriveWebdavRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetDriveWebdavRequest copyWith(void Function(SetDriveWebdavRequest) updates) => super.copyWith((message) => updates(message as SetDriveWebdavRequest)) as SetDriveWebdavRequest; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetDriveWebdavRequest create() => SetDriveWebdavRequest._();
+  SetDriveWebdavRequest createEmptyInstance() => create();
+  static $pb.PbList<SetDriveWebdavRequest> createRepeated() => $pb.PbList<SetDriveWebdavRequest>();
+  @$core.pragma('dart2js:noInline')
+  static SetDriveWebdavRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetDriveWebdavRequest>(create);
+  static SetDriveWebdavRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get addr => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set addr($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasAddr() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAddr() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get username => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set username($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasUsername() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUsername() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get password => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set password($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPassword() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPassword() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get root => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set root($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRoot() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRoot() => clearField(4);
+}
+
+class SetDriveWebdavResponse extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetDriveWebdavResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..hasRequiredFields = false
+  ;
+
+  SetDriveWebdavResponse._() : super();
+  factory SetDriveWebdavResponse({
+    $core.bool? success,
+    $core.String? message,
+  }) {
+    final _result = create();
+    if (success != null) {
+      _result.success = success;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
+    return _result;
+  }
+  factory SetDriveWebdavResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetDriveWebdavResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetDriveWebdavResponse clone() => SetDriveWebdavResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetDriveWebdavResponse copyWith(void Function(SetDriveWebdavResponse) updates) => super.copyWith((message) => updates(message as SetDriveWebdavResponse)) as SetDriveWebdavResponse; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetDriveWebdavResponse create() => SetDriveWebdavResponse._();
+  SetDriveWebdavResponse createEmptyInstance() => create();
+  static $pb.PbList<SetDriveWebdavResponse> createRepeated() => $pb.PbList<SetDriveWebdavResponse>();
+  @$core.pragma('dart2js:noInline')
+  static SetDriveWebdavResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetDriveWebdavResponse>(create);
+  static SetDriveWebdavResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+}
+
+class ListDriveWebdavDirRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ListDriveWebdavDirRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dir')
+    ..hasRequiredFields = false
+  ;
+
+  ListDriveWebdavDirRequest._() : super();
+  factory ListDriveWebdavDirRequest({
+    $core.String? dir,
+  }) {
+    final _result = create();
+    if (dir != null) {
+      _result.dir = dir;
+    }
+    return _result;
+  }
+  factory ListDriveWebdavDirRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListDriveWebdavDirRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListDriveWebdavDirRequest clone() => ListDriveWebdavDirRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListDriveWebdavDirRequest copyWith(void Function(ListDriveWebdavDirRequest) updates) => super.copyWith((message) => updates(message as ListDriveWebdavDirRequest)) as ListDriveWebdavDirRequest; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ListDriveWebdavDirRequest create() => ListDriveWebdavDirRequest._();
+  ListDriveWebdavDirRequest createEmptyInstance() => create();
+  static $pb.PbList<ListDriveWebdavDirRequest> createRepeated() => $pb.PbList<ListDriveWebdavDirRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ListDriveWebdavDirRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListDriveWebdavDirRequest>(create);
+  static ListDriveWebdavDirRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get dir => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set dir($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDir() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDir() => clearField(1);
+}
+
+class ListDriveWebdavDirResponse extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ListDriveWebdavDirResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..pPS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dirs')
+    ..hasRequiredFields = false
+  ;
+
+  ListDriveWebdavDirResponse._() : super();
+  factory ListDriveWebdavDirResponse({
+    $core.bool? success,
+    $core.String? message,
+    $core.Iterable<$core.String>? dirs,
+  }) {
+    final _result = create();
+    if (success != null) {
+      _result.success = success;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
+    if (dirs != null) {
+      _result.dirs.addAll(dirs);
+    }
+    return _result;
+  }
+  factory ListDriveWebdavDirResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListDriveWebdavDirResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListDriveWebdavDirResponse clone() => ListDriveWebdavDirResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListDriveWebdavDirResponse copyWith(void Function(ListDriveWebdavDirResponse) updates) => super.copyWith((message) => updates(message as ListDriveWebdavDirResponse)) as ListDriveWebdavDirResponse; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ListDriveWebdavDirResponse create() => ListDriveWebdavDirResponse._();
+  ListDriveWebdavDirResponse createEmptyInstance() => create();
+  static $pb.PbList<ListDriveWebdavDirResponse> createRepeated() => $pb.PbList<ListDriveWebdavDirResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListDriveWebdavDirResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListDriveWebdavDirResponse>(create);
+  static ListDriveWebdavDirResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.String> get dirs => $_getList(2);
+}
+

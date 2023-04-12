@@ -50,7 +50,9 @@ class SyncBodyState extends State<SyncBody> {
     _scrollController.addListener(() {
       _scrollSubject.add(_scrollController.position.pixels);
     });
-    refreshUnsynchronized(Provider.of<StateModel>(context, listen: false));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      refreshUnsynchronized(Provider.of<StateModel>(context, listen: false));
+    });
   }
 
   @override
@@ -224,10 +226,8 @@ class SyncBodyState extends State<SyncBody> {
             leading: SizedBox(
               width: 60,
               height: 60,
-              child: Image.memory(
-                toShow[index].thumbnailData(),
-                fit: BoxFit.cover,
-              ),
+              child: Image(
+                  image: toShow[index].thumbnailProvider(), fit: BoxFit.cover),
             ),
             title: Text(toShow[index].name()!),
             subtitle: Text(uploadState[toShow[index].name()] ?? "Not uploaded"),
@@ -264,6 +264,10 @@ class SyncBodyState extends State<SyncBody> {
   }
 
   Future<void> refreshUnsynchronized(StateModel model) async {
+    if (!model.isRemoteStorageSetted) {
+      model.setNotSyncedPhotos([]);
+      return;
+    }
     setState(() {
       refreshing = true;
     });

@@ -252,3 +252,49 @@ const SetDriveSMBShareResponse$json = const {
 
 /// Descriptor for `SetDriveSMBShareResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List setDriveSMBShareResponseDescriptor = $convert.base64Decode('ChhTZXREcml2ZVNNQlNoYXJlUmVzcG9uc2USGAoHc3VjY2VzcxgBIAEoCFIHc3VjY2VzcxIYCgdtZXNzYWdlGAIgASgJUgdtZXNzYWdl');
+@$core.Deprecated('Use setDriveWebdavRequestDescriptor instead')
+const SetDriveWebdavRequest$json = const {
+  '1': 'SetDriveWebdavRequest',
+  '2': const [
+    const {'1': 'addr', '3': 1, '4': 1, '5': 9, '10': 'addr'},
+    const {'1': 'username', '3': 2, '4': 1, '5': 9, '10': 'username'},
+    const {'1': 'password', '3': 3, '4': 1, '5': 9, '10': 'password'},
+    const {'1': 'root', '3': 4, '4': 1, '5': 9, '10': 'root'},
+  ],
+};
+
+/// Descriptor for `SetDriveWebdavRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDriveWebdavRequestDescriptor = $convert.base64Decode('ChVTZXREcml2ZVdlYmRhdlJlcXVlc3QSEgoEYWRkchgBIAEoCVIEYWRkchIaCgh1c2VybmFtZRgCIAEoCVIIdXNlcm5hbWUSGgoIcGFzc3dvcmQYAyABKAlSCHBhc3N3b3JkEhIKBHJvb3QYBCABKAlSBHJvb3Q=');
+@$core.Deprecated('Use setDriveWebdavResponseDescriptor instead')
+const SetDriveWebdavResponse$json = const {
+  '1': 'SetDriveWebdavResponse',
+  '2': const [
+    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SetDriveWebdavResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDriveWebdavResponseDescriptor = $convert.base64Decode('ChZTZXREcml2ZVdlYmRhdlJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSGAoHbWVzc2FnZRgCIAEoCVIHbWVzc2FnZQ==');
+@$core.Deprecated('Use listDriveWebdavDirRequestDescriptor instead')
+const ListDriveWebdavDirRequest$json = const {
+  '1': 'ListDriveWebdavDirRequest',
+  '2': const [
+    const {'1': 'dir', '3': 1, '4': 1, '5': 9, '10': 'dir'},
+  ],
+};
+
+/// Descriptor for `ListDriveWebdavDirRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listDriveWebdavDirRequestDescriptor = $convert.base64Decode('ChlMaXN0RHJpdmVXZWJkYXZEaXJSZXF1ZXN0EhAKA2RpchgBIAEoCVIDZGly');
+@$core.Deprecated('Use listDriveWebdavDirResponseDescriptor instead')
+const ListDriveWebdavDirResponse$json = const {
+  '1': 'ListDriveWebdavDirResponse',
+  '2': const [
+    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+    const {'1': 'dirs', '3': 3, '4': 3, '5': 9, '10': 'dirs'},
+  ],
+};
+
+/// Descriptor for `ListDriveWebdavDirResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listDriveWebdavDirResponseDescriptor = $convert.base64Decode('ChpMaXN0RHJpdmVXZWJkYXZEaXJSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2USEgoEZGlycxgDIAMoCVIEZGlycw==');

@@ -74,6 +74,18 @@ class ImgSyncerClient extends $grpc.Client {
       ($0.SetDriveSMBShareRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) =>
           $0.SetDriveSMBShareResponse.fromBuffer(value));
+  static final _$setDriveWebdav =
+      $grpc.ClientMethod<$0.SetDriveWebdavRequest, $0.SetDriveWebdavResponse>(
+          '/img_syncer.ImgSyncer/SetDriveWebdav',
+          ($0.SetDriveWebdavRequest value) => value.writeToBuffer(),
+          ($core.List<$core.int> value) =>
+              $0.SetDriveWebdavResponse.fromBuffer(value));
+  static final _$listDriveWebdavDir = $grpc.ClientMethod<
+          $0.ListDriveWebdavDirRequest, $0.ListDriveWebdavDirResponse>(
+      '/img_syncer.ImgSyncer/ListDriveWebdavDir',
+      ($0.ListDriveWebdavDirRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) =>
+          $0.ListDriveWebdavDirResponse.fromBuffer(value));
 
   ImgSyncerClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -144,6 +156,18 @@ class ImgSyncerClient extends $grpc.Client {
       $0.SetDriveSMBShareRequest request,
       {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$setDriveSMBShare, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SetDriveWebdavResponse> setDriveWebdav(
+      $0.SetDriveWebdavRequest request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$setDriveWebdav, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListDriveWebdavDirResponse> listDriveWebdavDir(
+      $0.ListDriveWebdavDirRequest request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listDriveWebdavDir, request, options: options);
   }
 }
 
@@ -240,6 +264,24 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.SetDriveSMBShareRequest.fromBuffer(value),
         ($0.SetDriveSMBShareResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SetDriveWebdavRequest,
+            $0.SetDriveWebdavResponse>(
+        'SetDriveWebdav',
+        setDriveWebdav_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.SetDriveWebdavRequest.fromBuffer(value),
+        ($0.SetDriveWebdavResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListDriveWebdavDirRequest,
+            $0.ListDriveWebdavDirResponse>(
+        'ListDriveWebdavDir',
+        listDriveWebdavDir_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.ListDriveWebdavDirRequest.fromBuffer(value),
+        ($0.ListDriveWebdavDirResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.HelloResponse> hello_Pre(
@@ -297,6 +339,18 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
     return setDriveSMBShare(call, await request);
   }
 
+  $async.Future<$0.SetDriveWebdavResponse> setDriveWebdav_Pre(
+      $grpc.ServiceCall call,
+      $async.Future<$0.SetDriveWebdavRequest> request) async {
+    return setDriveWebdav(call, await request);
+  }
+
+  $async.Future<$0.ListDriveWebdavDirResponse> listDriveWebdavDir_Pre(
+      $grpc.ServiceCall call,
+      $async.Future<$0.ListDriveWebdavDirRequest> request) async {
+    return listDriveWebdavDir(call, await request);
+  }
+
   $async.Future<$0.HelloResponse> hello(
       $grpc.ServiceCall call, $0.HelloRequest request);
   $async.Future<$0.UploadResponse> upload(
@@ -319,4 +373,8 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.ListDriveSMBDirRequest request);
   $async.Future<$0.SetDriveSMBShareResponse> setDriveSMBShare(
       $grpc.ServiceCall call, $0.SetDriveSMBShareRequest request);
+  $async.Future<$0.SetDriveWebdavResponse> setDriveWebdav(
+      $grpc.ServiceCall call, $0.SetDriveWebdavRequest request);
+  $async.Future<$0.ListDriveWebdavDirResponse> listDriveWebdavDir(
+      $grpc.ServiceCall call, $0.ListDriveWebdavDirRequest request);
 }

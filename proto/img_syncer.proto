@@ -11,12 +11,14 @@ service ImgSyncer {
   rpc ListByDate (ListByDateRequest) returns (ListByDateResponse) {}
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
   rpc FilterNotUploaded (FilterNotUploadedRequest) returns (FilterNotUploadedResponse) {}
-
+  // SAMBA Drive
   rpc SetDriveSMB (SetDriveSMBRequest) returns (SetDriveSMBResponse) {}
   rpc ListDriveSMBShares (ListDriveSMBSharesRequest) returns (ListDriveSMBSharesResponse) {}
   rpc ListDriveSMBDir (ListDriveSMBDirRequest) returns (ListDriveSMBDirResponse) {}
   rpc SetDriveSMBShare (SetDriveSMBShareRequest) returns (SetDriveSMBShareResponse) {}
-
+  // Webdav Drive
+  rpc SetDriveWebdav (SetDriveWebdavRequest) returns (SetDriveWebdavResponse) {}
+  rpc ListDriveWebdavDir (ListDriveWebdavDirRequest) returns (ListDriveWebdavDirResponse) {}
 }
 
 // enum ContentType {
@@ -126,4 +128,24 @@ message SetDriveSMBShareRequest {
 message SetDriveSMBShareResponse {
   bool success = 1;
   string message = 2;
+}
+
+message SetDriveWebdavRequest {
+  string addr = 1;
+  string username = 2;
+  string password = 3;
+  string root = 4;
+}
+message SetDriveWebdavResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ListDriveWebdavDirRequest {
+  string dir = 1;
+}
+message ListDriveWebdavDirResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string dirs = 3;
 }

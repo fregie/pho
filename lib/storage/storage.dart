@@ -122,6 +122,7 @@ class RemoteImage {
   }
 
   Stream<Uint8List> dataStream() async* {
+    print("get data stream: $path");
     var rspStream = cli.get(GetRequest(path: path));
     await for (var rsp in rspStream) {
       if (!rsp.success) {

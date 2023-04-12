@@ -9,6 +9,7 @@ import (
 
 	"github.com/fregie/img_syncer/server/api"
 	"github.com/fregie/img_syncer/server/imgmanager"
+	_ "golang.org/x/mobile/bind"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
