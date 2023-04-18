@@ -76,11 +76,18 @@ class RemoteStorage {
 
   Future<List<RemoteImage>> listImages(
       String date, int offset, maxReturn) async {
-    final rsp = await cli.listByDate(ListByDateRequest(
-      date: date,
-      offset: offset,
-      maxReturn: maxReturn,
-    ));
+    final rsp = await cli
+        .listByDate(
+          ListByDateRequest(
+            date: date,
+            offset: offset,
+            maxReturn: maxReturn,
+          ),
+        )
+        .timeout(const Duration(seconds: 5));
+    if (!rsp.success) {
+      throw Exception("list images failed: ${rsp.message}");
+    }
     return rsp.paths.map((e) => RemoteImage(cli, e)).toList();
   }
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
@@ -179,6 +180,7 @@ func (a *api) ListByDate(ctx context.Context, req *pb.ListByDateRequest) (rsp *p
 		needReturn--
 		return needReturn > 0
 	})
+	log.Printf("ListByDate: %s, %d, %d, %d, %d", start, req.MaxReturn, req.Offset, len(rsp.Paths), offset)
 	return
 }
 

@@ -177,7 +177,7 @@ class WebDavFormState extends State<WebDavForm> {
                   value.setString('webdav_password', password);
                   value.setString('webdav_root_path', rootPath);
                 });
-                stateModel.setRemoteStorageSetted(true);
+                settingModel.setRemoteStorageSetted(true);
                 eventBus.fire(RemoteRefreshEvent());
                 Navigator.pop(context);
               }

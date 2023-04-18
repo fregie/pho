@@ -1,23 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:img_syncer/choose_album_route.dart';
-import 'package:img_syncer/storage/storage.dart';
-import 'package:photo_album_manager/photo_album_manager.dart';
-import 'dart:io';
-import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
-import 'package:grpc/grpc.dart';
-import 'package:photo_manager/photo_manager.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:img_syncer/gallery_viewer_route.dart';
-import 'package:img_syncer/theme/theme.dart';
 import 'package:img_syncer/global.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:img_syncer/asset.dart';
-import 'component.dart';
-import 'package:img_syncer/run_server.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:img_syncer/state_model.dart';
 import 'gallery_body.dart';
@@ -26,50 +8,17 @@ import 'sync_body.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:img_syncer/logger.dart';
 
 const seedThemeColor = Color.fromARGB(255, 18, 159, 135);
 
 void main() {
-  stateModel.addListener(() {
-    assetModel.setAlbum(stateModel.localFolder);
-  });
-  runServer().then((port) async {
-    storage = RemoteStorage("127.0.0.1", port);
-    // storage = RemoteStorage("192.168.100.235", 50051);
-    final prefs = await SharedPreferences.getInstance();
-    final addr = prefs.getString("addr");
-    final username = prefs.getString("username");
-    final password = prefs.getString("password");
-    final share = prefs.getString("share");
-    final root = prefs.getString("rootPath");
-    if (addr != null &&
-        username != null &&
-        password != null &&
-        share != null &&
-        root != null) {
-      storage.cli
-          .setDriveSMB(SetDriveSMBRequest(
-        addr: addr,
-        username: username.toString(),
-        password: password,
-        share: share,
-        root: root,
-      ))
-          .then((rsp) {
-        if (rsp.success) {
-          stateModel.setRemoteStorageSetted(true);
-        } else {
-          stateModel.setRemoteStorageSetted(false);
-        }
-      });
-    }
-  });
   Global.init().then((e) => runApp(
         MultiProvider(
           providers: [
-            ChangeNotifierProvider(create: (context) => stateModel),
+            ChangeNotifierProvider(create: (context) => settingModel),
             ChangeNotifierProvider(create: (context) => assetModel),
-            ChangeNotifierProvider(create: (context) => selectionModeModel),
+            ChangeNotifierProvider(create: (context) => stateModel),
           ],
           child: const MyApp(),
         ),
@@ -78,7 +27,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-  static const String _title = 'Goo photo';
+  static const String _title = 'PHO';
   // This widget is the root of your application.
 
   @override
@@ -90,7 +39,7 @@ class MyApp extends StatelessWidget {
         if (lightDynamic != null) {
           lightColorScheme = lightDynamic.harmonized();
         } else {
-          print("lightDynamic is null");
+          logger.i("lightDynamic is null");
           lightColorScheme = ColorScheme.fromSeed(
             seedColor: seedThemeColor,
             brightness: Brightness.light,
@@ -99,7 +48,7 @@ class MyApp extends StatelessWidget {
         if (darkDynamic != null) {
           darkColorScheme = darkDynamic.harmonized();
         } else {
-          print("darkDynamic is null");
+          logger.i("darkDynamic is null");
           darkColorScheme = ColorScheme.fromSeed(
             seedColor: seedThemeColor,
             brightness: Brightness.dark,
@@ -143,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
     SharedPreferences.getInstance().then((prefs) {
       final localFolder = prefs.getString("localFolder");
       if (localFolder != null) {
-        Provider.of<StateModel>(context, listen: false)
+        Provider.of<SettingModel>(context, listen: false)
             .setLocalFolder(localFolder);
       }
     });
@@ -157,28 +106,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget? floatingActionButton;
     PreferredSizeWidget? appBar;
     switch (_selectedIndex) {
       case 0:
         break;
       case 1:
-        floatingActionButton = FloatingActionButton(
-          heroTag: "upload",
-          onPressed: () async {
-            final ImagePicker _picker = ImagePicker();
-            final XFile? image =
-                await _picker.pickImage(source: ImageSource.gallery);
-            if (image == null) {
-              return;
-            } else {
-              var rsp = await storage.uploadXFile(image);
-              if (rsp.success) {}
-            }
-          },
-          tooltip: 'Upload',
-          child: const Icon(Icons.add),
-        );
         break;
       case 2:
         break;
@@ -192,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
     }
-    return Consumer<SelectionModeModel>(
+    return Consumer<StateModel>(
       builder: (context, model, child) => Scaffold(
         appBar: appBar,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -203,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
               useLocal: true,
             ),
             const GalleryBody(useLocal: false),
-            Consumer<StateModel>(
+            Consumer<SettingModel>(
               builder: (context, model, child) {
                 return SyncBody(
                   localFolder: model.localFolder,
@@ -213,7 +145,6 @@ class _MyHomePageState extends State<MyHomePage> {
             const SettingBody(),
           ],
         ),
-        floatingActionButton: floatingActionButton,
         bottomNavigationBar: model.isSelectionMode
             ? null
             : NavigationBar(
@@ -235,11 +166,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Theme.of(context).iconTheme.color),
                     label: 'Sync',
                   ),
-                  NavigationDestination(
-                    icon: Icon(Icons.settings,
-                        color: Theme.of(context).iconTheme.color),
-                    label: 'Setting',
-                  ),
+                  // NavigationDestination(
+                  //   icon: Icon(Icons.settings,
+                  //       color: Theme.of(context).iconTheme.color),
+                  //   label: 'Setting',
+                  // ),
                 ],
               ),
       ),

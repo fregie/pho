@@ -17,16 +17,25 @@ Map<Drive, String> driveName = {
   Drive.webDav: 'WebDAV',
 };
 
+Drive getDrive(String drive) {
+  return driveName.entries.firstWhere((element) => element.value == drive).key;
+}
+
 class SettingStorageRouteState extends State<SettingStorageRoute> {
   final GlobalKey _formKey = GlobalKey<FormState>();
 
   @protected
-  Drive currentDrive = Drive.webDav;
+  Drive currentDrive = Drive.smb;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((prefs) {});
+    SharedPreferences.getInstance().then((prefs) {
+      final drive = prefs.getString("drive");
+      if (drive != null) {
+        currentDrive = getDrive(drive);
+      }
+    });
   }
 
   @override
@@ -73,9 +82,10 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
                             .toList();
                       },
                       onSelected: (String value) => setState(() {
-                        currentDrive = driveName.entries
-                            .firstWhere((element) => element.value == value)
-                            .key;
+                        currentDrive = getDrive(value);
+                        SharedPreferences.getInstance().then((prefs) {
+                          prefs.setString("drive", value);
+                        });
                       }),
                     )),
               ),

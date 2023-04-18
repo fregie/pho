@@ -2,13 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
+import 'package:img_syncer/background_sync_route.dart';
 import 'package:img_syncer/event_bus.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
-import 'state_model.dart';
+import 'package:img_syncer/state_model.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:img_syncer/choose_album_route.dart';
+import 'package:img_syncer/setting_storage_route.dart';
 
 class SyncBody extends StatefulWidget {
   const SyncBody({
@@ -32,6 +34,7 @@ class SyncBodyState extends State<SyncBody> {
   List<Asset> toShow = [];
   bool syncing = false;
   bool refreshing = false;
+  bool _needStopSync = false;
   Map<String, String> uploadState = {};
   int toUpload = 0;
 
@@ -51,7 +54,7 @@ class SyncBodyState extends State<SyncBody> {
       _scrollSubject.add(_scrollController.position.pixels);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      refreshUnsynchronized(Provider.of<StateModel>(context, listen: false));
+      refreshUnsynchronized();
     });
   }
 
@@ -76,10 +79,9 @@ class SyncBodyState extends State<SyncBody> {
     if (syncing) {
       return;
     }
-    final model = Provider.of<StateModel>(context, listen: false);
-    toUpload = model.notSyncedNames.length;
+    toUpload = stateModel.notSyncedNames.length;
     Map names = {};
-    for (final name in model.notSyncedNames) {
+    for (final name in stateModel.notSyncedNames) {
       names[name] = true;
     }
     int count = 0;
@@ -132,6 +134,162 @@ class SyncBodyState extends State<SyncBody> {
     setState(() {});
   }
 
+  Widget settingRows() {
+    final ButtonStyle style = FilledButton.styleFrom(
+        shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    ));
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  height: 60,
+                  width: constraints.maxWidth * 0.5,
+                  padding: const EdgeInsets.fromLTRB(15, 8, 10, 8),
+                  child: FilledButton.tonal(
+                    style: style,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ChooseAlbumRoute()),
+                      );
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.folder_outlined,
+                          // color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        SizedBox(width: 10),
+                        Text('Local folder'),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 60,
+                  width: constraints.maxWidth * 0.5,
+                  padding: const EdgeInsets.fromLTRB(10, 8, 15, 8),
+                  child: FilledButton.tonal(
+                    style: style,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SettingStorageRoute(),
+                          ));
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.cloud_outlined,
+                          // color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        SizedBox(width: 10),
+                        Text('Cloud storage'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  height: 60,
+                  width: constraints.maxWidth * 0.5,
+                  padding: const EdgeInsets.fromLTRB(15, 8, 10, 8),
+                  child: FilledButton.tonal(
+                    style: style,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const BackgroundSyncSettingRoute()),
+                      );
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.cloud_sync_outlined,
+                        ),
+                        SizedBox(width: 10),
+                        Text('Background sync'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void syncPhotots() async {
+    _needStopSync = false;
+    if (syncing) {
+      return;
+    }
+    setState(() {
+      syncing = true;
+    });
+    Map names = {};
+    for (final name in stateModel.notSyncedNames) {
+      names[name] = true;
+    }
+    stateModel.setUploadState(true);
+    for (var asset in all) {
+      if (_needStopSync) {
+        break;
+      }
+      if (names[asset.title] != true) {
+        continue;
+      }
+      if (asset.title == null) {
+        continue;
+      }
+      setState(() {
+        uploadState[asset.title!] = "Uploading";
+      });
+      try {
+        final rsp = await storage.uploadAssetEntity(asset);
+        if (!rsp.success) {
+          setState(() {
+            uploadState[asset.title!] = "Upload failed: ${rsp.message}";
+          });
+          continue;
+        }
+      } catch (e) {
+        setState(() {
+          uploadState[asset.title!] = "Upload failed: $e";
+        });
+        continue;
+      }
+      setState(() {
+        toUpload -= 1;
+        uploadState[asset.title!] = "Uploaded";
+      });
+    }
+    stateModel.setUploadState(false);
+    setState(() {
+      syncing = false;
+    });
+    eventBus.fire(RemoteRefreshEvent());
+    refreshUnsynchronizedPhotos();
+  }
+
+  void stopSync() {
+    _needStopSync = true;
+  }
+
   Widget columnBuilder(BuildContext context, StateModel model, Widget? child) {
     return Scaffold(
       appBar: AppBar(
@@ -159,8 +317,12 @@ class SyncBodyState extends State<SyncBody> {
             tooltip: 'Refresh unsynchronized photos',
             // label: const Text('Refresh'),
             elevation: 2,
-            onPressed: () =>
-                syncing || refreshing ? null : refreshUnsynchronized(model),
+            onPressed: () => syncing ||
+                    refreshing ||
+                    model.isDownloading ||
+                    model.isUploading
+                ? null
+                : refreshUnsynchronized(),
             child: refreshing ? CircularProgress() : const Icon(Icons.refresh),
           ),
           Container(
@@ -168,78 +330,70 @@ class SyncBodyState extends State<SyncBody> {
             child: FloatingActionButton.extended(
                 heroTag: "sync",
                 elevation: 2,
-                onPressed: syncing || refreshing
-                    ? null
-                    : () async {
-                        setState(() {
-                          syncing = true;
-                        });
-                        Map names = {};
-                        for (final name in model.notSyncedNames) {
-                          names[name] = true;
-                        }
-                        for (var asset in all) {
-                          if (names[asset.title] != true) {
-                            continue;
-                          }
-                          if (asset.title == null) {
-                            continue;
-                          }
-                          setState(() {
-                            uploadState[asset.title!] = "Uploading";
-                          });
-                          try {
-                            final rsp = await storage.uploadAssetEntity(asset);
-                            if (!rsp.success) {
-                              setState(() {
-                                uploadState[asset.title!] =
-                                    "Upload failed: ${rsp.message}";
-                              });
-                              continue;
-                            }
-                          } catch (e) {
-                            setState(() {
-                              uploadState[asset.title!] = "Upload failed: $e";
-                            });
-                            continue;
-                          }
-                          setState(() {
-                            toUpload -= 1;
-                            uploadState[asset.title!] = "Uploaded";
-                          });
-                        }
-                        setState(() {
-                          syncing = false;
-                        });
-                        eventBus.fire(RemoteRefreshEvent());
-                      },
+                onPressed: syncing ||
+                        refreshing ||
+                        model.isDownloading ||
+                        model.isUploading
+                    ? stopSync
+                    : syncPhotots,
                 icon: syncing ? CircularProgress() : const Icon(Icons.sync),
-                label: const Text("Sync")),
+                label: Text(syncing ? "Stop" : "Sync")),
           ),
         ],
       ),
-      body: ListView.builder(
-        controller: _scrollController,
-        itemCount: toShow.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: SizedBox(
-              width: 60,
-              height: 60,
-              child: Image(
-                  image: toShow[index].thumbnailProvider(), fit: BoxFit.cover),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          settingRows(),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(15, 0, 10, 0),
+                child: const Text(
+                  "unsynchronized photos",
+                  style: TextStyle(
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              const Flexible(
+                child: Divider(
+                  height: 10,
+                  thickness: 1,
+                  indent: 0,
+                  endIndent: 15,
+                ),
+              ),
+            ],
+          ),
+          Flexible(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: toShow.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: Image(
+                        image: toShow[index].thumbnailProvider(),
+                        fit: BoxFit.cover),
+                  ),
+                  title: Text(toShow[index].name()!),
+                  subtitle:
+                      Text(uploadState[toShow[index].name()] ?? "Not uploaded"),
+                );
+              },
             ),
-            title: Text(toShow[index].name()!),
-            subtitle: Text(uploadState[toShow[index].name()] ?? "Not uploaded"),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<StateModel>(context, listen: true).addListener(() {
+    Provider.of<SettingModel>(context, listen: true).addListener(() {
       setState(() {
         all = [];
         toShow = [];
@@ -263,54 +417,15 @@ class SyncBodyState extends State<SyncBody> {
     );
   }
 
-  Future<void> refreshUnsynchronized(StateModel model) async {
-    if (!model.isRemoteStorageSetted) {
-      model.setNotSyncedPhotos([]);
+  Future<void> refreshUnsynchronized() async {
+    if (!settingModel.isRemoteStorageSetted) {
+      stateModel.setNotSyncedPhotos([]);
       return;
     }
     setState(() {
       refreshing = true;
     });
-    final localFloder = model.localFolder;
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
-    for (var path in paths) {
-      if (path.name == localFloder) {
-        final newpath = await path.fetchPathProperties(
-            filterOptionGroup: FilterOptionGroup(
-          orders: [
-            const OrderOption(
-              type: OrderOptionType.createDate,
-              asc: false,
-            ),
-          ],
-        ));
-        FilterNotUploadedRequest req =
-            FilterNotUploadedRequest(names: List<String>.empty(growable: true));
-        int offset = 0;
-        int pageSize = 100;
-
-        while (true) {
-          final List<AssetEntity> assets = await newpath!
-              .getAssetListRange(start: offset, end: offset + pageSize);
-          if (assets.isEmpty) {
-            break;
-          }
-          for (var asset in assets) {
-            if (asset.type == AssetType.image && asset.title != null) {
-              req.names.add(asset.title!);
-            }
-          }
-          offset += pageSize;
-        }
-        final rsp = await storage.cli.filterNotUploaded(req);
-        if (rsp.success) {
-          model.setNotSyncedPhotos(rsp.notUploaed);
-        } else {
-          throw Exception(
-              "Refresh unsynchronized photos failed: ${rsp.message}");
-        }
-      }
-    }
+    await refreshUnsynchronizedPhotos();
     setState(() {
       refreshing = false;
     });

@@ -12,7 +12,8 @@ class ChooseAlbumRoute extends StatelessWidget {
   Future<List<AssetPathEntity>> getAlbums() async {
     //先权限申请
     final PermissionState _ps = await PhotoManager.requestPermissionExtend();
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+    final List<AssetPathEntity> paths =
+        await PhotoManager.getAssetPathList(type: RequestType.image);
     for (var path in paths) {
       if (path.name == 'Recent') {
         paths.remove(path);
@@ -153,7 +154,7 @@ class AlbumCard extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
                 height: 40,
-                child: Consumer<StateModel>(
+                child: Consumer<SettingModel>(
                     builder: (context, state, child) => FilledButton(
                           style: Theme.of(context).textButtonTheme.style,
                           onPressed: () {

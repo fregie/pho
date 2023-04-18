@@ -14,15 +14,10 @@ class SMBForm extends StatefulWidget {
 class _SMBFormState extends State<SMBForm> {
   @protected
   final GlobalKey _formKey = GlobalKey<FormState>();
-  String? smbAddr;
   TextEditingController? smbAddrController;
-  String? smbUsername;
   TextEditingController? smbUsernameController;
-  String? smbPassword;
   TextEditingController? smbPasswordController;
-  String? smbShare;
   TextEditingController? smbShareController;
-  String? smbRootPath;
   TextEditingController? smbRootPathController;
   bool testSuccess = false;
   String? errormsg;
@@ -34,29 +29,23 @@ class _SMBFormState extends State<SMBForm> {
   @override
   void initState() {
     super.initState();
-    smbAddrController = TextEditingController(text: smbAddr);
-    smbUsernameController = TextEditingController(text: smbUsername);
-    smbPasswordController = TextEditingController(text: smbPassword);
-    smbShareController = TextEditingController(text: smbShare);
-    smbRootPathController = TextEditingController(text: smbRootPath);
+    smbAddrController = TextEditingController();
+    smbUsernameController = TextEditingController();
+    smbPasswordController = TextEditingController();
+    smbShareController = TextEditingController();
+    smbRootPathController = TextEditingController();
     SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        smbAddr = prefs.getString("addr");
-        smbUsername = prefs.getString("username");
-        smbPassword = prefs.getString("password");
-        smbShare = prefs.getString("share");
-        smbRootPath = prefs.getString("rootPath");
-      });
+      final smbAddr = prefs.getString("addr");
+      final smbUsername = prefs.getString("username");
+      final smbPassword = prefs.getString("password");
+      final smbShare = prefs.getString("share");
+      final smbRootPath = prefs.getString("rootPath");
       smbAddrController!.text = smbAddr ?? "";
       smbUsernameController!.text = smbUsername ?? "";
       smbPasswordController!.text = smbPassword ?? "";
       smbShareController!.text = smbShare ?? "";
       smbRootPathController!.text = smbRootPath ?? "";
 
-      refreshShare();
-      smbAddrController!.addListener(() => refreshShare());
-      smbUsernameController!.addListener(() => refreshShare());
-      smbPasswordController!.addListener(() => refreshShare());
       smbShareController!.addListener(() {
         if (smbShare == smbShareController!.text) {
           return;
@@ -68,21 +57,14 @@ class _SMBFormState extends State<SMBForm> {
           share: smbShare,
         ));
         smbRootPathController!.text = "";
-        setState(() {
-          smbShare = smbShareController!.text;
-          smbRootPath = null;
-        });
       });
     });
   }
 
-  Future<void> refreshShare() async {
-    final a = smbAddr;
-    final u = smbUsername;
-    final p = smbPassword;
-    if (a == null || u == null || p == null) {
-      return;
-    }
+  Future<bool> refreshShare() async {
+    final a = smbAddrController!.text;
+    final u = smbUsernameController!.text;
+    final p = smbPasswordController!.text;
     final rsp1 = await storage.cli.setDriveSMB(SetDriveSMBRequest(
       addr: a,
       username: u,
@@ -92,7 +74,7 @@ class _SMBFormState extends State<SMBForm> {
       setState(() {
         errormsg = rsp1.message;
       });
-      return;
+      return false;
     }
     final rsp2 =
         await storage.cli.listDriveSMBShares(ListDriveSMBSharesRequest());
@@ -100,17 +82,18 @@ class _SMBFormState extends State<SMBForm> {
       setState(() {
         errormsg = rsp2.message;
       });
-      return;
+      return false;
     }
     rsp2.shares.remove("IPC\$");
     setState(() {
       _optionShares = rsp2.shares;
     });
+    return true;
   }
 
   Future<List<String>> getRootPath(String dir) async {
     final rsp = await storage.cli.listDriveSMBDir(ListDriveSMBDirRequest(
-      share: smbShare,
+      share: smbShareController!.text,
       dir: dir,
     ));
     if (!rsp.success) {
@@ -141,29 +124,33 @@ class _SMBFormState extends State<SMBForm> {
 
   Widget smbForm(BuildContext context) {
     List<Widget> children = [
-      input("Samba server address", smbAddrController, (v) => smbAddr = v),
-      input("Username", smbUsernameController, (v) => smbUsername = v),
-      input("Password", smbPasswordController, (v) => smbPassword = v),
+      input("Samba server address", smbAddrController, null),
+      input("Username", smbUsernameController, null),
+      input("Password", smbPasswordController, null),
       Container(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: TextFormField(
           controller: smbShareController,
           obscureText: false,
           enableInteractiveSelection: true,
-          onSaved: (v) => smbShare = v,
+          onSaved: null,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: "Share",
-            suffixIcon: _optionShares.isEmpty
-                ? null
-                : IconButton(
-                    icon: const Icon(Icons.open_in_browser),
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (BuildContext context) => shareDialog(),
-                    ),
-                  ),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.open_in_browser),
+              onPressed: () => refreshShare().then((available) {
+                if (!available) {
+                  showErrorDialog(errormsg!);
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => shareDialog(),
+                  );
+                }
+              }),
+            ),
           ),
         ),
       ),
@@ -173,12 +160,12 @@ class _SMBFormState extends State<SMBForm> {
           controller: smbRootPathController,
           obscureText: false,
           enableInteractiveSelection: true,
-          onSaved: (v) => smbRootPath = v,
+          onSaved: null,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: "Root path(Your photos will be uploaded to this path)",
-            suffixIcon: smbShare == null || smbShare == ""
+            suffixIcon: smbShareController!.text == ""
                 ? null
                 : IconButton(
                     icon: const Icon(Icons.open_in_browser),
@@ -235,7 +222,7 @@ class _SMBFormState extends State<SMBForm> {
                     onTap: () {
                       smbShareController!.text = _optionShares[index];
                       setState(() {
-                        smbShare = _optionShares[index];
+                        smbShareController!.text = _optionShares[index];
                         smbRootPathController!.text = "";
                       });
                       Navigator.of(context).pop();
@@ -379,11 +366,11 @@ class _SMBFormState extends State<SMBForm> {
       try {
         SetDriveSMBResponse rsp =
             await storage.cli.setDriveSMB(SetDriveSMBRequest(
-          addr: smbAddr!,
-          username: smbUsername!,
-          password: smbPassword!,
-          share: smbShare!,
-          root: smbRootPath!,
+          addr: smbAddrController!.text,
+          username: smbUsernameController!.text,
+          password: smbPasswordController!.text,
+          share: smbShareController!.text,
+          root: smbRootPathController!.text,
         ));
         if (rsp.success) {
           ListByDateResponse rsp =
@@ -438,13 +425,13 @@ class _SMBFormState extends State<SMBForm> {
         onPressed: testSuccess
             ? () {
                 SharedPreferences.getInstance().then((value) {
-                  value.setString('addr', smbAddr!);
-                  value.setString('username', smbUsername!);
-                  value.setString('password', smbPassword!);
-                  value.setString('share', smbShare!);
-                  value.setString('rootPath', smbRootPath!);
+                  value.setString('addr', smbAddrController!.text);
+                  value.setString('username', smbUsernameController!.text);
+                  value.setString('password', smbPasswordController!.text);
+                  value.setString('share', smbShareController!.text);
+                  value.setString('rootPath', smbRootPathController!.text);
                 });
-                stateModel.setRemoteStorageSetted(true);
+                settingModel.setRemoteStorageSetted(true);
                 eventBus.fire(RemoteRefreshEvent());
                 Navigator.pop(context);
               }

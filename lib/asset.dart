@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
@@ -9,11 +7,9 @@ import 'package:path/path.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
 import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class Asset extends ImageProvider<Asset> {
