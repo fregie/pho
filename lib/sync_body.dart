@@ -165,7 +165,7 @@ class SyncBodyState extends State<SyncBody> {
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
                         SizedBox(width: 10),
-                        Text('Local folder'),
+                        Text('Local folder')
                       ],
                     ),
                   ),

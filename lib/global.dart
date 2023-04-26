@@ -71,6 +71,10 @@ class Global {
             });
           }
       }
+      // if (settingModel.localFolder != "" &&
+      //     settingModel.isRemoteStorageSetted) {
+      //   refreshUnsynchronizedPhotos();
+      // }
       reloadAutoSyncTimer();
     });
   }

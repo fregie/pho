@@ -20,6 +20,8 @@ class ChooseAlbumRoute extends StatelessWidget {
         break;
       }
     }
+    // ignore: deprecated_member_use
+    paths.sort((a, b) => b.assetCount.compareTo(a.assetCount));
     return paths;
   }
 

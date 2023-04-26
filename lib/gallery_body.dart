@@ -409,7 +409,7 @@ class GalleryBodyState extends State<GalleryBody>
   Widget appBar() {
     return Consumer<StateModel>(
       builder: (context, model, child) {
-        String text = 'PHO';
+        String text = 'Pho';
         if (model.isUploading) {
           text = 'Uploading...';
         } else if (model.isDownloading) {
@@ -428,9 +428,22 @@ class GalleryBodyState extends State<GalleryBody>
           flexibleSpace: FlexibleSpaceBar(
             centerTitle: true,
             titlePadding: const EdgeInsets.all(5),
-            title: Text(
-              text,
-              style: Theme.of(context).textTheme.headlineMedium,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                  child: Image.asset(
+                    'assets/icon/pho_icon.png',
+                    width: 40,
+                    height: 40,
+                  ),
+                ),
+                Text(
+                  text,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ],
             ),
           ),
         );
@@ -611,22 +624,23 @@ class GalleryBodyState extends State<GalleryBody>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                FloatingActionButton(
-                  heroTag: "upload",
-                  onPressed: () async {
-                    final ImagePicker _picker = ImagePicker();
-                    final XFile? image =
-                        await _picker.pickImage(source: ImageSource.gallery);
-                    if (image == null) {
-                      return;
-                    } else {
-                      var rsp = await storage.uploadXFile(image);
-                      if (rsp.success) {}
-                    }
-                  },
-                  tooltip: 'Upload',
-                  child: const Icon(Icons.add),
-                ),
+                if (!widget.useLocal)
+                  FloatingActionButton(
+                    heroTag: "upload",
+                    onPressed: () async {
+                      final ImagePicker _picker = ImagePicker();
+                      final XFile? image =
+                          await _picker.pickImage(source: ImageSource.gallery);
+                      if (image == null) {
+                        return;
+                      } else {
+                        var rsp = await storage.uploadXFile(image);
+                        if (rsp.success) {}
+                      }
+                    },
+                    tooltip: 'Upload',
+                    child: const Icon(Icons.add),
+                  ),
                 Offstage(
                   offstage: !_showToTopBtn,
                   child: Container(

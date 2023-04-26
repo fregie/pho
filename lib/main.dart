@@ -10,7 +10,8 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:img_syncer/logger.dart';
 
-const seedThemeColor = Color.fromARGB(255, 18, 159, 135);
+const seedThemeColor = Color(0xFF02FED1);
+const darkSeedThemeColor = Color(0xFF02FED1);
 
 void main() {
   Global.init().then((e) => runApp(
@@ -50,16 +51,39 @@ class MyApp extends StatelessWidget {
         } else {
           logger.i("darkDynamic is null");
           darkColorScheme = ColorScheme.fromSeed(
-            seedColor: seedThemeColor,
+            seedColor: darkSeedThemeColor,
             brightness: Brightness.dark,
           );
         }
+        const textTheme = TextTheme(
+          headlineMedium: TextStyle(fontFamily: 'Ubuntu'),
+          bodySmall: TextStyle(fontFamily: 'Ubuntu'),
+          bodyLarge: TextStyle(fontFamily: 'Ubuntu'),
+          bodyMedium: TextStyle(fontFamily: 'Ubuntu'),
+          labelSmall: TextStyle(fontFamily: 'Ubuntu'),
+          labelLarge: TextStyle(fontFamily: 'Ubuntu'),
+          labelMedium: TextStyle(fontFamily: 'Ubuntu'),
+        );
+        const bottomNavigationBarTheme = BottomNavigationBarThemeData(
+          selectedLabelStyle: TextStyle(fontFamily: 'Ubuntu'),
+          unselectedLabelStyle: TextStyle(fontFamily: 'Ubuntu'),
+        );
+        var lightTheme = ThemeData(
+          colorScheme: lightColorScheme,
+          useMaterial3: true,
+          textTheme: textTheme,
+          bottomNavigationBarTheme: bottomNavigationBarTheme,
+        );
+        var darkTheme = ThemeData(
+          colorScheme: darkColorScheme,
+          useMaterial3: true,
+          textTheme: textTheme,
+          bottomNavigationBarTheme: bottomNavigationBarTheme,
+        );
 
         return AdaptiveTheme(
-            light: ThemeData.from(
-                colorScheme: lightColorScheme, useMaterial3: true),
-            dark: ThemeData.from(
-                colorScheme: darkColorScheme, useMaterial3: true),
+            light: lightTheme,
+            dark: darkTheme,
             initial: AdaptiveThemeMode.system,
             builder: (theme, darkTheme) {
               return MaterialApp(
