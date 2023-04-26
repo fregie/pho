@@ -19,5 +19,5 @@
 - [ ] 阿里网盘
 
 ### Screenshots
-<img src="assets/screenshot/Screenshot_01.png" width="500">
-<img src="assets/screenshot/Screenshot_02.png" width="500">
+<img src="assets/screenshot/Screenshot_01.png" width="350">
+<img src="assets/screenshot/Screenshot_02.png" width="350">
