@@ -1,16 +1,23 @@
-# img_syncer
+# Pho
+一个用于查看和上传照片的应用
 
-A new Flutter project.
+### 介绍
+功能简单,只是用于查看照片以及同步照片到网络储存.试图做到优秀的体验.
 
-## Getting Started
+### 功能
+* 本地照片查看
+* 云端照片查看
+* 增量同步照片到云端
+* 后台定期同步
+* 无数据库,无服务端
+* 以时间组织云端存储的目录结构
 
-This project is a starting point for a Flutter application.
+### 支持的网络储存
+- [x] Samba
+- [x] Webdav
+- [ ] NFS
+- [ ] 阿里网盘
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Screenshots
+<img src="assets/screenshot/Screenshot_01.png" width="500">
+<img src="assets/screenshot/Screenshot_02.png" width="500">
