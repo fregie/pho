@@ -27,8 +27,9 @@
 <img src="assets/screenshot/Screenshot_02.png" width="250">
 
 ### roadmap
+- [ ] 支持放大/缩小图片
+- [ ] 支持上传/浏览视频
 - [ ] 支持NFS
 - [ ] 支持阿里网盘
-- [ ] 支持放大/缩小图片
 - [ ] 支持IOS端
 - [ ] 支持web端
