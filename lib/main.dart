@@ -113,13 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((prefs) {
-      final localFolder = prefs.getString("localFolder");
-      if (localFolder != null) {
-        Provider.of<SettingModel>(context, listen: false)
-            .setLocalFolder(localFolder);
-      }
-    });
   }
 
   void _onItemTapped(int index) {

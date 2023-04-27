@@ -9,13 +9,15 @@ import 'package:img_syncer/logger.dart';
 
 class Global {
   static Future init() async {
-    settingModel.addListener(() {
-      assetModel.setAlbum(settingModel.localFolder);
-    });
     runServer().then((port) async {
       storage = RemoteStorage("127.0.0.1", port);
       // storage = RemoteStorage("192.168.100.235", 50051);
       final prefs = await SharedPreferences.getInstance();
+      final localFolder = prefs.getString("localFolder");
+      if (localFolder != null && localFolder.isNotEmpty) {
+        settingModel.setLocalFolder(localFolder);
+      }
+
       var drive = prefs.getString("drive");
       drive ??= "SMB";
       switch (getDrive(drive)) {

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -80,7 +82,6 @@ class AssetModel extends ChangeNotifier {
     eventBus.on<LocalRefreshEvent>().listen((event) => refreshLocal());
     eventBus.on<RemoteRefreshEvent>().listen((event) => refreshRemote());
   }
-  String selectedAlbum = "";
   List<Asset> localAssets = [];
   List<Asset> remoteAssets = [];
   int columCount = 3;
@@ -89,12 +90,6 @@ class AssetModel extends ChangeNotifier {
   bool remoteHasMore = true;
   Completer<bool>? localGetting;
   Completer<bool>? remoteGetting;
-
-  void setAlbum(String album) {
-    if (selectedAlbum == album) return;
-    selectedAlbum = album;
-    refreshLocal();
-  }
 
   Future<void> refreshLocal() async {
     if (localGetting != null) {
@@ -125,9 +120,24 @@ class AssetModel extends ChangeNotifier {
     localGetting = Completer<bool>();
     final offset = localAssets.length;
     final PermissionState _ps = await PhotoManager.requestPermissionExtend();
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
+      type: RequestType.image,
+      hasAll: true,
+    );
+
+    // choose the folder has most photos
+    if (settingModel.localFolder == "") {
+      int max = 0;
+      for (var path in paths) {
+        if (path.assetCount > max) {
+          max = path.assetCount;
+          settingModel.setLocalFolder(path.name);
+        }
+      }
+    }
+
     for (var path in paths) {
-      if (selectedAlbum == path.name) {
+      if (settingModel.localFolder == path.name) {
         final newpath = await path.fetchPathProperties(
             filterOptionGroup: FilterOptionGroup(
           orders: [

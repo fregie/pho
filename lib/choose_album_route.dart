@@ -12,14 +12,8 @@ class ChooseAlbumRoute extends StatelessWidget {
   Future<List<AssetPathEntity>> getAlbums() async {
     //先权限申请
     final PermissionState _ps = await PhotoManager.requestPermissionExtend();
-    final List<AssetPathEntity> paths =
-        await PhotoManager.getAssetPathList(type: RequestType.image);
-    for (var path in paths) {
-      if (path.name == 'Recent') {
-        paths.remove(path);
-        break;
-      }
-    }
+    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
+        type: RequestType.image, hasAll: true);
     // ignore: deprecated_member_use
     paths.sort((a, b) => b.assetCount.compareTo(a.assetCount));
     return paths;

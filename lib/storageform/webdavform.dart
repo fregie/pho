@@ -191,7 +191,19 @@ class WebDavFormState extends State<WebDavForm> {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [];
-    children.add(input('URL', urlController, null));
+    children.add(Container(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: TextFormField(
+        controller: urlController,
+        obscureText: false,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: "URL",
+          helperText: "eg: https://your.domain:port",
+        ),
+      ),
+    ));
     children.add(input('Username (optional)', usernameController, null));
     children.add(input('Password (optional)', passwordController, null));
     children.add(Container(

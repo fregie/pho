@@ -423,7 +423,9 @@ class GalleryBodyState extends State<GalleryBody>
           toolbarHeight: 70,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           actions: [
-            widget.useLocal ? chooseAlbumButtun(context) : Container(),
+            widget.useLocal
+                ? chooseAlbumButtun(context)
+                : setRemoteStorageButtun(context)
           ],
           flexibleSpace: FlexibleSpaceBar(
             centerTitle: true,
