@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
 import 'package:img_syncer/background_sync_route.dart';
@@ -424,6 +422,7 @@ class SyncBodyState extends State<SyncBody> {
     }
     setState(() {
       refreshing = true;
+      toShow = [];
     });
     await refreshUnsynchronizedPhotos();
     setState(() {

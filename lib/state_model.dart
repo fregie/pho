@@ -15,6 +15,13 @@ SettingModel settingModel = SettingModel();
 AssetModel assetModel = AssetModel();
 StateModel stateModel = StateModel();
 
+enum Drive { smb, webDav }
+
+Map<Drive, String> driveName = {
+  Drive.smb: 'SMB',
+  Drive.webDav: 'WebDAV',
+};
+
 class SettingModel extends ChangeNotifier {
   String localFolder = "";
   String? localFolderAbsPath;
@@ -125,7 +132,7 @@ class AssetModel extends ChangeNotifier {
             filterOptionGroup: FilterOptionGroup(
           orders: [
             const OrderOption(
-              type: OrderOptionType.updateDate,
+              type: OrderOptionType.createDate,
               asc: false,
             ),
           ],

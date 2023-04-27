@@ -430,6 +430,7 @@ class _SMBFormState extends State<SMBForm> {
                   value.setString('password', smbPasswordController!.text);
                   value.setString('share', smbShareController!.text);
                   value.setString('rootPath', smbRootPathController!.text);
+                  value.setString('drive', driveName[Drive.smb]!);
                 });
                 settingModel.setRemoteStorageSetted(true);
                 eventBus.fire(RemoteRefreshEvent());

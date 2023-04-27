@@ -28,3 +28,6 @@ server: protobuf
 
 server-aar: protobuf
 	CGO_ENABLED=0 gomobile bind -target=android -androidapi 19 -o android/app/libs/server.aar ./server/run
+
+apk:
+	flutter build apk

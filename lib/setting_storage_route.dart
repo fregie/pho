@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:img_syncer/storageform/smbform.dart';
 import 'package:img_syncer/storageform/webdavform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:img_syncer/state_model.dart';
 
 class SettingStorageRoute extends StatefulWidget {
   const SettingStorageRoute({Key? key}) : super(key: key);
@@ -9,13 +10,6 @@ class SettingStorageRoute extends StatefulWidget {
   @override
   SettingStorageRouteState createState() => SettingStorageRouteState();
 }
-
-enum Drive { smb, webDav }
-
-Map<Drive, String> driveName = {
-  Drive.smb: 'SMB',
-  Drive.webDav: 'WebDAV',
-};
 
 Drive getDrive(String drive) {
   return driveName.entries.firstWhere((element) => element.value == drive).key;
@@ -33,7 +27,9 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
     SharedPreferences.getInstance().then((prefs) {
       final drive = prefs.getString("drive");
       if (drive != null) {
-        currentDrive = getDrive(drive);
+        setState(() {
+          currentDrive = getDrive(drive);
+        });
       }
     });
   }

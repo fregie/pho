@@ -130,44 +130,54 @@ class AlbumCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: constraints.maxWidth * 0.5,
                         padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                        child: Text(
-                          path.name,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                      ),
-                      Container(
-                        alignment: Alignment.centerRight,
-                        width: constraints.maxWidth * 0.5,
-                        padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                        child: FutureBuilder(
-                          future: path.assetCountAsync,
-                          builder: (context, snapshot) => Text(
-                              snapshot.hasData
-                                  ? "${snapshot.data} photos"
-                                  : 'unknown count photos',
-                              style: Theme.of(context).textTheme.bodySmall),
-                        ),
+                        child: Text(path.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Ubuntu-condensed',
+                            )),
                       ),
                     ],
                   )),
               Container(
                 alignment: Alignment.centerRight,
-                padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 height: 40,
-                child: Consumer<SettingModel>(
-                    builder: (context, state, child) => FilledButton(
-                          style: Theme.of(context).textButtonTheme.style,
-                          onPressed: () {
-                            state.setLocalFolder(path.name);
-                            SharedPreferences.getInstance().then((prefs) {
-                              prefs.setString("localFolder", path.name);
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Choose'),
-                        )),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: FutureBuilder(
+                          future: path.assetCountAsync,
+                          builder: (context, snapshot) => Text(
+                              snapshot.hasData
+                                  ? "${snapshot.data} pics"
+                                  : 'unknown count pics',
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      width: 100,
+                      padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+                      child: FilledButton(
+                        style: Theme.of(context).textButtonTheme.style,
+                        onPressed: () {
+                          settingModel.setLocalFolder(path.name);
+                          SharedPreferences.getInstance().then((prefs) {
+                            prefs.setString("localFolder", path.name);
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Choose'),
+                      ),
+                    ),
+                  ],
+                ),
               )
             ],
           );

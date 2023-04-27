@@ -95,6 +95,13 @@ flutter:
     - family: Ubuntu
       fonts:
         - asset: assets/fonts/Ubuntu-M.ttf
+    - family: Ubuntu-thin
+      fonts:
+        - asset: assets/fonts/Ubuntu-Th.ttf
+    - family: Ubuntu-condensed
+      fonts:
+        - asset: assets/fonts/Ubuntu-C.ttf
+
 flutter_icons:
   android: "launcher_icon"
   ios: true

@@ -33,6 +33,7 @@ Future<void> reloadAutoSyncTimer() async {
     await refreshUnsynchronizedPhotos();
     stateModel.setUploadState(true);
     Map names = {};
+    print("${stateModel.notSyncedNames}");
     for (final name in stateModel.notSyncedNames) {
       names[name] = true;
     }

@@ -176,6 +176,7 @@ class WebDavFormState extends State<WebDavForm> {
                   value.setString('webdav_username', username);
                   value.setString('webdav_password', password);
                   value.setString('webdav_root_path', rootPath);
+                  value.setString('drive', driveName[Drive.webDav]!);
                 });
                 settingModel.setRemoteStorageSetted(true);
                 eventBus.fire(RemoteRefreshEvent());

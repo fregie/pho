@@ -115,7 +115,7 @@ class Asset extends ImageProvider<Asset> {
 
   DateTime dateCreated() {
     if (hasLocal) {
-      return local!.modifiedDateTime;
+      return local!.createDateTime;
     }
     if (hasRemote) {
       RegExp datePattern = RegExp(r'(\d{4})/(\d{2})/(\d{2})');
