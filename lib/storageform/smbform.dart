@@ -433,6 +433,7 @@ class _SMBFormState extends State<SMBForm> {
                   value.setString('drive', driveName[Drive.smb]!);
                 });
                 settingModel.setRemoteStorageSetted(true);
+                assetModel.remoteLastError = null;
                 eventBus.fire(RemoteRefreshEvent());
                 Navigator.pop(context);
               }

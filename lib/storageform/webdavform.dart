@@ -179,6 +179,7 @@ class WebDavFormState extends State<WebDavForm> {
                   value.setString('drive', driveName[Drive.webDav]!);
                 });
                 settingModel.setRemoteStorageSetted(true);
+                assetModel.remoteLastError = null;
                 eventBus.fire(RemoteRefreshEvent());
                 Navigator.pop(context);
               }

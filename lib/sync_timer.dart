@@ -18,7 +18,9 @@ Future<void> reloadAutoSyncTimer() async {
   if (!backgroundSyncEnable) return;
   final backgroundSyncInterval =
       Duration(minutes: prefs.getInt('backgroundSyncInterval') ?? 60 * 12);
+  print("backgroundSyncInterval: $backgroundSyncInterval");
   autoSyncTimer = Timer.periodic(backgroundSyncInterval, (timer) async {
+    print("start auto sync");
     if (settingModel.localFolder == "" || !settingModel.isRemoteStorageSetted) {
       return;
     }
@@ -33,7 +35,6 @@ Future<void> reloadAutoSyncTimer() async {
     await refreshUnsynchronizedPhotos();
     stateModel.setUploadState(true);
     Map names = {};
-    print("${stateModel.notSyncedNames}");
     for (final name in stateModel.notSyncedNames) {
       names[name] = true;
     }
@@ -51,6 +52,7 @@ Future<void> reloadAutoSyncTimer() async {
           continue;
         }
       } catch (e) {
+        print(e);
         continue;
       }
     }

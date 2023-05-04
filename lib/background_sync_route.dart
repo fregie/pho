@@ -62,7 +62,7 @@ class _BackgroundSyncSettingRouteState
               value: _backgroundSyncEnabled,
               onChanged: (value) async {
                 final prefs = await SharedPreferences.getInstance();
-                prefs.setBool('backgroundSyncEnabled', value);
+                await prefs.setBool('backgroundSyncEnabled', value);
                 setState(() {
                   _backgroundSyncEnabled = value;
                 });
@@ -76,7 +76,7 @@ class _BackgroundSyncSettingRouteState
               value: _backgroundSyncWifiOnly,
               onChanged: (value) async {
                 final prefs = await SharedPreferences.getInstance();
-                prefs.setBool('backgroundSyncWifiOnly', value);
+                await prefs.setBool('backgroundSyncWifiOnly', value);
                 setState(() {
                   _backgroundSyncWifiOnly = value;
                 });
@@ -124,7 +124,7 @@ class _BackgroundSyncSettingRouteState
               ],
               onChanged: (value) async {
                 final prefs = await SharedPreferences.getInstance();
-                prefs.setInt('backgroundSyncInterval', value!.inMinutes);
+                await prefs.setInt('backgroundSyncInterval', value!.inMinutes);
                 setState(() {
                   _backgroundSyncInterval = value;
                 });

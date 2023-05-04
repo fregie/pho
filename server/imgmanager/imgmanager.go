@@ -309,7 +309,7 @@ func (im *ImgManager) DeleteImg(paths []string) {
 	}
 }
 
-func (im *ImgManager) RangeByDate(date time.Time, f func(path string, size int64) bool) {
+func (im *ImgManager) RangeByDate(date time.Time, f func(path string, size int64) bool) error {
 	t := date
 	if t.IsZero() {
 		t = time.Now()
@@ -318,7 +318,7 @@ func (im *ImgManager) RangeByDate(date time.Time, f func(path string, size int64
 	yDir, err := im.listDir(".")
 	if err != nil {
 		im.logger.Println("Error listing year dir:", err)
-		return
+		return err
 	}
 	sort.Sort(desc(yDir))
 	for _, yinfo := range yDir {
@@ -379,15 +379,16 @@ func (im *ImgManager) RangeByDate(date time.Time, f func(path string, size int64
 		}
 	}
 BREAK:
+	return nil
 }
 
 func (im *ImgManager) listDir(path string) ([]fs.FileInfo, error) {
 	infos := make([]fs.FileInfo, 0)
-	im.dri.Range(path, func(info fs.FileInfo) bool {
+	err := im.dri.Range(path, func(info fs.FileInfo) bool {
 		infos = append(infos, info)
 		return true
 	})
-	return infos, nil
+	return infos, err
 }
 
 type asc []fs.FileInfo

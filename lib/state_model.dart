@@ -91,6 +91,8 @@ class AssetModel extends ChangeNotifier {
   Completer<bool>? localGetting;
   Completer<bool>? remoteGetting;
 
+  String? remoteLastError;
+
   Future<void> refreshLocal() async {
     if (localGetting != null) {
       await localGetting!.future;
@@ -197,7 +199,7 @@ class AssetModel extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("get remote photos failed: $e");
+      remoteLastError = e.toString();
     }
 
     remoteGetting?.complete(true);

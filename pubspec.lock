@@ -169,6 +169,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.4"
+  extended_image:
+    dependency: "direct main"
+    description:
+      name: extended_image
+      sha256: "75e4b0ad0f8f63eed7935ff2506c809a670f5e6dd0f61304525879d53fc41a17"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.2"
+  extended_image_library:
+    dependency: transitive
+    description:
+      name: extended_image_library
+      sha256: "550743b43ab093aed35ef234500fcc7a304cbac1eca47b0cc991e07e88750758"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.2"
   fake_async:
     dependency: transitive
     description:
@@ -272,6 +288,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  http_client_helper:
+    dependency: transitive
+    description:
+      name: http_client_helper
+      sha256: "1f32359bd07a064ad256d1f84ae5f973f69bc972e7287223fa198abe1d969c28"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   http_parser:
     dependency: transitive
     description:
@@ -523,10 +547,11 @@ packages:
   photo_view:
     dependency: "direct main"
     description:
-      name: photo_view
-      sha256: "8036802a00bae2a78fc197af8a158e3e2f7b500561ed23b4c458107685e645bb"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: main
+      resolved-ref: b1974584a1eb318ef441c2bbffd61c0b42a0aa0b
+      url: "git@github.com:bluefireteam/photo_view.git"
+    source: git
     version: "0.14.0"
   platform:
     dependency: transitive
@@ -823,4 +848,4 @@ packages:
     version: "3.1.1"
 sdks:
   dart: ">=2.19.1 <3.0.0"
-  flutter: ">=3.4.0-17.0.pre"
+  flutter: ">=3.7.0"

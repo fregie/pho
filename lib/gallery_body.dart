@@ -64,23 +64,18 @@ class GalleryBodyState extends State<GalleryBody>
         });
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final all =
-          widget.useLocal ? assetModel.localAssets : assetModel.remoteAssets;
-      if (all.isEmpty) {
-        refresh();
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final all =
+    //       widget.useLocal ? assetModel.localAssets : assetModel.remoteAssets;
+    //   if (all.isEmpty) {
+    //     refresh();
+    //   }
+    // });
   }
 
   @override
   void didUpdateWidget(GalleryBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // final all =
-    //     widget.useLocal ? assetModel.localAssets : assetModel.remoteAssets;
-    // if (all.isEmpty) {
-    //   refresh();
-    // }
   }
 
   @override
@@ -111,6 +106,17 @@ class GalleryBodyState extends State<GalleryBody>
       await assetModel.refreshLocal();
     } else {
       await assetModel.refreshRemote();
+    }
+    if (mounted &&
+        !widget.useLocal &&
+        assetModel.remoteAssets.isEmpty &&
+        assetModel.remoteLastError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(assetModel.remoteLastError!),
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
     _isRefreshing = false;
   }

@@ -12,7 +12,7 @@ type StorageDrive interface {
 	IsExist(path string) (bool, error)
 	Download(path string) (io.ReadCloser, int64, error)
 	Delete(path string) error
-	Range(dir string, deal func(fs.FileInfo) bool)
+	Range(dir string, deal func(fs.FileInfo) bool) error
 }
 
 type Image struct {
@@ -50,6 +50,6 @@ func (d *UnimplementedDrive) Delete(path string) error {
 	return errors.New("no available drive")
 }
 
-func (d *UnimplementedDrive) Range(dir string, deal func(fs.FileInfo) bool) {
-
+func (d *UnimplementedDrive) Range(dir string, deal func(fs.FileInfo) bool) error {
+	return errors.New("no available drive")
 }

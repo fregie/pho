@@ -51,19 +51,19 @@ class SyncBodyState extends State<SyncBody> {
     _scrollController.addListener(() {
       _scrollSubject.add(_scrollController.position.pixels);
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      refreshUnsynchronized();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   refreshUnsynchronized();
+    // });
   }
 
   @override
   void didUpdateWidget(SyncBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (all.isEmpty) {
-      getPhotos().then((value) => loadMore());
-    } else if (toShow.isEmpty) {
-      loadMore();
-    }
+    // if (all.isEmpty) {
+    //   getPhotos().then((value) => loadMore());
+    // } else if (toShow.isEmpty) {
+    //   loadMore();
+    // }
   }
 
   @override
@@ -73,10 +73,15 @@ class SyncBodyState extends State<SyncBody> {
     _scrollSubject.close();
   }
 
+  bool _isLoadingMore = false;
   Future<void> loadMore() async {
     if (syncing) {
       return;
     }
+    if (_isLoadingMore) {
+      return;
+    }
+    _isLoadingMore = true;
     toUpload = stateModel.notSyncedNames.length;
     Map names = {};
     for (final name in stateModel.notSyncedNames) {
@@ -99,11 +104,20 @@ class SyncBodyState extends State<SyncBody> {
       }
     }
 
-    setState(() {});
+    setState(() {
+      _isLoadingMore = false;
+    });
   }
 
+  bool _isGettingPhotos = false;
   Future<void> getPhotos() async {
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+    if (_isGettingPhotos) {
+      return;
+    }
+    _isGettingPhotos = true;
+    all.clear();
+    final List<AssetPathEntity> paths =
+        await PhotoManager.getAssetPathList(type: RequestType.image);
     for (var path in paths) {
       if (path.name == widget.localFolder) {
         final newpath = await path.fetchPathProperties(
@@ -129,7 +143,9 @@ class SyncBodyState extends State<SyncBody> {
         break;
       }
     }
-    setState(() {});
+    setState(() {
+      _isGettingPhotos = false;
+    });
   }
 
   Widget settingRows() {
@@ -425,6 +441,8 @@ class SyncBodyState extends State<SyncBody> {
       toShow = [];
     });
     await refreshUnsynchronizedPhotos();
+    await getPhotos();
+    await loadMore();
     setState(() {
       refreshing = false;
     });

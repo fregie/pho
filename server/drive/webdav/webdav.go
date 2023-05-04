@@ -130,14 +130,14 @@ func (d *Webdav) Upload(path string, reader io.ReadCloser, size int64, lastModif
 	return nil
 }
 
-func (d *Webdav) Range(dir string, deal func(fs.FileInfo) bool) {
+func (d *Webdav) Range(dir string, deal func(fs.FileInfo) bool) error {
 	if d.rootPath == "" {
-		return
+		return fmt.Errorf("root path is empty")
 	}
 	fullPath := filepath.Join(d.rootPath, dir)
 	infos, err := d.cli.ReadDir(fullPath)
 	if err != nil {
-		return
+		return err
 	}
 	sort.Sort(desc(infos))
 	for _, info := range infos {
@@ -145,6 +145,7 @@ func (d *Webdav) Range(dir string, deal func(fs.FileInfo) bool) {
 			break
 		}
 	}
+	return nil
 }
 
 type desc []fs.FileInfo

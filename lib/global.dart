@@ -35,7 +35,7 @@ class Global {
             storage.cli
                 .setDriveSMB(SetDriveSMBRequest(
               addr: addr,
-              username: username.toString(),
+              username: username,
               password: password,
               share: share,
               root: root,
@@ -46,6 +46,7 @@ class Global {
                 settingModel.setRemoteStorageSetted(true);
               } else {
                 settingModel.setRemoteStorageSetted(false);
+                assetModel.remoteLastError = rsp.message;
               }
             });
           }
@@ -69,6 +70,7 @@ class Global {
                 settingModel.setRemoteStorageSetted(true);
               } else {
                 settingModel.setRemoteStorageSetted(false);
+                assetModel.remoteLastError = rsp.message;
               }
             });
           }

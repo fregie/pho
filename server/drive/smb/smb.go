@@ -245,18 +245,18 @@ func (s *Smb) Delete(path string) error {
 	return nil
 }
 
-func (s *Smb) Range(dir string, deal func(fs.FileInfo) bool) {
+func (s *Smb) Range(dir string, deal func(fs.FileInfo) bool) error {
 	if err := s.checkConn(); err != nil {
-		return
+		return err
 	}
 	if s.rootPath == "" {
-		return
+		return fmt.Errorf("root path is empty")
 	}
 	fullPath := filepath.Join(s.rootPath, dir)
 	infos, err := s.fs.ReadDir(fullPath)
 	if err != nil {
 		s.cleanLastConnTime()
-		return
+		return err
 	}
 	s.updateLastConnTime()
 	sort.Sort(desc(infos))
@@ -265,6 +265,7 @@ func (s *Smb) Range(dir string, deal func(fs.FileInfo) bool) {
 			break
 		}
 	}
+	return nil
 }
 
 type desc []fs.FileInfo

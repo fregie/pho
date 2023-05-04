@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
@@ -160,10 +159,11 @@ func (a *api) ListByDate(ctx context.Context, req *pb.ListByDateRequest) (rsp *p
 	if req.Offset <= 0 {
 		req.Offset = 0
 	}
+	var e error
 	start := time.Now()
 	if req.Date != "" {
-		start, err = time.Parse("2006:01:02", req.Date)
-		if err != nil {
+		start, e = time.Parse("2006:01:02", req.Date)
+		if e != nil {
 			rsp.Success, rsp.Message = false, fmt.Sprintf("param error: date format error: %s", req.Date)
 			return
 		}
@@ -171,7 +171,7 @@ func (a *api) ListByDate(ctx context.Context, req *pb.ListByDateRequest) (rsp *p
 	rsp.Paths = make([]string, 0, req.MaxReturn)
 	offset := req.Offset
 	needReturn := req.MaxReturn
-	a.im.RangeByDate(start, func(path string, size int64) bool {
+	e = a.im.RangeByDate(start, func(path string, size int64) bool {
 		if offset > 0 {
 			offset--
 			return true
@@ -180,7 +180,10 @@ func (a *api) ListByDate(ctx context.Context, req *pb.ListByDateRequest) (rsp *p
 		needReturn--
 		return needReturn > 0
 	})
-	log.Printf("ListByDate: %s, %d, %d, %d, %d", start, req.MaxReturn, req.Offset, len(rsp.Paths), offset)
+	if e != nil {
+		rsp.Success, rsp.Message = false, e.Error()
+		return
+	}
 	return
 }
 

@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
 import 'package:img_syncer/state_model.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
+// import 'package:photo_view/photo_view.dart';
+// import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'event_bus.dart';
+import 'package:extended_image/extended_image.dart';
 
 class GalleryViewerRoute extends StatefulWidget {
   const GalleryViewerRoute({
@@ -26,7 +27,8 @@ class GalleryViewerRoute extends StatefulWidget {
 }
 
 class GalleryViewerRouteState extends State<GalleryViewerRoute> {
-  late final PageController _pageController;
+  // late final PageController _pageController;
+  late final ExtendedPageController _pageController;
   late List<Asset> all;
   late int currentIndex;
   bool _isOriginalScale = true;
@@ -36,7 +38,10 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     super.initState();
     currentIndex = widget.originIndex;
 
-    _pageController = PageController(initialPage: widget.originIndex);
+    _pageController = ExtendedPageController(
+      initialPage: widget.originIndex,
+      keepPage: true,
+    );
     all = widget.useLocal ? assetModel.localAssets : assetModel.remoteAssets;
     all[currentIndex].readInfoFromData();
     assetModel.addListener(() {
@@ -51,11 +56,16 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     super.didUpdateWidget(oldWidget);
   }
 
+  bool _isShowingAppBar = false;
   void showImageInfo(BuildContext context) {
     final currentAsset = all[currentIndex];
     if (!currentAsset.isInfoReady()) {
       return;
     }
+    if (_isShowingAppBar) {
+      return;
+    }
+    _isShowingAppBar = true;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -199,7 +209,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           ),
         );
       },
-    );
+    ).then((value) => _isShowingAppBar = false);
   }
 
   void deleteCurrent(BuildContext context) {
@@ -249,7 +259,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     );
 
     // 将加载对话框添加到Overlay中
-    Overlay.of(context)!.insert(loadingDialog);
+    Overlay.of(context).insert(loadingDialog);
     // 检查并请求存储权限
     PermissionStatus status = await Permission.photos.status;
     if (!status.isGranted) {
@@ -384,11 +394,10 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
         child: Stack(
           alignment: Alignment.bottomRight,
           children: [
-            PhotoViewGallery.builder(
-              // scrollPhysics: const BouncingScrollPhysics(),
-              wantKeepAlive: true,
-              pageController: _pageController,
-              onPageChanged: (index) {
+            ExtendedImageGesturePageView.builder(
+              itemCount: all.length,
+              controller: _pageController,
+              onPageChanged: (int index) {
                 setState(() {
                   currentIndex = index;
                 });
@@ -407,52 +416,126 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
                   }
                 }
               },
-              builder: (BuildContext context, int index) {
-                return PhotoViewGalleryPageOptions(
-                  imageProvider: all[index],
-                  disableGestures: true,
-                  initialScale: PhotoViewComputedScale.contained,
-                  minScale: PhotoViewComputedScale.contained * 0.5,
-                  maxScale: PhotoViewComputedScale.covered * 3,
-                  gestureDetectorBehavior: HitTestBehavior.deferToChild,
-                  heroAttributes: PhotoViewHeroAttributes(
-                      tag:
-                          "image-${widget.useLocal ? "local" : "remote"}-$index"),
-                );
-              },
-              loadingBuilder: (context, event) {
-                return PhotoView(
-                  imageProvider: all[currentIndex].thumbnailProvider(),
-                  minScale: PhotoViewComputedScale.contained,
-                  maxScale: PhotoViewComputedScale.covered,
-                );
-              },
-              scaleStateChangedCallback: (value) {
-                if (value == PhotoViewScaleState.initial) {
-                  setState(() {
-                    _isOriginalScale = true;
-                  });
-                } else {
-                  setState(() {
-                    _isOriginalScale = false;
-                  });
-                }
-              },
-              itemCount: all.length,
-            ),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onVerticalDragUpdate: _isOriginalScale
-                  ? (details) {
-                      if (details.delta.dy < 0) {
-                        showImageInfo(context);
-                      }
+              itemBuilder: (BuildContext context, int index) {
+                return ExtendedImage(
+                  image: all[index],
+                  fit: BoxFit.contain,
+                  mode: ExtendedImageMode.gesture,
+                  initGestureConfigHandler: (state) {
+                    return GestureConfig(
+                      minScale: 1.0,
+                      maxScale: 3.0,
+                      inPageView: true,
+                      gestureDetailsIsChanged: (details) {
+                        if (details == null) {
+                          return;
+                        }
+                        // 如果是下拉手势则弹出ImageInfo
+                        if (details.totalScale == 1.0 &&
+                            details.offset!.dy < 0) {
+                          showImageInfo(context);
+                        }
+                      },
+                    );
+                  },
+                  loadStateChanged: (ExtendedImageState state) {
+                    switch (state.extendedImageLoadState) {
+                      case LoadState.loading:
+                        return ExtendedImage(
+                          image: all[index].thumbnailProvider(),
+                          fit: BoxFit.contain,
+                        );
+                      case LoadState.completed:
+                        return null; // Use the high-resolution image.
+                      case LoadState.failed:
+                        return null;
+                      default:
+                        return null;
                     }
-                  : null,
+                  },
+                  onDoubleTap: (ExtendedImageGestureState gestureState) {
+                    if (gestureState.gestureDetails != null &&
+                        gestureState.gestureDetails!.totalScale != null) {
+                      double newScale =
+                          gestureState.gestureDetails!.totalScale! >= 2.0
+                              ? 1.0
+                              : 2.0;
+                      gestureState.handleDoubleTap(scale: newScale);
+                    }
+                  },
+                );
+              },
             ),
+            // GestureDetector(
+            //   behavior: HitTestBehavior.translucent,
+            //   onVerticalDragUpdate: _isOriginalScale
+            //       ? (details) {
+            //           if (details.delta.dy < 0) {
+            //             showImageInfo(context);
+            //           }
+            //         }
+            //       : null,
+            // ),
           ],
         ),
       ),
     );
   }
 }
+
+// PhotoViewGallery.builder(
+//   // scrollPhysics: const BouncingScrollPhysics(),
+//   wantKeepAlive: true,
+//   pageController: _pageController,
+//   onPageChanged: (index) {
+//     setState(() {
+//       currentIndex = index;
+//     });
+//     all[index].readInfoFromData().then((value) {
+//       for (int i = -2; i != 0 && i <= 2; i++) {
+//         if (index + i >= 0 && index + i < all.length) {
+//           all[index + i].readInfoFromData();
+//         }
+//       }
+//     });
+//     if (all.length - index < 5) {
+//       if (widget.useLocal) {
+//         assetModel.getLocalPhotos();
+//       } else {
+//         assetModel.getRemotePhotos();
+//       }
+//     }
+//   },
+//   builder: (BuildContext context, int index) {
+//     return PhotoViewGalleryPageOptions(
+//       imageProvider: all[index],
+//       // disableGestures: true,
+//       initialScale: PhotoViewComputedScale.contained,
+//       minScale: PhotoViewComputedScale.contained * 0.5,
+//       maxScale: PhotoViewComputedScale.covered * 3,
+//       gestureDetectorBehavior: HitTestBehavior.deferToChild,
+//       heroAttributes: PhotoViewHeroAttributes(
+//           tag:
+//               "image-${widget.useLocal ? "local" : "remote"}-$index"),
+//     );
+//   },
+//   loadingBuilder: (context, event) {
+//     return PhotoView(
+//       imageProvider: all[currentIndex].thumbnailProvider(),
+//       minScale: PhotoViewComputedScale.contained,
+//       maxScale: PhotoViewComputedScale.covered,
+//     );
+//   },
+//   scaleStateChangedCallback: (value) {
+//     if (value == PhotoViewScaleState.initial) {
+//       setState(() {
+//         _isOriginalScale = true;
+//       });
+//     } else {
+//       setState(() {
+//         _isOriginalScale = false;
+//       });
+//     }
+//   },
+//   itemCount: all.length,
+// ),
