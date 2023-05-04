@@ -1,5 +1,12 @@
-# Pho
-一个用于查看和上传照片的应用
+<br/><br/><p align="center">
+<img src="assets/icon/pho_icon.png" width="150">
+</p>
+<h3 align="center">
+Pho - 一个用于查看和上传照片的无服务端应用
+</h3>
+<p align="center">
+  <a href="README.md">中文</a> | <a href="README_EN.md">English</a>
+</p>
 
 ### 安装
 目前仅支持安卓端.  
