@@ -3,7 +3,7 @@
 
 ### 安装
 目前仅支持安卓端.  
-[点我下载apk](https://github.com/fregie/pho/releases/download/v1.0.0/pho-release-1-1.0.0.apk)
+[点我下载apk](https://github.com/fregie/pho/releases)
 
 ### 介绍
 功能简单,只是用于查看照片以及同步照片到网络储存.试图做到优秀的体验.
