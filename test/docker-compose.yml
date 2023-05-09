@@ -30,8 +30,6 @@ services:
     cap_add:
       - SYS_ADMIN
       - SETPCAP
-    # environment:
-      # - NFS_EXPORT_0='/nfs                  *(rw,sync,no_subtree_check,no_root_squash,insecure)'
     volumes:
       - ./nfs/exports:/etc/exports:ro
       - nfs:/nfs
@@ -53,6 +51,5 @@ networks:
   backend:
     driver: bridge
     ipam:
-      driver: default
       config:
         - subnet: 192.168.23.0/24

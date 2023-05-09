@@ -35,6 +35,8 @@ apk:
 .PHONY: test
 test:
 	docker-compose -f test/docker-compose.yml up -d --build
+	sleep 5
+	docker logs test-nfs-1
 	go test -v ./server/... -p 1 -failfast
 	docker-compose -f test/docker-compose.yml down
 	
