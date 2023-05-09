@@ -15,7 +15,6 @@ services:
   
   webdav:
     image: bytemark/webdav
-    restart: always
     ports:
       - "8000:80"
     environment:
@@ -25,6 +24,21 @@ services:
     networks:
       - backend
 
+  nfs:
+    image: erichough/nfs-server
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SETPCAP
+    # environment:
+      # - NFS_EXPORT_0='/nfs                  *(rw,sync,no_subtree_check,no_root_squash,insecure)'
+    volumes:
+      - ./nfs/exports:/etc/exports:ro
+      - nfs:/nfs
+    networks:
+      backend:
+        ipv4_address: 192.168.23.10
+
   server:
     build: ../server
     ports:
@@ -32,6 +46,13 @@ services:
     networks:
       - backend
 
+volumes:
+  nfs:
+
 networks:
   backend:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.23.0/24

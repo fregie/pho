@@ -86,6 +86,18 @@ class ImgSyncerClient extends $grpc.Client {
       ($0.ListDriveWebdavDirRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) =>
           $0.ListDriveWebdavDirResponse.fromBuffer(value));
+  static final _$setDriveNFS =
+      $grpc.ClientMethod<$0.SetDriveNFSRequest, $0.SetDriveNFSResponse>(
+          '/img_syncer.ImgSyncer/SetDriveNFS',
+          ($0.SetDriveNFSRequest value) => value.writeToBuffer(),
+          ($core.List<$core.int> value) =>
+              $0.SetDriveNFSResponse.fromBuffer(value));
+  static final _$listDriveNFSDir =
+      $grpc.ClientMethod<$0.ListDriveNFSDirRequest, $0.ListDriveNFSDirResponse>(
+          '/img_syncer.ImgSyncer/ListDriveNFSDir',
+          ($0.ListDriveNFSDirRequest value) => value.writeToBuffer(),
+          ($core.List<$core.int> value) =>
+              $0.ListDriveNFSDirResponse.fromBuffer(value));
 
   ImgSyncerClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -168,6 +180,18 @@ class ImgSyncerClient extends $grpc.Client {
       $0.ListDriveWebdavDirRequest request,
       {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$listDriveWebdavDir, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SetDriveNFSResponse> setDriveNFS(
+      $0.SetDriveNFSRequest request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$setDriveNFS, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListDriveNFSDirResponse> listDriveNFSDir(
+      $0.ListDriveNFSDirRequest request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listDriveNFSDir, request, options: options);
   }
 }
 
@@ -282,6 +306,24 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.ListDriveWebdavDirRequest.fromBuffer(value),
         ($0.ListDriveWebdavDirResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.SetDriveNFSRequest, $0.SetDriveNFSResponse>(
+            'SetDriveNFS',
+            setDriveNFS_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.SetDriveNFSRequest.fromBuffer(value),
+            ($0.SetDriveNFSResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListDriveNFSDirRequest,
+            $0.ListDriveNFSDirResponse>(
+        'ListDriveNFSDir',
+        listDriveNFSDir_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.ListDriveNFSDirRequest.fromBuffer(value),
+        ($0.ListDriveNFSDirResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.HelloResponse> hello_Pre(
@@ -351,6 +393,17 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
     return listDriveWebdavDir(call, await request);
   }
 
+  $async.Future<$0.SetDriveNFSResponse> setDriveNFS_Pre($grpc.ServiceCall call,
+      $async.Future<$0.SetDriveNFSRequest> request) async {
+    return setDriveNFS(call, await request);
+  }
+
+  $async.Future<$0.ListDriveNFSDirResponse> listDriveNFSDir_Pre(
+      $grpc.ServiceCall call,
+      $async.Future<$0.ListDriveNFSDirRequest> request) async {
+    return listDriveNFSDir(call, await request);
+  }
+
   $async.Future<$0.HelloResponse> hello(
       $grpc.ServiceCall call, $0.HelloRequest request);
   $async.Future<$0.UploadResponse> upload(
@@ -377,4 +430,8 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.SetDriveWebdavRequest request);
   $async.Future<$0.ListDriveWebdavDirResponse> listDriveWebdavDir(
       $grpc.ServiceCall call, $0.ListDriveWebdavDirRequest request);
+  $async.Future<$0.SetDriveNFSResponse> setDriveNFS(
+      $grpc.ServiceCall call, $0.SetDriveNFSRequest request);
+  $async.Future<$0.ListDriveNFSDirResponse> listDriveNFSDir(
+      $grpc.ServiceCall call, $0.ListDriveNFSDirRequest request);
 }

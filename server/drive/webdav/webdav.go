@@ -75,6 +75,11 @@ func (d *Webdav) IsExist(path string) (bool, error) {
 		if os.IsNotExist(err) {
 			return false, nil
 		}
+		if pathErr, ok := err.(*os.PathError); ok {
+			if statusErr, ok := pathErr.Err.(gowebdav.StatusError); ok && statusErr.Status == 404 {
+				return false, nil
+			}
+		}
 		return false, err
 	}
 	return true, nil

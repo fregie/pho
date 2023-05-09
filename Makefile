@@ -17,7 +17,7 @@ protobuf:
 		proto/*.proto
 
 .PHONY: server
-server: protobuf
+server:
 	CGO_ENABLED=0 go build -ldflags "\
 		-X '${VERSION_PACKAGE_NAME}.Version=${BUILD_VERSION}' \
 		-X '${VERSION_PACKAGE_NAME}.BuildTime=${BUILD_TIME}' \
@@ -31,3 +31,10 @@ server-aar: protobuf
 
 apk:
 	flutter build apk
+
+.PHONY: test
+test:
+	docker-compose -f test/docker-compose.yml up -d --build
+	go test -v ./server/... -p 1 -failfast
+	docker-compose -f test/docker-compose.yml down
+	

@@ -19,6 +19,9 @@ service ImgSyncer {
   // Webdav Drive
   rpc SetDriveWebdav (SetDriveWebdavRequest) returns (SetDriveWebdavResponse) {}
   rpc ListDriveWebdavDir (ListDriveWebdavDirRequest) returns (ListDriveWebdavDirResponse) {}
+  // NFS Drive
+  rpc SetDriveNFS (SetDriveNFSRequest) returns (SetDriveNFSResponse) {}
+  rpc ListDriveNFSDir (ListDriveNFSDirRequest) returns (ListDriveNFSDirResponse) {}
 }
 
 // enum ContentType {
@@ -145,6 +148,24 @@ message ListDriveWebdavDirRequest {
   string dir = 1;
 }
 message ListDriveWebdavDirResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string dirs = 3;
+}
+
+message SetDriveNFSRequest {
+  string addr = 1;
+  string root = 2;
+}
+message SetDriveNFSResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ListDriveNFSDirRequest {
+  string dir = 1;
+}
+message ListDriveNFSDirResponse {
   bool success = 1;
   string message = 2;
   repeated string dirs = 3;

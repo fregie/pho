@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -72,6 +73,8 @@ func cleanSmb() error {
 	if err != nil {
 		return err
 	}
+	retriedTimes := 0
+Retry:
 	dirs, err := share.ReadDir(".")
 	if err != nil {
 		return err
@@ -79,11 +82,23 @@ func cleanSmb() error {
 	for _, dir := range dirs {
 		if dir.IsDir() {
 			if err := share.RemoveAll(dir.Name()); err != nil {
-				return err
+				if retriedTimes <= 3 {
+					time.Sleep(300 * time.Microsecond)
+					retriedTimes++
+					goto Retry
+				}
+				fmt.Printf("remove %s error: %v\n", dir.Name(), err)
+				continue
 			}
 		} else {
 			if err := share.Remove(dir.Name()); err != nil {
-				return err
+				if retriedTimes <= 3 {
+					time.Sleep(300 * time.Microsecond)
+					retriedTimes++
+					goto Retry
+				}
+				fmt.Printf("remove %s error: %v\n", dir.Name(), err)
+				continue
 			}
 		}
 	}

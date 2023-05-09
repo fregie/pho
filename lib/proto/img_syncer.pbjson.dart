@@ -298,3 +298,47 @@ const ListDriveWebdavDirResponse$json = const {
 
 /// Descriptor for `ListDriveWebdavDirResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List listDriveWebdavDirResponseDescriptor = $convert.base64Decode('ChpMaXN0RHJpdmVXZWJkYXZEaXJSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2USEgoEZGlycxgDIAMoCVIEZGlycw==');
+@$core.Deprecated('Use setDriveNFSRequestDescriptor instead')
+const SetDriveNFSRequest$json = const {
+  '1': 'SetDriveNFSRequest',
+  '2': const [
+    const {'1': 'addr', '3': 1, '4': 1, '5': 9, '10': 'addr'},
+    const {'1': 'root', '3': 2, '4': 1, '5': 9, '10': 'root'},
+  ],
+};
+
+/// Descriptor for `SetDriveNFSRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDriveNFSRequestDescriptor = $convert.base64Decode('ChJTZXREcml2ZU5GU1JlcXVlc3QSEgoEYWRkchgBIAEoCVIEYWRkchISCgRyb290GAIgASgJUgRyb290');
+@$core.Deprecated('Use setDriveNFSResponseDescriptor instead')
+const SetDriveNFSResponse$json = const {
+  '1': 'SetDriveNFSResponse',
+  '2': const [
+    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SetDriveNFSResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDriveNFSResponseDescriptor = $convert.base64Decode('ChNTZXREcml2ZU5GU1Jlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSGAoHbWVzc2FnZRgCIAEoCVIHbWVzc2FnZQ==');
+@$core.Deprecated('Use listDriveNFSDirRequestDescriptor instead')
+const ListDriveNFSDirRequest$json = const {
+  '1': 'ListDriveNFSDirRequest',
+  '2': const [
+    const {'1': 'dir', '3': 1, '4': 1, '5': 9, '10': 'dir'},
+  ],
+};
+
+/// Descriptor for `ListDriveNFSDirRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listDriveNFSDirRequestDescriptor = $convert.base64Decode('ChZMaXN0RHJpdmVORlNEaXJSZXF1ZXN0EhAKA2RpchgBIAEoCVIDZGly');
+@$core.Deprecated('Use listDriveNFSDirResponseDescriptor instead')
+const ListDriveNFSDirResponse$json = const {
+  '1': 'ListDriveNFSDirResponse',
+  '2': const [
+    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+    const {'1': 'dirs', '3': 3, '4': 3, '5': 9, '10': 'dirs'},
+  ],
+};
+
+/// Descriptor for `ListDriveNFSDirResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listDriveNFSDirResponseDescriptor = $convert.base64Decode('ChdMaXN0RHJpdmVORlNEaXJSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2USEgoEZGlycxgDIAMoCVIEZGlycw==');

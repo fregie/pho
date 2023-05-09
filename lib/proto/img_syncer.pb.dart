@@ -1633,3 +1633,241 @@ class ListDriveWebdavDirResponse extends $pb.GeneratedMessage {
   $core.List<$core.String> get dirs => $_getList(2);
 }
 
+class SetDriveNFSRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetDriveNFSRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'addr')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'root')
+    ..hasRequiredFields = false
+  ;
+
+  SetDriveNFSRequest._() : super();
+  factory SetDriveNFSRequest({
+    $core.String? addr,
+    $core.String? root,
+  }) {
+    final _result = create();
+    if (addr != null) {
+      _result.addr = addr;
+    }
+    if (root != null) {
+      _result.root = root;
+    }
+    return _result;
+  }
+  factory SetDriveNFSRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetDriveNFSRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetDriveNFSRequest clone() => SetDriveNFSRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetDriveNFSRequest copyWith(void Function(SetDriveNFSRequest) updates) => super.copyWith((message) => updates(message as SetDriveNFSRequest)) as SetDriveNFSRequest; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetDriveNFSRequest create() => SetDriveNFSRequest._();
+  SetDriveNFSRequest createEmptyInstance() => create();
+  static $pb.PbList<SetDriveNFSRequest> createRepeated() => $pb.PbList<SetDriveNFSRequest>();
+  @$core.pragma('dart2js:noInline')
+  static SetDriveNFSRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetDriveNFSRequest>(create);
+  static SetDriveNFSRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get addr => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set addr($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasAddr() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAddr() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get root => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set root($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRoot() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRoot() => clearField(2);
+}
+
+class SetDriveNFSResponse extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetDriveNFSResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..hasRequiredFields = false
+  ;
+
+  SetDriveNFSResponse._() : super();
+  factory SetDriveNFSResponse({
+    $core.bool? success,
+    $core.String? message,
+  }) {
+    final _result = create();
+    if (success != null) {
+      _result.success = success;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
+    return _result;
+  }
+  factory SetDriveNFSResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetDriveNFSResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetDriveNFSResponse clone() => SetDriveNFSResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetDriveNFSResponse copyWith(void Function(SetDriveNFSResponse) updates) => super.copyWith((message) => updates(message as SetDriveNFSResponse)) as SetDriveNFSResponse; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetDriveNFSResponse create() => SetDriveNFSResponse._();
+  SetDriveNFSResponse createEmptyInstance() => create();
+  static $pb.PbList<SetDriveNFSResponse> createRepeated() => $pb.PbList<SetDriveNFSResponse>();
+  @$core.pragma('dart2js:noInline')
+  static SetDriveNFSResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetDriveNFSResponse>(create);
+  static SetDriveNFSResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+}
+
+class ListDriveNFSDirRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ListDriveNFSDirRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dir')
+    ..hasRequiredFields = false
+  ;
+
+  ListDriveNFSDirRequest._() : super();
+  factory ListDriveNFSDirRequest({
+    $core.String? dir,
+  }) {
+    final _result = create();
+    if (dir != null) {
+      _result.dir = dir;
+    }
+    return _result;
+  }
+  factory ListDriveNFSDirRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListDriveNFSDirRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListDriveNFSDirRequest clone() => ListDriveNFSDirRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListDriveNFSDirRequest copyWith(void Function(ListDriveNFSDirRequest) updates) => super.copyWith((message) => updates(message as ListDriveNFSDirRequest)) as ListDriveNFSDirRequest; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ListDriveNFSDirRequest create() => ListDriveNFSDirRequest._();
+  ListDriveNFSDirRequest createEmptyInstance() => create();
+  static $pb.PbList<ListDriveNFSDirRequest> createRepeated() => $pb.PbList<ListDriveNFSDirRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ListDriveNFSDirRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListDriveNFSDirRequest>(create);
+  static ListDriveNFSDirRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get dir => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set dir($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDir() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDir() => clearField(1);
+}
+
+class ListDriveNFSDirResponse extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ListDriveNFSDirResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..pPS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dirs')
+    ..hasRequiredFields = false
+  ;
+
+  ListDriveNFSDirResponse._() : super();
+  factory ListDriveNFSDirResponse({
+    $core.bool? success,
+    $core.String? message,
+    $core.Iterable<$core.String>? dirs,
+  }) {
+    final _result = create();
+    if (success != null) {
+      _result.success = success;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
+    if (dirs != null) {
+      _result.dirs.addAll(dirs);
+    }
+    return _result;
+  }
+  factory ListDriveNFSDirResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListDriveNFSDirResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListDriveNFSDirResponse clone() => ListDriveNFSDirResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListDriveNFSDirResponse copyWith(void Function(ListDriveNFSDirResponse) updates) => super.copyWith((message) => updates(message as ListDriveNFSDirResponse)) as ListDriveNFSDirResponse; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ListDriveNFSDirResponse create() => ListDriveNFSDirResponse._();
+  ListDriveNFSDirResponse createEmptyInstance() => create();
+  static $pb.PbList<ListDriveNFSDirResponse> createRepeated() => $pb.PbList<ListDriveNFSDirResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListDriveNFSDirResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListDriveNFSDirResponse>(create);
+  static ListDriveNFSDirResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.String> get dirs => $_getList(2);
+}
+

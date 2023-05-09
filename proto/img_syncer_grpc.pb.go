@@ -33,6 +33,9 @@ type ImgSyncerClient interface {
 	// Webdav Drive
 	SetDriveWebdav(ctx context.Context, in *SetDriveWebdavRequest, opts ...grpc.CallOption) (*SetDriveWebdavResponse, error)
 	ListDriveWebdavDir(ctx context.Context, in *ListDriveWebdavDirRequest, opts ...grpc.CallOption) (*ListDriveWebdavDirResponse, error)
+	// NFS Drive
+	SetDriveNFS(ctx context.Context, in *SetDriveNFSRequest, opts ...grpc.CallOption) (*SetDriveNFSResponse, error)
+	ListDriveNFSDir(ctx context.Context, in *ListDriveNFSDirRequest, opts ...grpc.CallOption) (*ListDriveNFSDirResponse, error)
 }
 
 type imgSyncerClient struct {
@@ -231,6 +234,24 @@ func (c *imgSyncerClient) ListDriveWebdavDir(ctx context.Context, in *ListDriveW
 	return out, nil
 }
 
+func (c *imgSyncerClient) SetDriveNFS(ctx context.Context, in *SetDriveNFSRequest, opts ...grpc.CallOption) (*SetDriveNFSResponse, error) {
+	out := new(SetDriveNFSResponse)
+	err := c.cc.Invoke(ctx, "/img_syncer.ImgSyncer/SetDriveNFS", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *imgSyncerClient) ListDriveNFSDir(ctx context.Context, in *ListDriveNFSDirRequest, opts ...grpc.CallOption) (*ListDriveNFSDirResponse, error) {
+	out := new(ListDriveNFSDirResponse)
+	err := c.cc.Invoke(ctx, "/img_syncer.ImgSyncer/ListDriveNFSDir", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ImgSyncerServer is the server API for ImgSyncer service.
 // All implementations must embed UnimplementedImgSyncerServer
 // for forward compatibility
@@ -250,6 +271,9 @@ type ImgSyncerServer interface {
 	// Webdav Drive
 	SetDriveWebdav(context.Context, *SetDriveWebdavRequest) (*SetDriveWebdavResponse, error)
 	ListDriveWebdavDir(context.Context, *ListDriveWebdavDirRequest) (*ListDriveWebdavDirResponse, error)
+	// NFS Drive
+	SetDriveNFS(context.Context, *SetDriveNFSRequest) (*SetDriveNFSResponse, error)
+	ListDriveNFSDir(context.Context, *ListDriveNFSDirRequest) (*ListDriveNFSDirResponse, error)
 	mustEmbedUnimplementedImgSyncerServer()
 }
 
@@ -295,6 +319,12 @@ func (UnimplementedImgSyncerServer) SetDriveWebdav(context.Context, *SetDriveWeb
 }
 func (UnimplementedImgSyncerServer) ListDriveWebdavDir(context.Context, *ListDriveWebdavDirRequest) (*ListDriveWebdavDirResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDriveWebdavDir not implemented")
+}
+func (UnimplementedImgSyncerServer) SetDriveNFS(context.Context, *SetDriveNFSRequest) (*SetDriveNFSResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDriveNFS not implemented")
+}
+func (UnimplementedImgSyncerServer) ListDriveNFSDir(context.Context, *ListDriveNFSDirRequest) (*ListDriveNFSDirResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDriveNFSDir not implemented")
 }
 func (UnimplementedImgSyncerServer) mustEmbedUnimplementedImgSyncerServer() {}
 
@@ -557,6 +587,42 @@ func _ImgSyncer_ListDriveWebdavDir_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ImgSyncer_SetDriveNFS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetDriveNFSRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImgSyncerServer).SetDriveNFS(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/img_syncer.ImgSyncer/SetDriveNFS",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImgSyncerServer).SetDriveNFS(ctx, req.(*SetDriveNFSRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ImgSyncer_ListDriveNFSDir_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDriveNFSDirRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImgSyncerServer).ListDriveNFSDir(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/img_syncer.ImgSyncer/ListDriveNFSDir",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImgSyncerServer).ListDriveNFSDir(ctx, req.(*ListDriveNFSDirRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ImgSyncer_ServiceDesc is the grpc.ServiceDesc for ImgSyncer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -603,6 +669,14 @@ var ImgSyncer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListDriveWebdavDir",
 			Handler:    _ImgSyncer_ListDriveWebdavDir_Handler,
+		},
+		{
+			MethodName: "SetDriveNFS",
+			Handler:    _ImgSyncer_SetDriveNFS_Handler,
+		},
+		{
+			MethodName: "ListDriveNFSDir",
+			Handler:    _ImgSyncer_ListDriveNFSDir_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
