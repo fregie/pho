@@ -5,6 +5,9 @@
 Pho - 一个用于查看和上传照片的无服务端应用
 </h3>
 <p align="center">
+  <img src="https://github.com/fregie/pho/actions/workflows/go_test.yml/badge.svg">
+</p>
+<p align="center">
   <a href="README.md">中文</a> | <a href="README_EN.md">English</a>
 </p>
 

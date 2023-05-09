@@ -5,6 +5,9 @@
 Pho - A serverless application for viewing and uploading photos
 </h3>
 <p align="center">
+  <img src="https://github.com/fregie/pho/actions/workflows/go_test.yml/badge.svg">
+</p>
+<p align="center">
   <a href="README.md">中文</a> | <a href="README_EN.md">English</a>
 </p>
 
