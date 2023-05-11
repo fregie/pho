@@ -1,13 +1,15 @@
 package nfs
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/vmware/go-nfs-client/nfs"
@@ -15,11 +17,12 @@ import (
 )
 
 type Nfs struct {
-	host     string
-	target   string
-	rootPath string
-	mount    *nfs.Mount
-	cli      *nfs.Target
+	host              string
+	target            string
+	rootPath          string
+	mount             *nfs.Mount
+	cli               *nfs.Target
+	lastConnTimestamp int64
 }
 
 func NewNfsDrive(url string) (*Nfs, error) {
@@ -49,6 +52,48 @@ func (d *Nfs) Cli() *nfs.Target {
 	return d.cli
 }
 
+func (d *Nfs) lastConnTime() time.Time {
+	ts := atomic.LoadInt64(&d.lastConnTimestamp)
+	return time.Unix(ts, 0)
+}
+
+func (d *Nfs) updateLastConnTime() {
+	atomic.StoreInt64(&d.lastConnTimestamp, time.Now().Unix())
+}
+
+func (d *Nfs) cleanLastConnTime() {
+	atomic.StoreInt64(&d.lastConnTimestamp, 0)
+}
+
+func (d *Nfs) checkConn() error {
+	if time.Since(d.lastConnTime()) < 2*time.Minute {
+		return nil
+	}
+	if d.cli != nil {
+		_, err := d.cli.FSInfo()
+		if err == nil {
+			return nil
+		}
+		d.cli.Close()
+	}
+	if d.mount != nil {
+		d.mount.Close()
+	}
+	mount, err := nfs.DialMount(d.host)
+	if err != nil {
+		return err
+	}
+	auth := rpc.NewAuthUnix("root", 0, 0)
+	target, err := mount.Mount(d.target, auth.Auth())
+	if err != nil {
+		return err
+	}
+	d.mount = mount
+	d.cli = target
+	d.updateLastConnTime()
+	return nil
+}
+
 func (d *Nfs) IsRootPathSet() bool {
 	return d.rootPath != ""
 }
@@ -73,43 +118,66 @@ func (d *Nfs) SetRootPath(rootPath string) error {
 }
 
 func (d *Nfs) IsExist(path string) (bool, error) {
+	if err := d.checkConn(); err != nil {
+		return false, err
+	}
 	if d.rootPath == "" {
 		return false, fmt.Errorf("root path is empty")
 	}
-	path = filepath.ToSlash(path)
-	if path[0] != '/' {
-		path = "/" + path
-	}
-	if path[len(path)-1] != '/' {
-		path = path + "/"
-	}
-	_, _, err := d.cli.Lookup(path)
+	fullPath := filepath.Join(d.rootPath, path)
+	_, _, err := d.cli.Lookup(fullPath)
 	if err != nil {
+		if err, ok := err.(*nfs.Error); ok {
+			if err.ErrorNum == nfs.NFS3ErrIsDir {
+				d.updateLastConnTime()
+				return true, nil
+			}
+		}
+		if errors.Is(err, os.ErrNotExist) {
+			d.updateLastConnTime()
+			return false, nil
+		}
+		d.cleanLastConnTime()
 		return false, err
 	}
+	d.updateLastConnTime()
 	return true, nil
 }
 
 func (d *Nfs) Download(path string) (io.ReadCloser, int64, error) {
+	if err := d.checkConn(); err != nil {
+		return nil, 0, err
+	}
 	if d.rootPath == "" {
 		return nil, 0, fmt.Errorf("root path is empty")
 	}
 	fullPath := filepath.Join(d.rootPath, path)
 	file, err := d.cli.Open(fullPath)
 	if err != nil {
-		return nil, 0, err
+		d.cleanLastConnTime()
+		return nil, 0, fmt.Errorf("open file error: %v", err)
 	}
-	length := 0
-	info, err := file.FSInfo()
-	if err != nil {
-		log.Printf("get file info error: %v", err)
-	} else {
-		length = int(info.Size)
-	}
-	return file, int64(length), nil
+	var length int64 = 0
+	// info, err := file.FSInfo()
+	// if err != nil {
+	// 	fmt.Printf("get file info error: %v\n", err)
+	// } else {
+	// 	length = int64(info.Size)
+	// }
+	// data, err := io.ReadAll(file)
+	// if err != nil {
+	// 	return nil, 0, err
+	// }
+	// length = int64(len(data))
+	// return io.NopCloser(strings.NewReader(string(data))), length, nil
+	d.updateLastConnTime()
+	return file, length, nil
 }
 
 func (d *Nfs) Delete(path string) error {
+	if err := d.checkConn(); err != nil {
+		return err
+	}
 	if d.rootPath == "" {
 		return fmt.Errorf("root path is empty")
 	}
@@ -118,10 +186,14 @@ func (d *Nfs) Delete(path string) error {
 	if err != nil {
 		return err
 	}
+	d.updateLastConnTime()
 	return nil
 }
 
 func (d *Nfs) Upload(path string, reader io.ReadCloser, size int64, lastModified time.Time) error {
+	if err := d.checkConn(); err != nil {
+		return err
+	}
 	if reader == nil {
 		return fmt.Errorf("reader is nil")
 	}
@@ -132,14 +204,17 @@ func (d *Nfs) Upload(path string, reader io.ReadCloser, size int64, lastModified
 	fullPath := filepath.Join(d.rootPath, path)
 	err := d.MkdirAll(filepath.Dir(fullPath), 0755)
 	if err != nil {
+		d.cleanLastConnTime()
 		return fmt.Errorf("mkdir %s error: %v", filepath.Dir(fullPath), err)
 	}
 	_, err = d.cli.Create(fullPath, 0644)
 	if err != nil {
+		d.cleanLastConnTime()
 		return fmt.Errorf("create file error: %v", err)
 	}
 	f, err := d.cli.OpenFile(fullPath, 0644)
 	if err != nil {
+		d.cleanLastConnTime()
 		return fmt.Errorf("open file error: %v", err)
 	}
 	defer f.Close()
@@ -147,25 +222,33 @@ func (d *Nfs) Upload(path string, reader io.ReadCloser, size int64, lastModified
 	if err != nil {
 		return err
 	}
-
+	d.updateLastConnTime()
 	return nil
 }
 
 func (d *Nfs) Range(dir string, deal func(fs.FileInfo) bool) error {
+	if err := d.checkConn(); err != nil {
+		return err
+	}
 	if d.rootPath == "" {
 		return fmt.Errorf("root path is empty")
 	}
 	fullPath := filepath.Join(d.rootPath, dir)
 	infos, err := d.cli.ReadDirPlus(fullPath)
 	if err != nil {
+		d.cleanLastConnTime()
 		return err
 	}
 	sort.Sort(desc(infos))
 	for _, info := range infos {
+		if info.Name() == "." || info.Name() == ".." {
+			continue
+		}
 		if !deal(info) {
 			break
 		}
 	}
+	d.updateLastConnTime()
 	return nil
 }
 

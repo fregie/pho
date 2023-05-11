@@ -3,15 +3,31 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'state_model.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ChooseAlbumRoute extends StatelessWidget {
+class ChooseAlbumRoute extends StatefulWidget {
   const ChooseAlbumRoute({Key? key}) : super(key: key);
+  @override
+  ChooseAlbumRouteState createState() => ChooseAlbumRouteState();
+}
+
+class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
+  List<AssetPathEntity> albums = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getAlbums().then((value) {
+        setState(() {
+          albums = value;
+        });
+      });
+    });
+  }
 
   Future<List<AssetPathEntity>> getAlbums() async {
-    //先权限申请
-    final PermissionState _ps = await PhotoManager.requestPermissionExtend();
+    await requestPermission();
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
         type: RequestType.image, hasAll: true);
     // ignore: deprecated_member_use
@@ -29,61 +45,49 @@ class ChooseAlbumRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var children = <Widget>[];
+    for (var path in albums) {
+      children.add(
+        FutureBuilder(
+          future: getFirstPhotoThumbnail(path),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: Text('No album found'),
+              );
+            }
+            return AlbumCard(
+              path: path,
+              thumbnail: snapshot.data as Uint8List,
+            );
+          },
+        ),
+      );
+    }
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        iconTheme: Theme.of(context).iconTheme,
-        elevation: 0,
-        title:
-            Text('Choose album', style: Theme.of(context).textTheme.titleLarge),
-      ),
-      body: FutureBuilder(
-        future: getAlbums(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: Text('No album found'),
-            );
-          }
-          final totalwidth = MediaQuery.of(context).size.width;
-          var children = <Widget>[];
-          for (var path in snapshot.data as List<AssetPathEntity>) {
-            children.add(
-              FutureBuilder(
-                future: getFirstPhotoThumbnail(path),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: Text('No album found'),
-                    );
-                  }
-                  return AlbumCard(
-                    path: path,
-                    thumbnail: snapshot.data as Uint8List,
-                  );
-                },
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+          iconTheme: Theme.of(context).iconTheme,
+          elevation: 0,
+          title: Text('Choose album',
+              style: Theme.of(context).textTheme.titleLarge),
+        ),
+        body: CustomScrollView(
+          primary: false,
+          slivers: <Widget>[
+            SliverPadding(
+              padding: const EdgeInsets.all(10),
+              sliver: SliverGrid.count(
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                children: children,
               ),
-            );
-          }
-          return CustomScrollView(
-            primary: false,
-            slivers: <Widget>[
-              SliverPadding(
-                padding: const EdgeInsets.all(10),
-                sliver: SliverGrid.count(
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  children: children,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+            ),
+          ],
+        ));
   }
 }
 

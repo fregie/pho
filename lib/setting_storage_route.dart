@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:img_syncer/storageform/smbform.dart';
 import 'package:img_syncer/storageform/webdavform.dart';
+import 'package:img_syncer/storageform/nfsform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/state_model.dart';
 
@@ -43,6 +44,9 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
         break;
       case Drive.webDav:
         form = const WebDavForm();
+        break;
+      case Drive.nfs:
+        form = const NFSForm();
         break;
       default:
         form = const Text('Not implemented');

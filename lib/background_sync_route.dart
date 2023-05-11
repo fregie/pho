@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/sync_timer.dart';
+import 'package:img_syncer/state_model.dart';
 
 class BackgroundSyncSettingRoute extends StatefulWidget {
   const BackgroundSyncSettingRoute({Key? key}) : super(key: key);
@@ -32,7 +33,7 @@ class _BackgroundSyncSettingRouteState
       _backgroundSyncInterval =
           Duration(minutes: prefs.getInt('backgroundSyncInterval') ?? 60);
     });
-    final PermissionState _ps = await PhotoManager.requestPermissionExtend();
+    await requestPermission();
     albums = await PhotoManager.getAssetPathList();
     for (var path in albums) {
       if (path.name == 'Recent') {

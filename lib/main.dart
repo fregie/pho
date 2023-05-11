@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/global.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:img_syncer/logger.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 const seedThemeColor = Color(0xFF02FED1);
 const darkSeedThemeColor = Color(0xFF02FED1);

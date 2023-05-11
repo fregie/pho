@@ -116,6 +116,7 @@ class SyncBodyState extends State<SyncBody> {
     }
     _isGettingPhotos = true;
     all.clear();
+    await requestPermission();
     final List<AssetPathEntity> paths =
         await PhotoManager.getAssetPathList(type: RequestType.image);
     for (var path in paths) {

@@ -129,10 +129,10 @@ class RemoteImage {
   }
 
   Stream<Uint8List> dataStream() async* {
-    print("get data stream: $path");
     var rspStream = cli.get(GetRequest(path: path));
     await for (var rsp in rspStream) {
       if (!rsp.success) {
+        print("get data failed: ${rsp.message}");
         throw Exception("get data failed: ${rsp.message}");
       }
       yield Uint8List.fromList(rsp.data);

@@ -63,6 +63,7 @@ Future<void> reloadAutoSyncTimer() async {
 
 Future<List<AssetEntity>> getPhotos() async {
   List<AssetEntity> all = [];
+  await requestPermission();
   final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
   for (var path in paths) {
     if (path.name == settingModel.localFolder) {

@@ -17,11 +17,12 @@ SettingModel settingModel = SettingModel();
 AssetModel assetModel = AssetModel();
 StateModel stateModel = StateModel();
 
-enum Drive { smb, webDav }
+enum Drive { smb, webDav, nfs }
 
 Map<Drive, String> driveName = {
   Drive.smb: 'SMB',
   Drive.webDav: 'WebDAV',
+  Drive.nfs: 'NFS',
 };
 
 class SettingModel extends ChangeNotifier {
@@ -100,7 +101,7 @@ class AssetModel extends ChangeNotifier {
     localHasMore = true;
     localAssets = [];
     notifyListeners();
-    await getLocalPhotos();
+    getLocalPhotos();
   }
 
   Future<void> refreshRemote() async {
@@ -111,7 +112,7 @@ class AssetModel extends ChangeNotifier {
     remoteAssets = [];
     notifyListeners();
     remoteGetting = null;
-    await getRemotePhotos();
+    getRemotePhotos();
   }
 
   Future<void> getLocalPhotos() async {
@@ -121,7 +122,7 @@ class AssetModel extends ChangeNotifier {
     }
     localGetting = Completer<bool>();
     final offset = localAssets.length;
-    final PermissionState _ps = await PhotoManager.requestPermissionExtend();
+    await requestPermission();
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
       type: RequestType.image,
       hasAll: true,
@@ -133,7 +134,7 @@ class AssetModel extends ChangeNotifier {
       for (var path in paths) {
         if (path.assetCount > max) {
           max = path.assetCount;
-          settingModel.setLocalFolder(path.name);
+          settingModel.localFolder = path.name;
         }
       }
     }
@@ -230,6 +231,7 @@ Future<void> scanFile(String filePath) async {
 
 Future<void> refreshUnsynchronizedPhotos() async {
   final localFloder = settingModel.localFolder;
+  await requestPermission();
   final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
   for (var path in paths) {
     if (path.name == localFloder) {
@@ -268,4 +270,19 @@ Future<void> refreshUnsynchronizedPhotos() async {
       }
     }
   }
+}
+
+Completer<bool>? requesttingPermission;
+Future<void> requestPermission() async {
+  if (requesttingPermission != null) {
+    await requesttingPermission!.future;
+    return;
+  }
+  requesttingPermission = Completer<bool>();
+  //权限申请
+  final PermissionState _ps = await PhotoManager.requestPermissionExtend();
+  if (_ps != PermissionState.authorized) {
+    exit(1);
+  }
+  requesttingPermission?.complete(true);
 }

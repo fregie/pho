@@ -194,7 +194,7 @@ class Asset extends ImageProvider<Asset> {
         data = await remote!.imageData();
       }
     } catch (e) {
-      print(e);
+      print("Get image data failed: $e");
     }
     if (data == null || data.isEmpty) {
       final brokenData = await rootBundle.load("assets/images/broken.png");

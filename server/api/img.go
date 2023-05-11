@@ -103,19 +103,21 @@ func (a *api) Get(req *pb.GetRequest, stream pb.ImgSyncer_GetServer) error {
 		return nil
 	}
 	defer img.Content.Close()
+	data := make([]byte, 1024*10)
 	for {
-		data := make([]byte, 64*1024)
 		n, err := img.Content.Read(data)
+		if n > 0 {
+			err = stream.Send(&pb.GetResponse{Data: data[:n], Success: true})
+			if err != nil {
+				return fmt.Errorf("send data error: %s", err.Error())
+			}
+		}
 		if err != nil {
 			if err == io.EOF {
 				break
 			} else {
-				return err
+				return fmt.Errorf("read data error: %s", err.Error())
 			}
-		}
-		err = stream.Send(&pb.GetResponse{Data: data[:n], Success: true})
-		if err != nil {
-			return err
 		}
 	}
 
@@ -129,23 +131,25 @@ func (a *api) GetThumbnail(req *pb.GetThumbnailRequest, stream pb.ImgSyncer_GetT
 	}
 	img, e := a.im.GetThumbnail(req.Path)
 	if e != nil {
-		stream.Send(&pb.GetThumbnailResponse{Success: false, Message: e.Error()})
+		stream.Send(&pb.GetThumbnailResponse{Success: false, Message: fmt.Sprintf("get thumbnail %s error: %s", req.Path, e.Error())})
 		return nil
 	}
 	defer img.Content.Close()
-	data := make([]byte, 64*1024)
+	data := make([]byte, 1024*10)
 	for {
 		n, err := img.Content.Read(data)
+		if n > 0 {
+			err = stream.Send(&pb.GetThumbnailResponse{Data: data[:n], Success: true})
+			if err != nil {
+				return err
+			}
+		}
 		if err != nil {
 			if err == io.EOF {
 				break
 			} else {
 				return err
 			}
-		}
-		err = stream.Send(&pb.GetThumbnailResponse{Data: data[:n], Success: true})
-		if err != nil {
-			return err
 		}
 	}
 	return nil

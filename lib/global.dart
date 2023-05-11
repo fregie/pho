@@ -6,6 +6,7 @@ import 'package:img_syncer/state_model.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/logger.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 class Global {
   static Future init() async {
@@ -16,8 +17,16 @@ class Global {
       final localFolder = prefs.getString("localFolder");
       if (localFolder != null && localFolder.isNotEmpty) {
         settingModel.setLocalFolder(localFolder);
+      } else {
+        await requestPermission();
+        final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
+            type: RequestType.image, hasAll: true);
+        // ignore: deprecated_member_use
+        paths.sort((a, b) => b.assetCount.compareTo(a.assetCount));
+        if (paths.isNotEmpty) {
+          settingModel.setLocalFolder(paths[0].name);
+        }
       }
-
       var drive = prefs.getString("drive");
       drive ??= "SMB";
       switch (getDrive(drive)) {
@@ -74,6 +83,27 @@ class Global {
               }
             });
           }
+          break;
+        case Drive.nfs:
+          final addr = prefs.getString('nfs_url');
+          final root = prefs.getString('nfs_root_path');
+          if (addr != null && root != null) {
+            storage.cli
+                .setDriveNFS(SetDriveNFSRequest(
+              addr: addr,
+              root: root,
+            ))
+                .then((rsp) {
+              if (rsp.success) {
+                logger.i("set drive nfs success");
+                settingModel.setRemoteStorageSetted(true);
+              } else {
+                settingModel.setRemoteStorageSetted(false);
+                assetModel.remoteLastError = rsp.message;
+              }
+            });
+          }
+          break;
       }
       reloadAutoSyncTimer();
     });

@@ -41,3 +41,4 @@ require (
 )
 
 // replace github.com/studio-b12/gowebdav => ../gowebdav
+replace github.com/vmware/go-nfs-client => ../go-nfs-client

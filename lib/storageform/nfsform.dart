@@ -3,21 +3,20 @@ import 'package:img_syncer/event_bus.dart';
 import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
 import 'package:img_syncer/state_model.dart';
 import 'package:img_syncer/storage/storage.dart';
+import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class WebDavForm extends StatefulWidget {
-  const WebDavForm({Key? key}) : super(key: key);
+class NFSForm extends StatefulWidget {
+  const NFSForm({Key? key}) : super(key: key);
 
   @override
-  WebDavFormState createState() => WebDavFormState();
+  NFSFormState createState() => NFSFormState();
 }
 
-class WebDavFormState extends State<WebDavForm> {
+class NFSFormState extends State<NFSForm> {
   @protected
   final GlobalKey _formKey = GlobalKey<FormState>();
   TextEditingController? urlController;
-  TextEditingController? usernameController;
-  TextEditingController? passwordController;
   TextEditingController? rootPathController;
   bool testSuccess = false;
   String? errormsg;
@@ -27,89 +26,72 @@ class WebDavFormState extends State<WebDavForm> {
   void initState() {
     super.initState();
     urlController = TextEditingController();
-    usernameController = TextEditingController();
-    passwordController = TextEditingController();
     rootPathController = TextEditingController();
     SharedPreferences.getInstance().then((prefs) {
-      urlController!.text = prefs.getString('webdav_url') ?? "";
-      usernameController!.text = prefs.getString('webdav_username') ?? "";
-      passwordController!.text = prefs.getString('webdav_password') ?? "";
-      rootPathController!.text = prefs.getString('webdav_root_path') ?? "";
+      final url = prefs.getString("nfs_url");
+      final rootPath = prefs.getString("nfs_root_path");
+      if (url != null) {
+        urlController!.text = url;
+      }
+      if (rootPath != null) {
+        rootPathController!.text = rootPath;
+      }
     });
   }
 
-  Future<bool> checkWebdav() async {
+  Future<bool> checkNFS() async {
     final url = urlController!.text;
-    final username = usernameController!.text;
-    final password = passwordController!.text;
+    final rootPath = rootPathController!.text;
     if (url.isEmpty) {
       return false;
     }
     try {
-      final rsp2 = await storage.cli.setDriveWebdav(SetDriveWebdavRequest(
-          addr: url, username: username, password: password));
+      final rsp1 = await storage.cli.setDriveNFS(SetDriveNFSRequest(addr: url));
+      if (!rsp1.success) {
+        setState(() {
+          errormsg = rsp1.message;
+        });
+        return false;
+      }
+      final rsp2 = await storage.cli.listDriveNFSDir(ListDriveNFSDirRequest());
       if (!rsp2.success) {
         setState(() {
           errormsg = rsp2.message;
         });
-        print("setDriveWebdav failed: ${rsp2.message}");
-        return false;
-      }
-      final rsp3 =
-          await storage.cli.listDriveWebdavDir(ListDriveWebdavDirRequest());
-      if (!rsp3.success) {
-        setState(() {
-          errormsg = rsp3.message;
-        });
-        print("listDriveWebdavDir failed: ${rsp3.message}");
         return false;
       }
     } catch (e) {
       setState(() {
         errormsg = e.toString();
       });
-      print("checkWebdav failed: $e");
+      return false;
     }
     return true;
   }
 
   Future<List<String>> getRootPath(String dir) async {
-    final rsp = await storage.cli
-        .listDriveWebdavDir(ListDriveWebdavDirRequest(dir: dir));
+    final rsp =
+        await storage.cli.listDriveNFSDir(ListDriveNFSDirRequest(dir: dir));
     if (!rsp.success) {
       setState(() {
         errormsg = rsp.message;
       });
-      return [];
     }
     return rsp.dirs;
   }
 
-  Widget input(
-      String label, TextEditingController? c, void Function(String?)? onSaved) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: TextFormField(
-        controller: c,
-        obscureText: false,
-        onSaved: onSaved,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        decoration: InputDecoration(
-          border: const OutlineInputBorder(),
-          labelText: label,
-        ),
-      ),
-    );
-  }
-
   Future<void> testStorage() async {
     final url = urlController!.text;
-    final username = usernameController!.text;
-    final password = passwordController!.text;
     final rootPath = rootPathController!.text;
+    if (url.isEmpty || rootPath.isEmpty) {
+      setState(() {
+        errormsg = "URL or root path is empty";
+      });
+      return;
+    }
     try {
-      final rsp = await storage.cli.setDriveWebdav(SetDriveWebdavRequest(
-          addr: url, username: username, password: password, root: rootPath));
+      final rsp = await storage.cli
+          .setDriveNFS(SetDriveNFSRequest(addr: url, root: rootPath));
       if (!rsp.success) {
         setState(() {
           errormsg = rsp.message;
@@ -126,6 +108,22 @@ class WebDavFormState extends State<WebDavForm> {
       });
       return;
     }
+  }
+
+  void showErrorDialog(String msg) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Storage connection failed'),
+        content: Text(msg),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget testStorageButtun() {
@@ -156,15 +154,11 @@ class WebDavFormState extends State<WebDavForm> {
         onPressed: testSuccess
             ? () {
                 final url = urlController!.text;
-                final username = usernameController!.text;
-                final password = passwordController!.text;
                 final rootPath = rootPathController!.text;
-                SharedPreferences.getInstance().then((value) {
-                  value.setString('webdav_url', url);
-                  value.setString('webdav_username', username);
-                  value.setString('webdav_password', password);
-                  value.setString('webdav_root_path', rootPath);
-                  value.setString('drive', driveName[Drive.webDav]!);
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.setString("nfs_url", url);
+                  prefs.setString("nfs_root_path", rootPath);
+                  prefs.setString("drive", driveName[Drive.nfs]!);
                 });
                 settingModel.setRemoteStorageSetted(true);
                 assetModel.remoteLastError = null;
@@ -179,61 +173,60 @@ class WebDavFormState extends State<WebDavForm> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [];
-    children.add(Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: TextFormField(
-        controller: urlController,
-        obscureText: false,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: "URL",
-          helperText: "eg: https://your.domain:port",
-        ),
-      ),
-    ));
-    children.add(input('Username (optional)', usernameController, null));
-    children.add(input('Password (optional)', passwordController, null));
-    children.add(Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: TextFormField(
-        controller: rootPathController,
-        obscureText: false,
-        enableInteractiveSelection: true,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        decoration: InputDecoration(
-          border: const OutlineInputBorder(),
-          labelText: "Root path(Your photos will be uploaded to this path)",
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.open_in_browser),
-            onPressed: () {
-              checkWebdav().then((available) {
-                if (!available) {
-                  showErrorDialog(errormsg!);
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => rootPathDialog(),
-                  );
-                }
-              });
-            },
-          ),
-        ),
-      ),
-    ));
-    children.add(Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        testStorageButtun(),
-        saveButtun(),
-      ],
-    ));
     return Form(
       key: _formKey,
       child: Column(
-        children: children,
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            child: TextFormField(
+              controller: urlController,
+              obscureText: false,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "URL",
+                helperText: "eg: nfs.domain.or.ip:/nfs/path",
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            child: TextFormField(
+              controller: rootPathController,
+              obscureText: false,
+              enableInteractiveSelection: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText:
+                    "Root path(Your photos will be uploaded to this path)",
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.open_in_browser),
+                  onPressed: () {
+                    checkNFS().then((available) {
+                      if (!available) {
+                        showErrorDialog(errormsg!);
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => rootPathDialog(),
+                        );
+                      }
+                    });
+                  },
+                ),
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              testStorageButtun(),
+              saveButtun(),
+            ],
+          )
+        ],
       ),
     );
   }
@@ -287,12 +280,14 @@ class WebDavFormState extends State<WebDavForm> {
                                 ),
                               ),
                               onTap: () {
+                                final dirName = snapshot.data![index];
                                 setDialogState(() {
                                   if (currentPath == "") {
-                                    currentPath = snapshot.data![index];
+                                    currentPath = dirName;
+                                  } else if (dirName == ".") {
+                                    currentPath = path.dirname(currentPath);
                                   } else {
-                                    currentPath =
-                                        "$currentPath${snapshot.data![index]}/";
+                                    currentPath = "$currentPath$dirName/";
                                   }
                                 });
                               },
@@ -348,22 +343,6 @@ class WebDavFormState extends State<WebDavForm> {
           ),
         );
       },
-    );
-  }
-
-  void showErrorDialog(String msg) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Storage connection failed'),
-        content: Text(msg),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
     );
   }
 }

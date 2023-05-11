@@ -369,6 +369,9 @@ func (im *ImgManager) RangeByDate(date time.Time, f func(path string, size int64
 				dirPath := filepath.Join(yinfo.Name(), minfo.Name(), dinfo.Name())
 				goOn := true
 				im.dri.Range(dirPath, func(info fs.FileInfo) bool {
+					if info.IsDir() {
+						return true
+					}
 					goOn = f(filepath.Join(dirPath, info.Name()), info.Size())
 					return goOn
 				})

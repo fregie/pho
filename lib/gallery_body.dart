@@ -64,13 +64,13 @@ class GalleryBodyState extends State<GalleryBody>
         });
       }
     });
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   final all =
-    //       widget.useLocal ? assetModel.localAssets : assetModel.remoteAssets;
-    //   if (all.isEmpty) {
-    //     refresh();
-    //   }
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final all =
+          widget.useLocal ? assetModel.localAssets : assetModel.remoteAssets;
+      if (all.isEmpty) {
+        refresh();
+      }
+    });
   }
 
   @override
