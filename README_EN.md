@@ -32,14 +32,21 @@ Pho is a simple app designed for viewing and synchronizing photos to cloud stora
 - [x] Webdav
 - [x] NFS
 - [ ] Alibaba Cloud Drive
+- [ ] quark
+- [ ] baidu netdisk
+- [ ] oneDrive
+- [ ] google drive
+- [ ] google photo
 
 ### Screenshots
+<p align="left">
 <img src="assets/screenshot/Screenshot_01.png" width="250">
 <img src="assets/screenshot/Screenshot_02.png" width="250">
 <img src="assets/screenshot/Screenshot_03.png" width="250">
 <img src="assets/screenshot/Screenshot_04.png" width="250">
 <img src="assets/screenshot/Screenshot_05.png" width="250">
 <img src="assets/screenshot/Screenshot_06.png" width="250">
+</p>
 
 ### File Storage Logic
 The application stores files based on a straightforward principle of utilizing the time as the directory structure, and the source file name as the filename for storage. A .thumbnail directory is created in the root directory to store the generated thumbnails, and the directory structure for these thumbnails aligns with that of the source files.

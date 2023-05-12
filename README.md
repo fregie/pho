@@ -32,6 +32,11 @@ Pho - 一个用于查看和上传照片的无服务端应用
 - [x] Webdav
 - [x] NFS
 - [ ] 阿里网盘
+- [ ] 夸克网盘
+- [ ] 百度网盘
+- [ ] oneDrive
+- [ ] google drive
+- [ ] google photo
 
 ### Screenshots
 <p align="left">
