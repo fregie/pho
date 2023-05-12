@@ -90,9 +90,13 @@ class _BackgroundSyncSettingRouteState
             trailing: DropdownButton<Duration>(
               value: _backgroundSyncInterval,
               items: const [
+                // DropdownMenuItem(
+                //   value: Duration(minutes: 1),
+                //   child: Text('1 minute'),
+                // ),
                 DropdownMenuItem(
-                  value: Duration(minutes: 1),
-                  child: Text('1 minute'),
+                  value: Duration(minutes: 10),
+                  child: Text('10 minute'),
                 ),
                 DropdownMenuItem(
                   value: Duration(hours: 1),
