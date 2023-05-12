@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/global.dart';
 import 'package:provider/provider.dart';
@@ -6,11 +5,10 @@ import 'package:img_syncer/state_model.dart';
 import 'gallery_body.dart';
 import 'setting_body.dart';
 import 'sync_body.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:img_syncer/logger.dart';
-import 'package:photo_manager/photo_manager.dart';
+import 'package:flutter/services.dart';
 
 const seedThemeColor = Color(0xFF02FED1);
 const darkSeedThemeColor = Color(0xFF02FED1);
@@ -35,6 +33,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // 设置状态栏颜色为透明
+      systemNavigationBarColor: Colors.transparent, // 设置导航栏颜色为透明
+      systemNavigationBarDividerColor: Colors.transparent, // 设置导航栏分隔线颜色为透明
+    ));
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
         late ColorScheme lightColorScheme;
