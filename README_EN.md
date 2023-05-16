@@ -40,12 +40,7 @@ Pho is a simple app designed for viewing and synchronizing photos to cloud stora
 
 ### Screenshots
 <p align="left">
-<img src="assets/screenshot/Screenshot_01.png" width="250">
-<img src="assets/screenshot/Screenshot_02.png" width="250">
-<img src="assets/screenshot/Screenshot_03.png" width="250">
-<img src="assets/screenshot/Screenshot_04.png" width="250">
-<img src="assets/screenshot/Screenshot_05.png" width="250">
-<img src="assets/screenshot/Screenshot_06.png" width="250">
+<img src="assets/screenshot/Screenshots.png" >
 </p>
 
 ### File Storage Logic
