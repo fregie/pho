@@ -40,12 +40,7 @@ Pho - 一个用于查看和上传照片的无服务端应用
 
 ### Screenshots
 <p align="left">
-<img src="assets/screenshot/Screenshot_01.png" width="250">
-<img src="assets/screenshot/Screenshot_02.png" width="250">
-<img src="assets/screenshot/Screenshot_03.png" width="250">
-<img src="assets/screenshot/Screenshot_04.png" width="250">
-<img src="assets/screenshot/Screenshot_05.png" width="250">
-<img src="assets/screenshot/Screenshot_06.png" width="250">
+<img src="assets/screenshot/Screenshots.png" >
 </p>
 
 
