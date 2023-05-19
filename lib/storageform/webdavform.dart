@@ -137,8 +137,8 @@ class WebDavFormState extends State<WebDavForm> {
         onPressed: () {
           testStorage().then((value) {
             if (testSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Test success,you can save now')));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(AppLocalizations.of(context).testSuccess)));
             } else {
               showErrorDialog(errormsg!);
             }
@@ -257,7 +257,7 @@ class WebDavFormState extends State<WebDavForm> {
                 Container(
                   padding: const EdgeInsets.fromLTRB(20, 30, 20, 10),
                   child: Text(
-                    "Select root path",
+                    AppLocalizations.of(context).selectRoot,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -265,7 +265,7 @@ class WebDavFormState extends State<WebDavForm> {
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Current path: $currentPath",
+                    "${AppLocalizations.of(context).currentPath}: $currentPath",
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -330,7 +330,7 @@ class WebDavFormState extends State<WebDavForm> {
                       width: 120,
                       height: 55,
                       child: OutlinedButton(
-                        child: const Text("Cancel"),
+                        child: Text(AppLocalizations.of(context).cancel),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
@@ -341,7 +341,7 @@ class WebDavFormState extends State<WebDavForm> {
                       width: 120,
                       height: 55,
                       child: FilledButton(
-                        child: const Text("Save"),
+                        child: Text(AppLocalizations.of(context).save),
                         onPressed: () {
                           rootPathController!.text = currentPath;
                           Navigator.of(context).pop();
@@ -362,7 +362,7 @@ class WebDavFormState extends State<WebDavForm> {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Storage connection failed'),
+        title: Text(AppLocalizations.of(context).connectFailed),
         content: Text(msg),
         actions: <Widget>[
           TextButton(

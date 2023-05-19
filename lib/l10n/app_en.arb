@@ -28,7 +28,7 @@
   "chooseAlbum": "Choose album",
   "storageSetting": "Storage setting",
   "remoteStorageType": "Remote storage type",
-  "samvbaServerAddress": "Samvba server address",
+  "samvbaServerAddress": "Samba server address",
   "username": "Username",
   "password": "Password",
   "share": "Share",
@@ -50,5 +50,9 @@
   "setLocalFirst": "Please set local folder first",
   "downloadFailed": "Download failed",
   "storageNotSetted": "Remote storage is not setted,please set it first",
-  "successfullyUpload": "Successfully upload"
+  "successfullyUpload": "Successfully upload",
+  "testSuccess": "Test success,you can save now",
+  "connectFailed": "Storage connection failed",
+  "selectRoot": "Select root path",
+  "currentPath": "Current path"
 }

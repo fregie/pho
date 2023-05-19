@@ -31,7 +31,7 @@
     "samvbaServerAddress": "Samba服务器地址",
     "username": "用户名",
     "password": "密码",
-    "share": "分享名称",
+    "share": "分享",
     "rootPath": "储存根目录(照片会储存在该目录下)",
     "optional": "可选",
     "testStorage": "测试连接",
@@ -50,5 +50,9 @@
     "setLocalFirst": "请先设置本地相册",
     "downloadFailed": "下载失败",
     "storageNotSetted": "网络储存未配置,请先配置网络储存",
-    "successfullyUpload": "成功上传"
+    "successfullyUpload": "成功上传",
+    "testSuccess": "连接成功,请点击保存",
+    "connectFailed": "连接失败",
+    "selectRoot": "选择根目录",
+    "currentPath": "当前目录"
 }

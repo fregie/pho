@@ -407,8 +407,8 @@ class _SMBFormState extends State<SMBForm> {
         onPressed: () {
           testStorage().then((value) {
             if (testSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Test success,you can save now')));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(AppLocalizations.of(context).testSuccess)));
             } else {
               showErrorDialog(errormsg!);
             }
@@ -449,7 +449,7 @@ class _SMBFormState extends State<SMBForm> {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Storage connection failed'),
+        title: Text(AppLocalizations.of(context).connectFailed),
         content: Text(msg),
         actions: <Widget>[
           TextButton(
