@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:img_syncer/storage/storage.dart';
 import 'package:img_syncer/choose_album_route.dart';
 import 'package:img_syncer/setting_storage_route.dart';
 
@@ -32,7 +31,7 @@ class SettingBody extends StatelessWidget {
                       );
                     },
                     child: Row(
-                      children: [
+                      children: const [
                         Icon(
                           Icons.folder_outlined,
                           // color: Theme.of(context).colorScheme.secondary,
@@ -57,7 +56,7 @@ class SettingBody extends StatelessWidget {
                           ));
                     },
                     child: Row(
-                      children: [
+                      children: const [
                         Icon(
                           Icons.cloud_outlined,
                           // color: Theme.of(context).colorScheme.secondary,

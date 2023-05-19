@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:img_syncer/choose_album_route.dart';
 import 'package:img_syncer/setting_storage_route.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SyncBody extends StatefulWidget {
   const SyncBody({
@@ -174,13 +175,14 @@ class SyncBodyState extends State<SyncBody> {
                       );
                     },
                     child: Row(
-                      children: const [
-                        Icon(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
                           Icons.folder_outlined,
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
-                        SizedBox(width: 10),
-                        Text('Local folder')
+                        const SizedBox(width: 10),
+                        Text(AppLocalizations.of(context).localFolder),
                       ],
                     ),
                   ),
@@ -199,13 +201,14 @@ class SyncBodyState extends State<SyncBody> {
                           ));
                     },
                     child: Row(
-                      children: const [
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
                         Icon(
                           Icons.cloud_outlined,
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
                         SizedBox(width: 10),
-                        Text('Cloud storage'),
+                        Text(AppLocalizations.of(context).cloudStorage),
                       ],
                     ),
                   ),
@@ -230,12 +233,13 @@ class SyncBodyState extends State<SyncBody> {
                       );
                     },
                     child: Row(
-                      children: const [
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
                         Icon(
                           Icons.cloud_sync_outlined,
                         ),
                         SizedBox(width: 10),
-                        Text('Background sync'),
+                        Text(AppLocalizations.of(context).backgroundSync),
                       ],
                     ),
                   ),
@@ -272,25 +276,27 @@ class SyncBodyState extends State<SyncBody> {
         continue;
       }
       setState(() {
-        uploadState[asset.title!] = "Uploading";
+        uploadState[asset.title!] = AppLocalizations.of(context).uploading;
       });
       try {
         final rsp = await storage.uploadAssetEntity(asset);
         if (!rsp.success) {
           setState(() {
-            uploadState[asset.title!] = "Upload failed: ${rsp.message}";
+            uploadState[asset.title!] =
+                "${AppLocalizations.of(context).uploadFailed}: ${rsp.message}";
           });
           continue;
         }
       } catch (e) {
         setState(() {
-          uploadState[asset.title!] = "Upload failed: $e";
+          uploadState[asset.title!] =
+              "${AppLocalizations.of(context).uploadFailed}: $e";
         });
         continue;
       }
       setState(() {
         toUpload -= 1;
-        uploadState[asset.title!] = "Uploaded";
+        uploadState[asset.title!] = AppLocalizations.of(context).uploaded;
       });
     }
     stateModel.setUploadState(false);
@@ -310,7 +316,7 @@ class SyncBodyState extends State<SyncBody> {
       appBar: AppBar(
         centerTitle: false,
         title: Text(
-          'Cloud sync',
+          AppLocalizations.of(context).cloudSync,
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         actions: [
@@ -318,7 +324,7 @@ class SyncBodyState extends State<SyncBody> {
             padding: const EdgeInsets.fromLTRB(0, 0, 5, 5),
             alignment: Alignment.bottomRight,
             child: Text(
-              "$toUpload not synced",
+              "$toUpload ${AppLocalizations.of(context).notSync}",
               style: const TextStyle(color: Colors.grey),
             ),
           ),
@@ -352,7 +358,9 @@ class SyncBodyState extends State<SyncBody> {
                     ? stopSync
                     : syncPhotots,
                 icon: syncing ? CircularProgress() : const Icon(Icons.sync),
-                label: Text(syncing ? "Stop" : "Sync")),
+                label: Text(syncing
+                    ? AppLocalizations.of(context).stop
+                    : AppLocalizations.of(context).sync)),
           ),
         ],
       ),
@@ -364,8 +372,8 @@ class SyncBodyState extends State<SyncBody> {
             children: [
               Container(
                 padding: const EdgeInsets.fromLTRB(15, 0, 10, 0),
-                child: const Text(
-                  "unsynchronized photos",
+                child: Text(
+                  AppLocalizations.of(context).unsynchronizedPhotos,
                   style: TextStyle(
                     fontSize: 13,
                   ),
@@ -395,8 +403,8 @@ class SyncBodyState extends State<SyncBody> {
                         fit: BoxFit.cover),
                   ),
                   title: Text(toShow[index].name()!),
-                  subtitle:
-                      Text(uploadState[toShow[index].name()] ?? "Not uploaded"),
+                  subtitle: Text(uploadState[toShow[index].name()] ??
+                      AppLocalizations.of(context).notUploaded),
                 );
               },
             ),

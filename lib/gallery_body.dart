@@ -15,8 +15,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:img_syncer/storage/storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GalleryBody extends StatefulWidget {
   const GalleryBody({Key? key, required this.useLocal}) : super(key: key);
@@ -88,7 +88,7 @@ class GalleryBodyState extends State<GalleryBody>
   void _scrollToTop() {
     _scrollController.animateTo(
       0,
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );
   }
@@ -169,8 +169,8 @@ class GalleryBodyState extends State<GalleryBody>
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Delete selected photos?'),
-        content: const Text("This action can't be undone."),
+        title: Text("${AppLocalizations.of(context).deleteThisPhotos}?"),
+        content: Text(AppLocalizations.of(context).cantBeUndone),
         actions: <Widget>[
           TextButton(
             onPressed: () {
@@ -204,18 +204,19 @@ class GalleryBodyState extends State<GalleryBody>
               }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Deleted ${toDelete.length} photos.'),
+                  content: Text(
+                      '${AppLocalizations.of(context).delete} ${toDelete.length} ${AppLocalizations.of(context).photos}.'),
                 ),
               );
               clearSelection();
               setState(() {});
               Navigator.of(context).pop();
             },
-            child: const Text('Yes'),
+            child: Text(AppLocalizations.of(context).yes),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
         ],
       ),
@@ -256,14 +257,14 @@ class GalleryBodyState extends State<GalleryBody>
       status = await Permission.photos.request();
       if (!status.isGranted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Permission denied"),
+          content: Text(AppLocalizations.of(context).permissionDenied),
         ));
         return;
       }
     }
     if (settingModel.localFolderAbsPath == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Please set local folder first"),
+        content: Text(AppLocalizations.of(context).setLocalFirst),
       ));
       return;
     }
@@ -303,12 +304,13 @@ class GalleryBodyState extends State<GalleryBody>
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Download failed: $e"),
+        content: Text("${AppLocalizations.of(context).downloadFailed}: $e"),
       ));
     }
     stateModel.setDownloadState(false);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Download $count photos"),
+      content: Text(
+          "${AppLocalizations.of(context).download} $count ${AppLocalizations.of(context).photos}"),
     ));
     eventBus.fire(LocalRefreshEvent());
     clearSelection();
@@ -320,7 +322,7 @@ class GalleryBodyState extends State<GalleryBody>
     }
     if (!settingModel.isRemoteStorageSetted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Remote storage is not setted,please set it first"),
+        content: Text(AppLocalizations.of(context).storageNotSetted),
       ));
       return;
     }
@@ -342,18 +344,20 @@ class GalleryBodyState extends State<GalleryBody>
         final rsp = await storage.uploadAssetEntity(entity);
         if (!rsp.success) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Upload failed: ${rsp.message}"),
+            content: Text(
+                "${AppLocalizations.of(context).uploadFailed}: ${rsp.message}"),
           ));
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Upload failed: $e"),
+          content: Text("${AppLocalizations.of(context).uploadFailed}: $e"),
         ));
       }
     }
     stateModel.setUploadState(false);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Successfully upload ${assets.length} photos"),
+      content: Text(
+          "${AppLocalizations.of(context).successfullyUpload} ${assets.length} ${AppLocalizations.of(context).photos}"),
     ));
     eventBus.fire(RemoteRefreshEvent());
 
@@ -363,7 +367,7 @@ class GalleryBodyState extends State<GalleryBody>
   void _showBottomSheet(BuildContext context) {
     _bottomSheetController = Scaffold.of(context).showBottomSheet(
       (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 100,
           child: Column(
             children: [
@@ -379,25 +383,29 @@ class GalleryBodyState extends State<GalleryBody>
                 ),
               ),
               Consumer<StateModel>(
-                  builder: (context, model, child) => Container(
+                  builder: (context, model, child) => SizedBox(
                         height: 80,
                         child: Row(
                           children: [
                             _bottomSheetIconButtun(
-                                Icons.share_outlined, 'Share', _shareAsset),
-                            _bottomSheetIconButtun(Icons.delete_outline,
-                                'Delete', () => _showDeleteDialog(context)),
+                                Icons.share_outlined,
+                                AppLocalizations.of(context).share,
+                                _shareAsset),
+                            _bottomSheetIconButtun(
+                                Icons.delete_outline,
+                                AppLocalizations.of(context).delete,
+                                () => _showDeleteDialog(context)),
                             if (widget.useLocal)
                               _bottomSheetIconButtun(
                                   Icons.cloud_upload_outlined,
-                                  'Upload',
+                                  AppLocalizations.of(context).upload,
                                   uploadSelected,
                                   isEnable: !model.isDownloading &&
                                       !model.isUploading),
                             if (!widget.useLocal)
                               _bottomSheetIconButtun(
                                   Icons.cloud_download_outlined,
-                                  'Download',
+                                  AppLocalizations.of(context).download,
                                   downloadSelected,
                                   isEnable: !model.isDownloading &&
                                       !model.isUploading),
@@ -417,9 +425,9 @@ class GalleryBodyState extends State<GalleryBody>
       builder: (context, model, child) {
         String text = 'Pho';
         if (model.isUploading) {
-          text = 'Uploading...';
+          text = '${AppLocalizations.of(context).uploading}...';
         } else if (model.isDownloading) {
-          text = 'Downloading...';
+          text = '${AppLocalizations.of(context).downloading}...';
         }
         return SliverAppBar(
           pinned: false,
@@ -530,7 +538,9 @@ class GalleryBodyState extends State<GalleryBody>
                           children: currentChildren,
                         ));
                         currentChildren = <Widget>[];
-                        DateFormat format = DateFormat('MMMM dd,yyyy EEEEE');
+                        DateFormat format = DateFormat(
+                            'yyyy MMMM d${AppLocalizations.of(context).chineseday}  EEEEE',
+                            Localizations.localeOf(context).languageCode);
                         children.add(Container(
                           padding: const EdgeInsets.all(15),
                           child: Text(
@@ -636,9 +646,9 @@ class GalleryBodyState extends State<GalleryBody>
                   FloatingActionButton(
                     heroTag: "upload",
                     onPressed: () async {
-                      final ImagePicker _picker = ImagePicker();
+                      final ImagePicker picker = ImagePicker();
                       final XFile? image =
-                          await _picker.pickImage(source: ImageSource.gallery);
+                          await picker.pickImage(source: ImageSource.gallery);
                       if (image == null) {
                         return;
                       } else {

@@ -221,7 +221,7 @@ Future<void> scanFile(String filePath) async {
         'mimeType': mimeType,
       };
 
-      await MethodChannel('com.example.img_syncer/RunGrpcServer')
+      await const MethodChannel('com.example.img_syncer/RunGrpcServer')
           .invokeMethod('scanFile', params);
     } on PlatformException catch (e) {
       print('Failed to scan file $filePath: ${e.message}');
@@ -280,8 +280,8 @@ Future<void> requestPermission() async {
   }
   requesttingPermission = Completer<bool>();
   //权限申请
-  final PermissionState _ps = await PhotoManager.requestPermissionExtend();
-  if (_ps != PermissionState.authorized) {
+  final PermissionState ps = await PhotoManager.requestPermissionExtend();
+  if (ps != PermissionState.authorized) {
     exit(1);
   }
   requesttingPermission?.complete(true);

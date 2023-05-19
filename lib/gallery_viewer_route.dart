@@ -7,8 +7,6 @@ import 'package:img_syncer/state_model.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'event_bus.dart';
 import 'package:extended_image/extended_image.dart';
@@ -31,7 +29,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
   late final ExtendedPageController _pageController;
   late List<Asset> all;
   late int currentIndex;
-  bool _isOriginalScale = true;
+  final bool _isOriginalScale = true;
 
   @override
   void initState() {
@@ -253,7 +251,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
       return;
     }
     OverlayEntry loadingDialog = OverlayEntry(
-      builder: (context) => Center(
+      builder: (context) => const Center(
         child: CircularProgressIndicator(),
       ),
     );
@@ -265,7 +263,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     if (!status.isGranted) {
       status = await Permission.photos.request();
       if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Permission denied"),
         ));
         return;
@@ -298,7 +296,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
       return;
     }
     OverlayEntry loadingDialog = OverlayEntry(
-      builder: (context) => Center(
+      builder: (context) => const Center(
         child: CircularProgressIndicator(),
       ),
     );
@@ -306,7 +304,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     // 将加载对话框添加到Overlay中
     Overlay.of(context).insert(loadingDialog);
     if (!settingModel.isRemoteStorageSetted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Remote storage is not setted,please set it first"),
       ));
       return;

@@ -5,6 +5,7 @@ import 'package:img_syncer/state_model.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NFSForm extends StatefulWidget {
   const NFSForm({Key? key}) : super(key: key);
@@ -141,7 +142,7 @@ class NFSFormState extends State<NFSForm> {
             }
           });
         },
-        child: const Text("Test storage"),
+        child: Text(AppLocalizations.of(context).testStorage),
       ),
     );
   }
@@ -166,7 +167,7 @@ class NFSFormState extends State<NFSForm> {
                 Navigator.pop(context);
               }
             : null,
-        child: const Text("Save"),
+        child: Text(AppLocalizations.of(context).save),
       ),
     );
   }
@@ -199,8 +200,7 @@ class NFSFormState extends State<NFSForm> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                labelText:
-                    "Root path(Your photos will be uploaded to this path)",
+                labelText: AppLocalizations.of(context).rootPath,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.open_in_browser),
                   onPressed: () {

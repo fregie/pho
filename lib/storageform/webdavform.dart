@@ -4,6 +4,7 @@ import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
 import 'package:img_syncer/state_model.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebDavForm extends StatefulWidget {
   const WebDavForm({Key? key}) : super(key: key);
@@ -143,7 +144,7 @@ class WebDavFormState extends State<WebDavForm> {
             }
           });
         },
-        child: const Text("Test storage"),
+        child: Text(AppLocalizations.of(context).testStorage),
       ),
     );
   }
@@ -172,7 +173,7 @@ class WebDavFormState extends State<WebDavForm> {
                 Navigator.pop(context);
               }
             : null,
-        child: const Text("Save"),
+        child: Text(AppLocalizations.of(context).save),
       ),
     );
   }
@@ -193,8 +194,14 @@ class WebDavFormState extends State<WebDavForm> {
         ),
       ),
     ));
-    children.add(input('Username (optional)', usernameController, null));
-    children.add(input('Password (optional)', passwordController, null));
+    children.add(input(
+        '${AppLocalizations.of(context).username} (${AppLocalizations.of(context).optional})',
+        usernameController,
+        null));
+    children.add(input(
+        '${AppLocalizations.of(context).password} (${AppLocalizations.of(context).optional})',
+        passwordController,
+        null));
     children.add(Container(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: TextFormField(
@@ -204,7 +211,7 @@ class WebDavFormState extends State<WebDavForm> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
-          labelText: "Root path(Your photos will be uploaded to this path)",
+          labelText: AppLocalizations.of(context).rootPath,
           suffixIcon: IconButton(
             icon: const Icon(Icons.open_in_browser),
             onPressed: () {

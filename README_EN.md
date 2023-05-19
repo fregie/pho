@@ -102,3 +102,4 @@ Directory Structure Diagram:
 - [ ] Support Alibaba Cloud Drive
 - [ ] Support iOS
 - [ ] Support web version
+- [ ] Add Chinese

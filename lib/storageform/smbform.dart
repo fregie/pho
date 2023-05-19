@@ -4,6 +4,7 @@ import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
 import 'package:img_syncer/state_model.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SMBForm extends StatefulWidget {
   const SMBForm({Key? key}) : super(key: key);
@@ -124,9 +125,10 @@ class _SMBFormState extends State<SMBForm> {
 
   Widget smbForm(BuildContext context) {
     List<Widget> children = [
-      input("Samba server address", smbAddrController, null),
-      input("Username", smbUsernameController, null),
-      input("Password", smbPasswordController, null),
+      input(AppLocalizations.of(context).samvbaServerAddress, smbAddrController,
+          null),
+      input(AppLocalizations.of(context).username, smbUsernameController, null),
+      input(AppLocalizations.of(context).password, smbPasswordController, null),
       Container(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: TextFormField(
@@ -137,7 +139,7 @@ class _SMBFormState extends State<SMBForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: "Share",
+            labelText: AppLocalizations.of(context).share,
             suffixIcon: IconButton(
               icon: const Icon(Icons.open_in_browser),
               onPressed: () => refreshShare().then((available) {
@@ -164,7 +166,7 @@ class _SMBFormState extends State<SMBForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: "Root path(Your photos will be uploaded to this path)",
+            labelText: AppLocalizations.of(context).rootPath,
             suffixIcon: smbShareController!.text == ""
                 ? null
                 : IconButton(
@@ -412,7 +414,7 @@ class _SMBFormState extends State<SMBForm> {
             }
           });
         },
-        child: const Text("Test storage"),
+        child: Text(AppLocalizations.of(context)!.testStorage),
       ),
     );
   }
@@ -438,7 +440,7 @@ class _SMBFormState extends State<SMBForm> {
                 Navigator.pop(context);
               }
             : null,
-        child: const Text("Save"),
+        child: Text(AppLocalizations.of(context).save),
       ),
     );
   }

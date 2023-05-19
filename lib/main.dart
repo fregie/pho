@@ -9,6 +9,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:img_syncer/logger.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const seedThemeColor = Color(0xFF02FED1);
 const darkSeedThemeColor = Color(0xFF02FED1);
@@ -98,6 +99,8 @@ class MyApp extends StatelessWidget {
                 theme: theme,
                 darkTheme: darkTheme,
                 themeMode: ThemeMode.system,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
               );
             });
       },
@@ -136,15 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 2:
         break;
-      case 3:
-        appBar = AppBar(
-          centerTitle: true,
-          title: Text(
-            'Setting',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-        );
-        break;
     }
     return Consumer<StateModel>(
       builder: (context, model, child) => Scaffold(
@@ -176,23 +170,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationDestination(
                     icon: Icon(Icons.phone_android,
                         color: Theme.of(context).iconTheme.color),
-                    label: 'Local',
+                    label: AppLocalizations.of(context).local,
                   ),
                   NavigationDestination(
                     icon: Icon(Icons.cloud,
                         color: Theme.of(context).iconTheme.color),
-                    label: 'Cloud',
+                    label: AppLocalizations.of(context).cloud,
                   ),
                   NavigationDestination(
                     icon: Icon(Icons.cloud_sync,
                         color: Theme.of(context).iconTheme.color),
-                    label: 'Sync',
+                    label: AppLocalizations.of(context).sync,
                   ),
-                  // NavigationDestination(
-                  //   icon: Icon(Icons.settings,
-                  //       color: Theme.of(context).iconTheme.color),
-                  //   label: 'Setting',
-                  // ),
                 ],
               ),
       ),
