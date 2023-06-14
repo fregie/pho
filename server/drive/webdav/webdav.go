@@ -1,10 +1,11 @@
 package webdav
 
 import (
-	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -28,6 +29,9 @@ func NewWebdavDrive(url, username, password string) *Webdav {
 		password: password,
 		cli:      gowebdav.NewClient(url, username, password),
 	}
+	d.cli.SetTransport(&http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	})
 	return d
 }
 
@@ -90,16 +94,21 @@ func (d *Webdav) Download(path string) (io.ReadCloser, int64, error) {
 		return nil, 0, fmt.Errorf("root path is empty")
 	}
 	fullPath := filepath.Join(d.rootPath, path)
-	// reader, err := d.cli.ReadStream(fullPath)
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
-	data, err := d.cli.Read(fullPath)
+	reader, err := d.cli.ReadStream(fullPath)
 	if err != nil {
 		return nil, 0, err
 	}
-	reader := io.NopCloser(bytes.NewReader(data))
-	return reader, int64(len(data)), nil
+	info, err := d.cli.Stat(fullPath)
+	if err != nil {
+		return nil, 0, err
+	}
+	return reader, info.Size(), nil
+	// data, err := d.cli.Read(fullPath)
+	// if err != nil {
+	// 	return nil, 0, err
+	// }
+	// reader := io.NopCloser(bytes.NewReader(data))
+	// return reader, int64(len(data)), nil
 }
 
 func (d *Webdav) Delete(path string) error {
@@ -114,7 +123,11 @@ func (d *Webdav) Delete(path string) error {
 	return nil
 }
 
-func (d *Webdav) Upload(path string, reader io.ReadCloser, size int64, lastModified time.Time) error {
+func (d *Webdav) DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error) {
+	return nil, 0, fmt.Errorf("not support")
+}
+
+func (d *Webdav) Upload(path string, reader io.ReadCloser, lastModified time.Time) error {
 	if reader == nil {
 		return fmt.Errorf("reader is nil")
 	}

@@ -101,7 +101,7 @@ class AssetModel extends ChangeNotifier {
     localHasMore = true;
     localAssets = [];
     notifyListeners();
-    getLocalPhotos();
+    await getLocalPhotos();
   }
 
   Future<void> refreshRemote() async {
@@ -112,7 +112,7 @@ class AssetModel extends ChangeNotifier {
     remoteAssets = [];
     notifyListeners();
     remoteGetting = null;
-    getRemotePhotos();
+    await getRemotePhotos();
   }
 
   Future<void> getLocalPhotos() async {
@@ -124,7 +124,7 @@ class AssetModel extends ChangeNotifier {
     final offset = localAssets.length;
     await requestPermission();
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
-      type: RequestType.image,
+      type: RequestType.common,
       hasAll: true,
     );
 
@@ -156,18 +156,16 @@ class AssetModel extends ChangeNotifier {
           localHasMore = false;
         }
         for (var entity in entities) {
-          if (entity.type == AssetType.image) {
-            final asset = Asset(local: entity);
-            if (settingModel.localFolderAbsPath == null) {
-              final file = await entity.file;
-              if (file != null) {
-                settingModel.localFolderAbsPath = file.parent.path;
-              }
+          final asset = Asset(local: entity);
+          if (settingModel.localFolderAbsPath == null) {
+            final file = await entity.file;
+            if (file != null) {
+              settingModel.localFolderAbsPath = file.parent.path;
             }
-            await asset.thumbnailDataAsync();
-            localAssets.add(asset);
-            notifyListeners();
           }
+          await asset.thumbnailDataAsync();
+          localAssets.add(asset);
+          notifyListeners();
         }
       }
     }
@@ -232,7 +230,8 @@ Future<void> scanFile(String filePath) async {
 Future<void> refreshUnsynchronizedPhotos() async {
   final localFloder = settingModel.localFolder;
   await requestPermission();
-  final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+  final List<AssetPathEntity> paths =
+      await PhotoManager.getAssetPathList(type: RequestType.common);
   for (var path in paths) {
     if (path.name == localFloder) {
       final newpath = await path.fetchPathProperties(
@@ -256,7 +255,7 @@ Future<void> refreshUnsynchronizedPhotos() async {
           break;
         }
         for (var asset in assets) {
-          if (asset.type == AssetType.image && asset.title != null) {
+          if (asset.title != null) {
             req.names.add(asset.title!);
           }
         }

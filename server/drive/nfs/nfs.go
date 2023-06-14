@@ -174,6 +174,10 @@ func (d *Nfs) Download(path string) (io.ReadCloser, int64, error) {
 	return file, length, nil
 }
 
+func (d *Nfs) DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error) {
+	return nil, 0, fmt.Errorf("not support")
+}
+
 func (d *Nfs) Delete(path string) error {
 	if err := d.checkConn(); err != nil {
 		return err
@@ -190,7 +194,7 @@ func (d *Nfs) Delete(path string) error {
 	return nil
 }
 
-func (d *Nfs) Upload(path string, reader io.ReadCloser, size int64, lastModified time.Time) error {
+func (d *Nfs) Upload(path string, reader io.ReadCloser, lastModified time.Time) error {
 	if err := d.checkConn(); err != nil {
 		return err
 	}

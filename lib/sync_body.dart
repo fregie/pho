@@ -119,7 +119,7 @@ class SyncBodyState extends State<SyncBody> {
     all.clear();
     await requestPermission();
     final List<AssetPathEntity> paths =
-        await PhotoManager.getAssetPathList(type: RequestType.image);
+        await PhotoManager.getAssetPathList(type: RequestType.common);
     for (var path in paths) {
       if (path.name == widget.localFolder) {
         final newpath = await path.fetchPathProperties(
@@ -279,15 +279,9 @@ class SyncBodyState extends State<SyncBody> {
         uploadState[asset.title!] = AppLocalizations.of(context).uploading;
       });
       try {
-        final rsp = await storage.uploadAssetEntity(asset);
-        if (!rsp.success) {
-          setState(() {
-            uploadState[asset.title!] =
-                "${AppLocalizations.of(context).uploadFailed}: ${rsp.message}";
-          });
-          continue;
-        }
+        await storage.uploadAssetEntity(asset);
       } catch (e) {
+        print(e);
         setState(() {
           uploadState[asset.title!] =
               "${AppLocalizations.of(context).uploadFailed}: $e";

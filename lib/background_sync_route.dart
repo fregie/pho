@@ -35,7 +35,7 @@ class _BackgroundSyncSettingRouteState
           Duration(minutes: prefs.getInt('backgroundSyncInterval') ?? 60);
     });
     await requestPermission();
-    albums = await PhotoManager.getAssetPathList();
+    albums = await PhotoManager.getAssetPathList(type: RequestType.common);
     for (var path in albums) {
       if (path.name == 'Recent') {
         albums.remove(path);

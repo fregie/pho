@@ -1,10 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
-Future<int> runServer() async {
-  int port = 0;
+Future<String> runServer() async {
+  String ports;
   WidgetsFlutterBinding.ensureInitialized();
-  port = await const MethodChannel('com.example.img_syncer/RunGrpcServer')
+  ports = await const MethodChannel('com.example.img_syncer/RunGrpcServer')
       .invokeMethod('RunGrpcServer');
-  return port;
+  return ports;
 }

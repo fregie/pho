@@ -144,6 +144,16 @@ class Asset extends ImageProvider<Asset> {
   //   return Uint8List(0);
   // }
 
+  bool isVideo() {
+    if (hasLocal) {
+      return local!.type == AssetType.video;
+    }
+    if (hasRemote) {
+      return remote!.isVideo();
+    }
+    return false;
+  }
+
   ImageProvider thumbnailProvider() {
     if (_thumbnailData != null && _thumbnailData!.isNotEmpty) {
       return MemoryImage(_thumbnailData!);
@@ -161,7 +171,8 @@ class Asset extends ImageProvider<Asset> {
     _thumbnailDataCompleter = Completer<Uint8List>();
     Uint8List? data;
     if (hasLocal) {
-      data = await local!.thumbnailData;
+      data = await local!
+          .thumbnailDataWithSize(const ThumbnailSize.square(400), quality: 100);
     }
     if (hasRemote) {
       data = await remote!.thumbnail();
@@ -188,10 +199,19 @@ class Asset extends ImageProvider<Asset> {
     Uint8List? data;
     try {
       if (hasLocal) {
-        data = await local!.originBytes;
+        if (local!.type == AssetType.image) {
+          data = await local!.originBytes;
+        } else if (local!.type == AssetType.video) {
+          data = await local!
+              .thumbnailDataWithSize(const ThumbnailSize.square(800));
+        }
       }
       if (hasRemote) {
-        data = await remote!.imageData();
+        if (!remote!.isVideo()) {
+          data = await remote!.imageData();
+        } else {
+          data = await remote!.thumbnail();
+        }
       }
     } catch (e) {
       print("Get image data failed: $e");

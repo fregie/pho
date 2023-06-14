@@ -10,6 +10,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'event_bus.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:fijkplayer/fijkplayer.dart';
+import 'package:img_syncer/video_route.dart';
+import 'package:img_syncer/global.dart';
 
 class GalleryViewerRoute extends StatefulWidget {
   const GalleryViewerRoute({
@@ -35,7 +38,6 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
   void initState() {
     super.initState();
     currentIndex = widget.originIndex;
-
     _pageController = ExtendedPageController(
       initialPage: widget.originIndex,
       keepPage: true,
@@ -52,6 +54,12 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
   @override
   void didUpdateWidget(covariant GalleryViewerRoute oldWidget) {
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   bool _isShowingAppBar = false;
@@ -227,9 +235,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
                     eventBus.fire(RemoteRefreshEvent());
                   }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(e.toString()),
-                  ));
+                  SnackBarManager.showSnackBar(e.toString());
                 }
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
@@ -263,9 +269,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     if (!status.isGranted) {
       status = await Permission.photos.request();
       if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Permission denied"),
-        ));
+        SnackBarManager.showSnackBar("Permission denied");
         return;
       }
     }
@@ -280,14 +284,10 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
         await scanFile(absPath);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString()),
-      ));
+      SnackBarManager.showSnackBar(e.toString());
     }
     stateModel.setDownloadState(false);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Download ${asset.name()} success"),
-    ));
+    SnackBarManager.showSnackBar("Download ${asset.name()} success");
     loadingDialog.remove();
   }
 
@@ -304,31 +304,24 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     // 将加载对话框添加到Overlay中
     Overlay.of(context).insert(loadingDialog);
     if (!settingModel.isRemoteStorageSetted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Remote storage is not setted,please set it first"),
-      ));
+      SnackBarManager.showSnackBar(
+          "Remote storage is not setted,please set it first");
       return;
     }
     stateModel.setUploadState(true);
     final entity = asset.local!;
     if (entity.title != null) {
       try {
-        final rsp = await storage.uploadAssetEntity(entity);
-        if (!rsp.success) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Upload failed: ${rsp.message}"),
-          ));
-        }
+        await storage.uploadAssetEntity(entity);
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString()),
-        ));
+        print(e);
+        SnackBarManager.showSnackBar(e.toString());
       }
     }
     stateModel.setUploadState(false);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Upload ${entity.title} success"),
-    ));
+    if (mounted) {
+      SnackBarManager.showSnackBar("Upload ${entity.title} success");
+    }
     loadingDialog.remove();
   }
 
@@ -385,155 +378,131 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           ),
         ],
       ),
-      body: Container(
-        constraints: BoxConstraints.expand(
-          height: MediaQuery.of(context).size.height,
-        ),
-        child: Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            ExtendedImageGesturePageView.builder(
-              itemCount: all.length,
-              controller: _pageController,
-              onPageChanged: (int index) {
-                setState(() {
-                  currentIndex = index;
-                });
-                all[index].readInfoFromData().then((value) {
-                  for (int i = -2; i != 0 && i <= 2; i++) {
-                    if (index + i >= 0 && index + i < all.length) {
-                      all[index + i].readInfoFromData();
-                    }
-                  }
-                });
-                if (all.length - index < 5) {
-                  if (widget.useLocal) {
-                    assetModel.getLocalPhotos();
-                  } else {
-                    assetModel.getRemotePhotos();
+      body: Hero(
+        tag:
+            "asset_${widget.useLocal ? "local" : "remote"}_${all[currentIndex].path()}",
+        flightShuttleBuilder: (BuildContext flightContext,
+            Animation<double> animation,
+            HeroFlightDirection flightDirection,
+            BuildContext fromHeroContext,
+            BuildContext toHeroContext) {
+          // 自定义过渡动画小部件
+          return AnimatedBuilder(
+            animation: animation,
+            builder: (BuildContext context, Widget? child) {
+              return Opacity(
+                opacity: animation.value,
+                child: ExtendedImage(
+                  image: all[currentIndex].thumbnailProvider(),
+                  fit: BoxFit.contain,
+                ),
+              );
+            },
+          );
+        },
+        child: Container(
+          constraints: BoxConstraints.expand(
+            height: MediaQuery.of(context).size.height,
+          ),
+          child: ExtendedImageGesturePageView.builder(
+            itemCount: all.length,
+            controller: _pageController,
+            onPageChanged: (int index) {
+              setState(() {
+                currentIndex = index;
+              });
+              all[index].readInfoFromData().then((value) {
+                for (int i = -1; i != 0 && i <= 1; i++) {
+                  if (index + i >= 0 && index + i < all.length) {
+                    all[index + i].readInfoFromData();
                   }
                 }
-              },
-              itemBuilder: (BuildContext context, int index) {
-                return ExtendedImage(
-                  image: all[index],
-                  fit: BoxFit.contain,
-                  mode: ExtendedImageMode.gesture,
-                  initGestureConfigHandler: (state) {
-                    return GestureConfig(
-                      minScale: 1.0,
-                      maxScale: 3.0,
-                      inPageView: true,
-                      gestureDetailsIsChanged: (details) {
-                        if (details == null) {
-                          return;
-                        }
-                        // 如果是下拉手势则弹出ImageInfo
-                        if (details.totalScale == 1.0 &&
-                            details.offset!.dy < 0) {
-                          showImageInfo(context);
-                        }
-                      },
-                    );
-                  },
-                  loadStateChanged: (ExtendedImageState state) {
-                    switch (state.extendedImageLoadState) {
-                      case LoadState.loading:
-                        return ExtendedImage(
-                          image: all[index].thumbnailProvider(),
-                          fit: BoxFit.contain,
+              });
+              if (all.length - index < 5) {
+                if (widget.useLocal) {
+                  assetModel.getLocalPhotos();
+                } else {
+                  assetModel.getRemotePhotos();
+                }
+              }
+            },
+            itemBuilder: (BuildContext context, int index) {
+              return Stack(
+                alignment: Alignment.center,
+                fit: StackFit.expand,
+                children: [
+                  ExtendedImage(
+                    image: all[index],
+                    fit: BoxFit.contain,
+                    mode: ExtendedImageMode.gesture,
+                    initGestureConfigHandler: (state) {
+                      return GestureConfig(
+                        minScale: 1.0,
+                        maxScale: 3.0,
+                        inPageView: true,
+                        gestureDetailsIsChanged: (details) {
+                          if (details == null) {
+                            return;
+                          }
+                          // 如果是下拉手势则弹出ImageInfo
+                          if (details.totalScale == 1.0 &&
+                              details.offset!.dy < 0) {
+                            showImageInfo(context);
+                          }
+                        },
+                      );
+                    },
+                    loadStateChanged: (ExtendedImageState state) {
+                      switch (state.extendedImageLoadState) {
+                        case LoadState.loading:
+                          return ExtendedImage(
+                            image: all[index].thumbnailProvider(),
+                            fit: BoxFit.contain,
+                          );
+                        case LoadState.completed:
+                          return null; // Use the high-resolution image.
+                        case LoadState.failed:
+                          return null;
+                        default:
+                          return null;
+                      }
+                    },
+                    onDoubleTap: (ExtendedImageGestureState gestureState) {
+                      if (gestureState.gestureDetails != null &&
+                          gestureState.gestureDetails!.totalScale != null) {
+                        double newScale =
+                            gestureState.gestureDetails!.totalScale! >= 2.0
+                                ? 1.0
+                                : 2.0;
+                        gestureState.handleDoubleTap(scale: newScale);
+                      }
+                    },
+                  ),
+                  if (all[index].isVideo())
+                    const Icon(
+                      Icons.play_circle_outline,
+                      color: Colors.white,
+                      size: 60,
+                    ),
+                  GestureDetector(
+                    onTap: () {
+                      if (all[index].isVideo()) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => VideoRoute(
+                              asset: all[index],
+                            ),
+                          ),
                         );
-                      case LoadState.completed:
-                        return null; // Use the high-resolution image.
-                      case LoadState.failed:
-                        return null;
-                      default:
-                        return null;
-                    }
-                  },
-                  onDoubleTap: (ExtendedImageGestureState gestureState) {
-                    if (gestureState.gestureDetails != null &&
-                        gestureState.gestureDetails!.totalScale != null) {
-                      double newScale =
-                          gestureState.gestureDetails!.totalScale! >= 2.0
-                              ? 1.0
-                              : 2.0;
-                      gestureState.handleDoubleTap(scale: newScale);
-                    }
-                  },
-                );
-              },
-            ),
-            // GestureDetector(
-            //   behavior: HitTestBehavior.translucent,
-            //   onVerticalDragUpdate: _isOriginalScale
-            //       ? (details) {
-            //           if (details.delta.dy < 0) {
-            //             showImageInfo(context);
-            //           }
-            //         }
-            //       : null,
-            // ),
-          ],
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 }
-
-// PhotoViewGallery.builder(
-//   // scrollPhysics: const BouncingScrollPhysics(),
-//   wantKeepAlive: true,
-//   pageController: _pageController,
-//   onPageChanged: (index) {
-//     setState(() {
-//       currentIndex = index;
-//     });
-//     all[index].readInfoFromData().then((value) {
-//       for (int i = -2; i != 0 && i <= 2; i++) {
-//         if (index + i >= 0 && index + i < all.length) {
-//           all[index + i].readInfoFromData();
-//         }
-//       }
-//     });
-//     if (all.length - index < 5) {
-//       if (widget.useLocal) {
-//         assetModel.getLocalPhotos();
-//       } else {
-//         assetModel.getRemotePhotos();
-//       }
-//     }
-//   },
-//   builder: (BuildContext context, int index) {
-//     return PhotoViewGalleryPageOptions(
-//       imageProvider: all[index],
-//       // disableGestures: true,
-//       initialScale: PhotoViewComputedScale.contained,
-//       minScale: PhotoViewComputedScale.contained * 0.5,
-//       maxScale: PhotoViewComputedScale.covered * 3,
-//       gestureDetectorBehavior: HitTestBehavior.deferToChild,
-//       heroAttributes: PhotoViewHeroAttributes(
-//           tag:
-//               "image-${widget.useLocal ? "local" : "remote"}-$index"),
-//     );
-//   },
-//   loadingBuilder: (context, event) {
-//     return PhotoView(
-//       imageProvider: all[currentIndex].thumbnailProvider(),
-//       minScale: PhotoViewComputedScale.contained,
-//       maxScale: PhotoViewComputedScale.covered,
-//     );
-//   },
-//   scaleStateChangedCallback: (value) {
-//     if (value == PhotoViewScaleState.initial) {
-//       setState(() {
-//         _isOriginalScale = true;
-//       });
-//     } else {
-//       setState(() {
-//         _isOriginalScale = false;
-//       });
-//     }
-//   },
-//   itemCount: all.length,
-// ),

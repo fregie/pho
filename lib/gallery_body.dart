@@ -17,6 +17,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:img_syncer/global.dart';
 
 class GalleryBody extends StatefulWidget {
   const GalleryBody({Key? key, required this.useLocal}) : super(key: key);
@@ -64,13 +65,6 @@ class GalleryBodyState extends State<GalleryBody>
         });
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final all =
-          widget.useLocal ? assetModel.localAssets : assetModel.remoteAssets;
-      if (all.isEmpty) {
-        refresh();
-      }
-    });
   }
 
   @override
@@ -111,12 +105,7 @@ class GalleryBodyState extends State<GalleryBody>
         !widget.useLocal &&
         assetModel.remoteAssets.isEmpty &&
         assetModel.remoteLastError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(assetModel.remoteLastError!),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      SnackBarManager.showSnackBar(assetModel.remoteLastError!);
     }
     _isRefreshing = false;
   }
@@ -196,18 +185,10 @@ class GalleryBodyState extends State<GalleryBody>
                       .then((rsp) => eventBus.fire(RemoteRefreshEvent()));
                 }
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                  ),
-                );
+                SnackBarManager.showSnackBar(e.toString());
               }
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      '${AppLocalizations.of(context).delete} ${toDelete.length} ${AppLocalizations.of(context).photos}.'),
-                ),
-              );
+              SnackBarManager.showSnackBar(
+                  '${AppLocalizations.of(context).delete} ${toDelete.length} ${AppLocalizations.of(context).photos}.');
               clearSelection();
               setState(() {});
               Navigator.of(context).pop();
@@ -256,16 +237,13 @@ class GalleryBodyState extends State<GalleryBody>
     if (!status.isGranted) {
       status = await Permission.photos.request();
       if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context).permissionDenied),
-        ));
+        SnackBarManager.showSnackBar(
+            AppLocalizations.of(context).permissionDenied);
         return;
       }
     }
     if (settingModel.localFolderAbsPath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(AppLocalizations.of(context).setLocalFirst),
-      ));
+      SnackBarManager.showSnackBar(AppLocalizations.of(context).setLocalFirst);
       return;
     }
     final all =
@@ -295,7 +273,7 @@ class GalleryBodyState extends State<GalleryBody>
         // final result =
         //     await ImageGallerySaver.saveFile(absPath, name: asset.name());
         // if (!result['isSuccess']) {
-        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   SnackBarManager.showSnackBar(SnackBar(
         //     content: Text("Download ${asset.name()} failed"),
         //   ));
         //   continue;
@@ -303,15 +281,12 @@ class GalleryBodyState extends State<GalleryBody>
         count++;
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("${AppLocalizations.of(context).downloadFailed}: $e"),
-      ));
+      SnackBarManager.showSnackBar(
+          "${AppLocalizations.of(context).downloadFailed}: $e");
     }
     stateModel.setDownloadState(false);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-          "${AppLocalizations.of(context).download} $count ${AppLocalizations.of(context).photos}"),
-    ));
+    SnackBarManager.showSnackBar(
+        "${AppLocalizations.of(context).download} $count ${AppLocalizations.of(context).photos}");
     eventBus.fire(LocalRefreshEvent());
     clearSelection();
   }
@@ -321,9 +296,8 @@ class GalleryBodyState extends State<GalleryBody>
       return;
     }
     if (!settingModel.isRemoteStorageSetted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(AppLocalizations.of(context).storageNotSetted),
-      ));
+      SnackBarManager.showSnackBar(
+          AppLocalizations.of(context).storageNotSetted);
       return;
     }
     final all =
@@ -341,24 +315,15 @@ class GalleryBodyState extends State<GalleryBody>
         continue;
       }
       try {
-        final rsp = await storage.uploadAssetEntity(entity);
-        if (!rsp.success) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                "${AppLocalizations.of(context).uploadFailed}: ${rsp.message}"),
-          ));
-        }
+        await storage.uploadAssetEntity(entity);
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("${AppLocalizations.of(context).uploadFailed}: $e"),
-        ));
+        SnackBarManager.showSnackBar(
+            "${AppLocalizations.of(context).uploadFailed}: $e");
       }
     }
     stateModel.setUploadState(false);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-          "${AppLocalizations.of(context).successfullyUpload} ${assets.length} ${AppLocalizations.of(context).photos}"),
-    ));
+    SnackBarManager.showSnackBar(
+        "${AppLocalizations.of(context).successfullyUpload} ${assets.length} ${AppLocalizations.of(context).photos}");
     eventBus.fire(RemoteRefreshEvent());
 
     clearSelection();
@@ -443,7 +408,7 @@ class GalleryBodyState extends State<GalleryBody>
           ],
           flexibleSpace: FlexibleSpaceBar(
             centerTitle: true,
-            titlePadding: const EdgeInsets.all(5),
+            // titlePadding: const EdgeInsets.all(5),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -526,6 +491,9 @@ class GalleryBodyState extends State<GalleryBody>
                     var currentChildren = <Widget>[];
                     DateTime? currentDateTime;
                     for (int i = 0; i < all.length; i++) {
+                      if (all[i].name() == null) {
+                        continue;
+                      }
                       final date = all[i].dateCreated();
                       if (currentDateTime == null ||
                           date.year != currentDateTime.year ||
@@ -556,10 +524,34 @@ class GalleryBodyState extends State<GalleryBody>
                             if (stateModel.isSelectionMode) {
                               toggleSelection(i);
                             } else {
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (context) => GalleryViewerRoute(
+                              //       useLocal: widget.useLocal,
+                              //       originIndex: i,
+                              //     ),
+                              //   ),
+                              // );
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => GalleryViewerRoute(
+                                PageRouteBuilder(
+                                  opaque: true,
+                                  transitionDuration:
+                                      const Duration(milliseconds: 400),
+                                  reverseTransitionDuration:
+                                      const Duration(milliseconds: 400),
+                                  transitionsBuilder: (BuildContext context,
+                                      Animation<double> animation,
+                                      Animation<double> secondaryAnimation,
+                                      Widget child) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                                  pageBuilder: (BuildContext context, _, __) =>
+                                      GalleryViewerRoute(
                                     useLocal: widget.useLocal,
                                     originIndex: i,
                                   ),
@@ -575,13 +567,47 @@ class GalleryBodyState extends State<GalleryBody>
                           child: Stack(
                             children: [
                               Container(
-                                width: totalwidth / columCount,
-                                height: totalwidth / columCount,
-                                padding: const EdgeInsets.all(0),
-                                child: Image(
-                                    image: all[i].thumbnailProvider(),
-                                    fit: BoxFit.cover),
-                              ),
+                                  width: totalwidth / columCount,
+                                  height: totalwidth / columCount,
+                                  padding: const EdgeInsets.all(0),
+                                  child: Hero(
+                                    tag:
+                                        "asset_${all[i].hasLocal ? "local" : "remote"}_${all[i].path()}",
+                                    child: Image(
+                                        image: all[i].thumbnailProvider(),
+                                        fit: BoxFit.cover),
+                                    flightShuttleBuilder:
+                                        (BuildContext flightContext,
+                                            Animation<double> animation,
+                                            HeroFlightDirection flightDirection,
+                                            BuildContext fromHeroContext,
+                                            BuildContext toHeroContext) {
+                                      // 自定义过渡动画小部件
+                                      return AnimatedBuilder(
+                                        animation: animation,
+                                        builder: (BuildContext context,
+                                            Widget? child) {
+                                          return Opacity(
+                                            opacity: animation.value,
+                                            child: Image(
+                                              image: all[i].thumbnailProvider(),
+                                              fit: BoxFit.contain,
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  )),
+                              if (all[i].isVideo())
+                                const Positioned(
+                                  top: 2,
+                                  right: 2,
+                                  child: Icon(
+                                    Icons.play_circle_outline,
+                                    color: Colors.white,
+                                    size: 23,
+                                  ),
+                                ),
                               if (stateModel.isSelectionMode)
                                 Positioned(
                                   top: 2,
@@ -652,8 +678,11 @@ class GalleryBodyState extends State<GalleryBody>
                       if (image == null) {
                         return;
                       } else {
-                        var rsp = await storage.uploadXFile(image);
-                        if (rsp.success) {}
+                        try {
+                          await storage.uploadXFile(image);
+                        } catch (e) {
+                          SnackBarManager.showSnackBar(e.toString());
+                        }
                       }
                     },
                     tooltip: 'Upload',

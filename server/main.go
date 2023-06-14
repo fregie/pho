@@ -18,6 +18,7 @@ import (
 
 var (
 	grpcAddr    = flag.String("grpcAddr", "0.0.0.0:50051", "grpc addr example: 0.0.0.0:50051")
+	httpAddr    = flag.String("httpAddr", "0.0.0.0:8000", "http addr example: 0.0.0.0:8000")
 	showVersion = flag.Bool("version", false, "Displays version and exit.")
 	debug       = flag.Bool("d", false, "debug mode")
 )
@@ -45,6 +46,8 @@ func main() {
 	}
 
 	api := api.NewApi(imgManager)
+	Info.Printf("Listening http on %s", *httpAddr)
+	go http.ListenAndServe(*httpAddr, api.HttpHandler())
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterImgSyncerServer(grpcServer, api)

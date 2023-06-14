@@ -10,6 +10,7 @@
         android:label="Pho"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
+        android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true">
         <activity android:name="io.flutter.plugins.androidintent.IntentSenderActivity" />
         <activity

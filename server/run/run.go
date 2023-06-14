@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/fregie/img_syncer/server/api"
@@ -20,24 +21,39 @@ var (
 	imgManager *imgmanager.ImgManager
 )
 
-func RunGrpcServer() (int, error) {
+func RunGrpcServer() (string, error) {
 	imgManager = imgmanager.NewImgManager(imgmanager.Option{})
-	var lis net.Listener
+	var grpcLis, httpLis net.Listener
 	var err error
-	var port int
+	var grpcPort, httpPort int
 	for start := 10000; start < 20000; start++ {
-		lis, err = net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", start))
+		grpcLis, err = net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", start))
 		if err != nil {
 			Info.Printf("Listen on %d failed, try next port", start)
 			continue
 		} else {
-			port = start
+			grpcPort = start
 			break
 		}
 	}
 	if err != nil {
 		Error.Printf("Listen on all port failed, err: %v", err)
-		return 0, err
+		return "", err
+	}
+
+	for start := 10000; start < 20000; start++ {
+		httpLis, err = net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", start))
+		if err != nil {
+			Info.Printf("Listen on %d failed, try next port", start)
+			continue
+		} else {
+			httpPort = start
+			break
+		}
+	}
+	if err != nil {
+		Error.Printf("Listen on all port failed, err: %v", err)
+		return "", err
 	}
 
 	api := api.NewApi(imgManager)
@@ -45,9 +61,12 @@ func RunGrpcServer() (int, error) {
 	pb.RegisterImgSyncerServer(grpcServer, api)
 	reflection.Register(grpcServer)
 
-	Info.Printf("Listening grpc on %s", lis.Addr().String())
-	go grpcServer.Serve(lis)
-	return port, nil
+	Info.Printf("Listening grpc on %s", grpcLis.Addr().String())
+	go grpcServer.Serve(grpcLis)
+	Info.Printf("Listening http on %s", httpLis.Addr().String())
+	go http.Serve(httpLis, api.HttpHandler())
+
+	return fmt.Sprintf("%d,%d", grpcPort, httpPort), nil
 }
 
 var (

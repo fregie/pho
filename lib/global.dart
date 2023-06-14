@@ -7,11 +7,20 @@ import 'package:img_syncer/storage/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/logger.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:flutter/material.dart';
+
+late String httpBaseUrl;
 
 class Global {
   static Future init() async {
-    runServer().then((port) async {
-      storage = RemoteStorage("127.0.0.1", port);
+    runServer().then((portsStr) async {
+      final ports = portsStr.split(",");
+      if (ports.length != 2) {
+        logger.e("grpc server start failed");
+        return;
+      }
+      httpBaseUrl = "http://127.0.0.1:${ports[1]}";
+      storage = RemoteStorage("127.0.0.1", int.parse(ports[0]));
       // storage = RemoteStorage("192.168.100.235", 50051);
       final prefs = await SharedPreferences.getInstance();
       final localFolder = prefs.getString("localFolder");
@@ -20,7 +29,7 @@ class Global {
       } else {
         await requestPermission();
         final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
-            type: RequestType.image, hasAll: true);
+            type: RequestType.common, hasAll: true);
         // ignore: deprecated_member_use
         paths.sort((a, b) => b.assetCount.compareTo(a.assetCount));
         if (paths.isNotEmpty) {
@@ -107,5 +116,31 @@ class Global {
       }
       reloadAutoSyncTimer();
     });
+  }
+}
+
+class SnackBarManager {
+  static final SnackBarManager _instance = SnackBarManager._internal();
+
+  factory SnackBarManager() {
+    return _instance;
+  }
+
+  SnackBarManager._internal();
+
+  static BuildContext? _context;
+
+  static void init(BuildContext context) {
+    _context = context;
+  }
+
+  static void showSnackBar(String message) {
+    if (_context != null) {
+      ScaffoldMessenger.of(_context!).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+    }
   }
 }

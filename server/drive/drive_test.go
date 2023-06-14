@@ -77,6 +77,7 @@ func (d *DriveTest) TestSMB() {
 	d.Nilf(err, "set root path failed: %v", err)
 
 	d.testDrive(dri)
+	d.testDownloadOffset(dri)
 }
 
 func initNFS() error {
@@ -199,19 +200,20 @@ func (d *DriveTest) testDrive(dri imgmanager.StorageDrive) {
 	d.False(exist)
 	// test upload
 	reader := bytes.NewReader(static.Pic1)
-	err = dri.Upload(filePath, io.NopCloser(reader), int64(len(static.Pic1)), time.Now())
+	err = dri.Upload(filePath, io.NopCloser(reader), time.Now())
 	d.Nilf(err, "upload failed: %v", err)
 	// check exist
 	exist, err = dri.IsExist(filePath)
 	d.Nilf(err, "check exist failed: %v", err)
 	d.True(exist)
 	// test download
-	reader2, _, err := dri.Download(filePath)
+	reader2, length, err := dri.Download(filePath)
 	d.Nilf(err, "download failed: %v", err)
 	data, err := io.ReadAll(reader2)
 	reader2.Close()
 	d.Nilf(err, "read data failed: %v", err)
 	d.Equal(len(static.Pic1), len(data))
+	d.Equal(int64(len(static.Pic1)), length)
 	// test delete
 	err = dri.Delete(filePath)
 	d.Nilf(err, "delete failed: %v", err)
@@ -222,9 +224,9 @@ func (d *DriveTest) testDrive(dri imgmanager.StorageDrive) {
 
 	// check Range
 	filePath2 := "/dir/pic2.jpg"
-	err = dri.Upload(filePath, io.NopCloser(reader), int64(len(static.Pic1)), time.Now())
+	err = dri.Upload(filePath, io.NopCloser(reader), time.Now())
 	d.Nilf(err, "upload failed: %v", err)
-	err = dri.Upload(filePath2, io.NopCloser(reader), int64(len(static.Pic1)), time.Now())
+	err = dri.Upload(filePath2, io.NopCloser(reader), time.Now())
 	d.Nilf(err, "upload failed: %v", err)
 	// check exist
 	exist, err = dri.IsExist(filePath)
@@ -243,4 +245,25 @@ func (d *DriveTest) testDrive(dri imgmanager.StorageDrive) {
 	d.Nilf(err, "range failed: %v", err)
 	d.Containsf(files, "pic1.jpg", "range failed: %v", files)
 	d.Containsf(files, "pic2.jpg", "range failed: %v", files)
+}
+
+func (d *DriveTest) testDownloadOffset(dri imgmanager.StorageDrive) {
+	d.NotNilf(dri, "drive is nil")
+	filePath := "/dir/pic1.jpg"
+	// upload
+	reader := bytes.NewReader(static.Pic1)
+	err := dri.Upload(filePath, io.NopCloser(reader), time.Now())
+	d.Nilf(err, "upload failed: %v", err)
+	// check exist
+	exist, err := dri.IsExist(filePath)
+	d.Nilf(err, "check exist failed: %v", err)
+	d.True(exist)
+	// test download
+	reader2, length, err := dri.DownloadWithOffset(filePath, 128)
+	d.Nilf(err, "download failed: %v", err)
+	buf1 := make([]byte, 128)
+	io.ReadFull(reader2, buf1)
+	reader2.Close()
+	d.Equal(static.Pic1[128:128+128], buf1)
+	d.Equal(int64(len(static.Pic1)), length)
 }

@@ -30,7 +30,7 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
   Future<List<AssetPathEntity>> getAlbums() async {
     await requestPermission();
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
-        type: RequestType.image, hasAll: true);
+        type: RequestType.common, hasAll: true);
     // ignore: deprecated_member_use
     paths.sort((a, b) => b.assetCount.compareTo(a.assetCount));
     return paths;

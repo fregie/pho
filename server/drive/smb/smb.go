@@ -149,7 +149,7 @@ func (s *Smb) SetRootPath(rootPath string) error {
 	return nil
 }
 
-func (s *Smb) Upload(path string, content io.ReadCloser, size int64, lastModified time.Time) error {
+func (s *Smb) Upload(path string, content io.ReadCloser, lastModified time.Time) error {
 	defer content.Close()
 	if err := s.checkConn(); err != nil {
 		return err
@@ -218,13 +218,43 @@ func (s *Smb) Download(path string) (io.ReadCloser, int64, error) {
 		s.cleanLastConnTime()
 		return nil, 0, err
 	}
-	// fi, err := f.Stat()
-	// if err != nil {
-	// 	s.cleanLastConnTime()
-	// 	return nil, 0, err
-	// }
+	var size int64
+	fi, err := f.Stat()
+	if err == nil {
+		size = fi.Size()
+	}
 	s.updateLastConnTime()
-	return f, 0, nil
+	return f, size, nil
+}
+
+func (s *Smb) DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error) {
+	if err := s.checkConn(); err != nil {
+		return nil, 0, err
+	}
+	if s.rootPath == "" {
+		return nil, 0, fmt.Errorf("root path is empty")
+	}
+	fullPath := filepath.Join(s.rootPath, path)
+	f, err := s.fs.Open(fullPath)
+	if err != nil {
+		s.cleanLastConnTime()
+		return nil, 0, err
+	}
+	s.updateLastConnTime()
+	fi, err := f.Stat()
+	if err != nil {
+		s.cleanLastConnTime()
+		return nil, 0, err
+	}
+	if offset > fi.Size() {
+		return nil, 0, fmt.Errorf("offset %d is bigger than file size %d", offset, fi.Size())
+	}
+	_, err = f.Seek(offset, io.SeekStart)
+	if err != nil {
+		s.cleanLastConnTime()
+		return nil, 0, err
+	}
+	return f, fi.Size(), nil
 }
 
 func (s *Smb) Delete(path string) error {

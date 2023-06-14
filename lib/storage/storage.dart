@@ -7,6 +7,8 @@ import 'package:date_format/date_format.dart';
 import 'package:path/path.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:img_syncer/global.dart';
+import 'package:http/http.dart' as http;
 
 RemoteStorage storage = RemoteStorage("127.0.0.1", 10000);
 
@@ -30,17 +32,26 @@ class RemoteStorage {
     cli = ImgSyncerClient(channel);
   }
 
-  Future<UploadResponse> uploadXFile(XFile file) async {
+  Future<void> uploadXFile(XFile file) async {
     final name = basename(file.path);
     final lastModified = await file.lastModified();
     final date = formatDate(
         lastModified, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
-    final dataReader = file.openRead();
-    return cli.upload(
-        uploadStream(dataReader, const Stream<Uint8List>.empty(), name, date));
+    var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
+    req.headers['Image-Date'] = date;
+    req.contentLength = await file.length();
+    file.openRead().listen((chunk) {
+      req.sink.add(chunk);
+    }, onDone: () {
+      req.sink.close();
+    });
+    final response = await req.send();
+    if (response.statusCode != 200) {
+      throw Exception("upload failed: ${response.statusCode}");
+    }
   }
 
-  Future<UploadResponse> uploadAssetEntity(AssetEntity asset) async {
+  Future<void> uploadAssetEntity(AssetEntity asset) async {
     final name = asset.title;
     if (name == null) {
       throw Exception("asset name is null");
@@ -52,27 +63,56 @@ class RemoteStorage {
     if (f == null) {
       throw Exception("asset file is null");
     }
-    final dataReader = f.openRead().map((e) => e as Uint8List);
-    final thumbnailData = await asset.thumbnailData;
+    var thumbnailSize = const ThumbnailSize.square(200);
+    if (asset.type == AssetType.video) {
+      thumbnailSize = const ThumbnailSize.square(800);
+    }
+    final thumbnailData =
+        await asset.thumbnailDataWithSize(thumbnailSize, quality: 90);
     if (thumbnailData == null) {
       throw Exception("asset thumbnail is null");
     }
-    final thumbnailDataReader = Stream.value(thumbnailData);
-    return cli
-        .upload(uploadStream(dataReader, thumbnailDataReader, name, date));
+    // final start = DateTime.now();
+    var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
+    req.headers['Image-Date'] = date;
+    req.contentLength = await f.length();
+    f.openRead().listen((chunk) {
+      req.sink.add(chunk);
+    }, onDone: () {
+      req.sink.close();
+    });
+    final response = await req.send();
+    if (response.statusCode != 200) {
+      throw Exception("upload failed: ${response.statusCode}");
+    }
+
+    final thumbRsp = await http.post(
+      Uri.parse("$httpBaseUrl/thumbnail/$name"),
+      body: thumbnailData,
+      headers: {
+        'Image-Date': date,
+      },
+    );
+    if (thumbRsp.statusCode != 200) {
+      throw Exception("upload thumbnail failed: ${thumbRsp.statusCode}");
+    }
+    // final end = DateTime.now();
+    // print("upload ${f.lengthSync()}bytes in ${end.difference(start)}s");
+    // print(
+    //     "speed: ${f.lengthSync() * 8 / end.difference(start).inSeconds / 1024 / 1024}mbps");
   }
 
-  @protected
-  Stream<UploadRequest> uploadStream(Stream<Uint8List> dataReader,
-      Stream<Uint8List> thumbnailReader, String name, date) async* {
-    yield UploadRequest(name: name, date: date);
-    await for (var data in dataReader) {
-      yield UploadRequest(data: data);
-    }
-    await for (var data in thumbnailReader) {
-      yield UploadRequest(thumbnailData: data);
-    }
-  }
+  // @protected
+  // Stream<UploadRequest> uploadStream(Stream<List<int>> dataReader,
+  //     Stream<Uint8List> thumbnailReader, String name, date) async* {
+  //   yield UploadRequest(name: name, date: date);
+  //   await for (var data in dataReader) {
+  //     yield UploadRequest(data: data);
+  //   }
+  //   await for (var data in thumbnailReader) {
+  //     yield UploadRequest(thumbnailData: data);
+  //   }
+  // }
 
   Future<List<RemoteImage>> listImages(
       String date, int offset, maxReturn) async {
@@ -105,13 +145,40 @@ class RemoteImage {
     this.thumbnailData,
   });
 
+  bool isVideo() {
+    switch (extension(path)) {
+      case ".mp4":
+      case ".avi":
+      case ".mov":
+      case ".mkv":
+      case ".flv":
+      case ".rmvb":
+      case ".rm":
+      case ".3gp":
+      case ".wmv":
+      case ".mpeg":
+      case ".mpg":
+      case ".webm":
+        return true;
+    }
+    return false;
+  }
+
   Stream<Uint8List> thumbnailStream() async* {
-    var rspStream = cli.getThumbnail(GetThumbnailRequest(path: path));
-    await for (var rsp in rspStream) {
-      if (!rsp.success) {
-        throw Exception("get thumbnail failed: ${rsp.message}");
-      }
-      yield Uint8List.fromList(rsp.data);
+    var urlPath = path;
+    if (urlPath[0] == '/') {
+      urlPath = urlPath.substring(1);
+    }
+    final url = '$httpBaseUrl/thumbnail/$urlPath';
+    final client = http.Client();
+    final request = http.Request('GET', Uri.parse(url));
+    final response = await client.send(request);
+    if (response.statusCode != 200) {
+      throw Exception(
+          "get [$urlPath] thumbnail failed: ${response.statusCode}");
+    }
+    await for (var data in response.stream) {
+      yield data as Uint8List;
     }
   }
 
@@ -129,13 +196,18 @@ class RemoteImage {
   }
 
   Stream<Uint8List> dataStream() async* {
-    var rspStream = cli.get(GetRequest(path: path));
-    await for (var rsp in rspStream) {
-      if (!rsp.success) {
-        print("get data failed: ${rsp.message}");
-        throw Exception("get data failed: ${rsp.message}");
-      }
-      yield Uint8List.fromList(rsp.data);
+    if (path[0] == '/') {
+      path = path.substring(1);
+    }
+    final url = '$httpBaseUrl/$path';
+    final client = http.Client();
+    final request = http.Request('GET', Uri.parse(url));
+    final response = await client.send(request);
+    if (response.statusCode != 200) {
+      throw Exception("get image failed: ${response.statusCode}");
+    }
+    await for (var data in response.stream) {
+      yield data as Uint8List;
     }
   }
 

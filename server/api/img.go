@@ -81,7 +81,11 @@ func (a *api) Upload(stream pb.ImgSyncer_UploadServer) error {
 			}
 		}
 	}()
-	err = a.im.UploadImg(reader, thumbReader, req.Name, req.Date)
+	if isVideo(req.Name) {
+		err = a.im.UploadVideo(reader, thumbReader, req.Name, req.Date)
+	} else {
+		err = a.im.UploadImg(reader, thumbReader, req.Name, req.Date)
+	}
 	if err != nil {
 		rsp.Success, rsp.Message = false, err.Error()
 		return stream.SendAndClose(rsp)
@@ -238,4 +242,13 @@ func saveGoroutineProfile() {
 	} else {
 		fmt.Println("Goroutine profile saved to goroutine_profile.out")
 	}
+}
+
+func isVideo(name string) bool {
+	ext := filepath.Ext(name)
+	switch ext {
+	case ".mp4", ".avi", ".rmvb", ".rm", ".flv", ".wmv", ".mkv", ".mov", ".mpg", ".mpeg", ".3gp", ".3g2", ".asf", ".asx", ".vob", ".m2ts", ".mts", ".ts":
+		return true
+	}
+	return false
 }

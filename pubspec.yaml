@@ -63,6 +63,9 @@ dependencies:
   extended_image: ^7.0.2
   flutter_localizations:
     sdk: flutter
+  fijkplayer: ^0.10.1
+  better_player: ^0.0.83
+  chewie: ^1.5.0
 
 dev_dependencies:
   flutter_test:

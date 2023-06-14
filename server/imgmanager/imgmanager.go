@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	defaultWorkerNum          = 5
+	defaultWorkerNum          = 2
 	defaultThumbnailMaxWidth  = 500
 	defaultThumbnailMaxHeight = 500
 	defaultThumbnailDir       = ".thumbnail"
@@ -102,8 +102,7 @@ func (im *ImgManager) runWorker() {
 		case actUpload:
 			err := im.dri.Upload(
 				act.path,
-				io.NopCloser(bytes.NewReader(act.content)),
-				int64(len(act.content)), act.lastModified)
+				io.NopCloser(bytes.NewReader(act.content)), act.lastModified)
 			if err != nil {
 				im.logger.Println("Error uploading image:", err)
 			}
@@ -144,7 +143,7 @@ func (im *ImgManager) GenerateThumbnail(path string, content []byte) error {
 		return err
 	}
 	thumbPath := filepath.Join(defaultThumbnailDir, path)
-	err = im.dri.Upload(thumbPath, io.NopCloser(buf), int64(buf.Len()), time.Time{})
+	err = im.dri.Upload(thumbPath, io.NopCloser(buf), time.Time{})
 	if err != nil {
 		return err
 	}
@@ -169,26 +168,72 @@ func (im *ImgManager) GenerateThumbnailAsync(path string, content []byte) {
 	})
 }
 
-func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date string) error {
+func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, name, date string) error {
+	videoTime, err := time.Parse("2006:01:02 15:04:05", date)
+	if err != nil {
+		im.logger.Println("Error parsing video date:", err)
+		videoTime = time.Now()
+	}
+	path := filepath.Join(videoTime.Format("2006/01/02"), name)
 	wg := sync.WaitGroup{}
 	wg.Add(2)
-	var data []byte
-	var thumbData []byte
-	var err error
+	err = nil
 	go func() {
 		defer wg.Done()
-		data, err = io.ReadAll(content)
+		if content == nil {
+			return
+		}
+		e := im.dri.Upload(path, io.NopCloser(content), videoTime)
+		if e != nil {
+			im.logger.Println("Error uploading video:", err)
+			err = fmt.Errorf("error uploading video: %w", e)
+		}
 	}()
 	go func() {
 		defer wg.Done()
-		thumbData, err = io.ReadAll(thumbnailContent)
+		if thumbnailContent == nil {
+			return
+		}
+		e := im.dri.Upload(filepath.Join(defaultThumbnailDir, path),
+			io.NopCloser(thumbnailContent), videoTime)
+		if e != nil {
+			im.logger.Println("Error uploading video:", err)
+			err = fmt.Errorf("error uploading video thumbnail: %w", e)
+		}
 	}()
 	wg.Wait()
-	if err != nil {
-		return err
+	return err
+}
+
+func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date string) error {
+	errCh := make(chan error, 2)
+	var data []byte
+	var thumbData []byte
+	go func() {
+		var err error
+		if content != nil {
+			data, err = io.ReadAll(content)
+		}
+		errCh <- err
+	}()
+	go func() {
+		var err error
+		if thumbnailContent != nil {
+			thumbData, err = io.ReadAll(thumbnailContent)
+		}
+		errCh <- err
+	}()
+	for i := 0; i < 2; i++ {
+		err := <-errCh
+		if err != nil {
+			return err
+		}
+	}
+	if len(data) == 0 && len(thumbData) == 0 {
+		return fmt.Errorf("no image data")
 	}
 	var imgTime time.Time
-	if date == "" {
+	if date == "" && len(data) > 0 {
 		// try to get image time from metadata
 		meta, err := GetImageMetadata(data)
 		if err == nil {
@@ -218,31 +263,26 @@ func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date 
 		}
 	}
 	if imgTime.IsZero() {
-		// use current time
 		imgTime = time.Now()
 	}
-	var path string
-	path = filepath.Join(imgTime.Format("2006/01/02"), name)
+	path := filepath.Join(imgTime.Format("2006/01/02"), name)
 	// TODO: check if file exist
-
-	// im.UploadImgAsync(path, data, imgTime)
-	err = im.dri.Upload(path,
-		io.NopCloser(bytes.NewReader(data)),
-		int64(len(data)), imgTime)
-	if err != nil {
-		im.logger.Println("Error uploading image:", err)
-		return err
+	if len(data) > 0 {
+		err = im.dri.Upload(path,
+			io.NopCloser(bytes.NewReader(data)), imgTime)
+		if err != nil {
+			im.logger.Println("Error uploading image:", err)
+			return err
+		}
 	}
 	if len(thumbData) > 0 {
 		err = im.dri.Upload(filepath.Join(defaultThumbnailDir, path),
-			io.NopCloser(bytes.NewReader(thumbData)),
-			int64(len(thumbData)), imgTime)
+			io.NopCloser(bytes.NewReader(thumbData)), imgTime)
 		if err != nil {
 			im.logger.Println("Error uploading thumbnail:", err)
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -250,6 +290,17 @@ func (im *ImgManager) GetImg(path string) (*Image, error) {
 	img := &Image{}
 	var err error
 	img.Content, img.Size, err = im.dri.Download(path)
+	if err != nil {
+		return img, err
+	}
+	img.Path = path
+	return img, nil
+}
+
+func (im *ImgManager) GetOffset(path string, offset int64) (*Image, error) {
+	img := &Image{}
+	var err error
+	img.Content, img.Size, err = im.dri.DownloadWithOffset(path, offset)
 	if err != nil {
 		return img, err
 	}

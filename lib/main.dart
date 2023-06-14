@@ -10,6 +10,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:img_syncer/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:img_syncer/theme.dart';
 
 const seedThemeColor = Color(0xFF02FED1);
 const darkSeedThemeColor = Color(0xFF02FED1);
@@ -61,30 +62,20 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
           );
         }
-        const textTheme = TextTheme(
-          headlineMedium: TextStyle(fontFamily: 'Ubuntu'),
-          bodySmall: TextStyle(fontFamily: 'Ubuntu'),
-          bodyLarge: TextStyle(fontFamily: 'Ubuntu'),
-          bodyMedium: TextStyle(fontFamily: 'Ubuntu'),
-          labelSmall: TextStyle(fontFamily: 'Ubuntu'),
-          labelLarge: TextStyle(fontFamily: 'Ubuntu'),
-          labelMedium: TextStyle(fontFamily: 'Ubuntu'),
-        );
-        const bottomNavigationBarTheme = BottomNavigationBarThemeData(
-          selectedLabelStyle: TextStyle(fontFamily: 'Ubuntu'),
-          unselectedLabelStyle: TextStyle(fontFamily: 'Ubuntu'),
-        );
+
         var lightTheme = ThemeData(
           colorScheme: lightColorScheme,
           useMaterial3: true,
-          textTheme: textTheme,
-          bottomNavigationBarTheme: bottomNavigationBarTheme,
+          textTheme: textThemeLight,
+          navigationBarTheme: navigationBarThemeLight,
+          iconTheme: iconThemeLight,
         );
         var darkTheme = ThemeData(
           colorScheme: darkColorScheme,
           useMaterial3: true,
-          textTheme: textTheme,
-          bottomNavigationBarTheme: bottomNavigationBarTheme,
+          textTheme: textThemeDark,
+          navigationBarTheme: navigationBarThemeDark,
+          iconTheme: iconThemeDark,
         );
 
         return AdaptiveTheme(
@@ -140,6 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 2:
         break;
     }
+    SnackBarManager.init(context);
     return Consumer<StateModel>(
       builder: (context, model, child) => Scaffold(
         appBar: appBar,
@@ -168,18 +160,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 selectedIndex: _selectedIndex,
                 destinations: <Widget>[
                   NavigationDestination(
-                    icon: Icon(Icons.phone_android,
-                        color: Theme.of(context).iconTheme.color),
+                    icon: const Icon(Icons.phone_android),
                     label: AppLocalizations.of(context).local,
                   ),
                   NavigationDestination(
-                    icon: Icon(Icons.cloud,
-                        color: Theme.of(context).iconTheme.color),
+                    icon: const Icon(Icons.cloud),
                     label: AppLocalizations.of(context).cloud,
                   ),
                   NavigationDestination(
-                    icon: Icon(Icons.cloud_sync,
-                        color: Theme.of(context).iconTheme.color),
+                    icon: const Icon(Icons.cloud_sync),
                     label: AppLocalizations.of(context).sync,
                   ),
                 ],

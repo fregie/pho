@@ -5,6 +5,7 @@ import 'package:img_syncer/state_model.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:img_syncer/global.dart';
 
 class SMBForm extends StatefulWidget {
   const SMBForm({Key? key}) : super(key: key);
@@ -407,8 +408,8 @@ class _SMBFormState extends State<SMBForm> {
         onPressed: () {
           testStorage().then((value) {
             if (testSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(AppLocalizations.of(context).testSuccess)));
+              SnackBarManager.showSnackBar(
+                  AppLocalizations.of(context).testSuccess);
             } else {
               showErrorDialog(errormsg!);
             }

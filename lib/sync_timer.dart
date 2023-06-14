@@ -47,10 +47,7 @@ Future<void> reloadAutoSyncTimer() async {
         continue;
       }
       try {
-        final rsp = await storage.uploadAssetEntity(asset);
-        if (!rsp.success) {
-          continue;
-        }
+        await storage.uploadAssetEntity(asset);
       } catch (e) {
         print(e);
         continue;
@@ -64,7 +61,8 @@ Future<void> reloadAutoSyncTimer() async {
 Future<List<AssetEntity>> getPhotos() async {
   List<AssetEntity> all = [];
   await requestPermission();
-  final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+  final List<AssetPathEntity> paths =
+      await PhotoManager.getAssetPathList(type: RequestType.common);
   for (var path in paths) {
     if (path.name == settingModel.localFolder) {
       final newpath = await path.fetchPathProperties(
