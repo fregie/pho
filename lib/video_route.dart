@@ -47,7 +47,6 @@ class _VideoRouteState extends State<VideoRoute> {
         uri = "/$uri";
       }
       final url = "$httpBaseUrl$uri";
-      print(url);
       videoPlayerController = VideoPlayerController.network(url);
     }
     await videoPlayerController.initialize();
@@ -57,6 +56,7 @@ class _VideoRouteState extends State<VideoRoute> {
       looping: true,
       showControlsOnInitialize: false,
       showOptions: false,
+      customControls: const MaterialControls(),
     );
     setState(() {
       isInitialized = true;
@@ -66,35 +66,26 @@ class _VideoRouteState extends State<VideoRoute> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: const Color(0x00000000),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      // body: Center(
-      //   child: FutureBuilder(
-      //     future: widget.asset.local!.originFile,
-      //     builder: (context, file) {
-      //       if (file.data != null) {
-      //         final path = "file://${file.data!.absolute.path}";
-      //         print(path);
-      //         player.setDataSource(path, autoPlay: true, showCover: true);
-      //         return FijkView(
-      //           player: player,
-      //           color: Colors.black,
-      //         );
-      //       }
-      //       return Container();
-      //     },
-      //   ),
-      // ),
-      body: Center(
-        child: isInitialized
-            ? Chewie(
-                controller: chewieController,
-              )
-            : const CircularProgressIndicator(),
-      ),
-    );
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            Center(
+              child: isInitialized
+                  ? Chewie(
+                      controller: chewieController,
+                    )
+                  : const CircularProgressIndicator(),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: AppBar(
+                backgroundColor: const Color(0x00000000),
+                iconTheme: const IconThemeData(color: Colors.white),
+              ),
+            ),
+          ],
+        ));
   }
 }

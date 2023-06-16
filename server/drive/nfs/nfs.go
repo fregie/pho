@@ -158,24 +158,43 @@ func (d *Nfs) Download(path string) (io.ReadCloser, int64, error) {
 		return nil, 0, fmt.Errorf("open file error: %v", err)
 	}
 	var length int64 = 0
-	// info, err := file.FSInfo()
-	// if err != nil {
-	// 	fmt.Printf("get file info error: %v\n", err)
-	// } else {
-	// 	length = int64(info.Size)
-	// }
-	// data, err := io.ReadAll(file)
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
-	// length = int64(len(data))
-	// return io.NopCloser(strings.NewReader(string(data))), length, nil
-	d.updateLastConnTime()
+	info, _, err := d.cli.Lookup(fullPath)
+	if err != nil {
+		fmt.Printf("get file info error: %v\n", err)
+	} else {
+		length = int64(info.Size())
+	}
 	return file, length, nil
 }
 
 func (d *Nfs) DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error) {
-	return nil, 0, fmt.Errorf("not support")
+	if err := d.checkConn(); err != nil {
+		return nil, 0, err
+	}
+	if d.rootPath == "" {
+		return nil, 0, fmt.Errorf("root path is empty")
+	}
+	fullPath := filepath.Join(d.rootPath, path)
+	file, err := d.cli.Open(fullPath)
+	if err != nil {
+		d.cleanLastConnTime()
+		return nil, 0, fmt.Errorf("open file error: %v", err)
+	}
+	var length int64 = 0
+	info, _, err := d.cli.Lookup(fullPath)
+	if err != nil {
+		fmt.Printf("get file info error: %v\n", err)
+	} else {
+		length = int64(info.Size())
+	}
+	if length > 0 && offset >= length {
+		return nil, length, fmt.Errorf("offset is out of range")
+	}
+	_, err = file.Seek(offset, io.SeekStart)
+	if err != nil {
+		return nil, length, err
+	}
+	return file, length, nil
 }
 
 func (d *Nfs) Delete(path string) error {

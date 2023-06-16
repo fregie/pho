@@ -124,7 +124,20 @@ func (d *Webdav) Delete(path string) error {
 }
 
 func (d *Webdav) DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error) {
-	return nil, 0, fmt.Errorf("not support")
+	if d.rootPath == "" {
+		return nil, 0, fmt.Errorf("root path is empty")
+	}
+	fullPath := filepath.Join(d.rootPath, path)
+	reader, err := d.cli.ReadStreamRange(fullPath, offset, -1)
+	if err != nil {
+		return nil, 0, err
+	}
+	info, err := d.cli.Stat(fullPath)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return reader, info.Size(), nil
 }
 
 func (d *Webdav) Upload(path string, reader io.ReadCloser, lastModified time.Time) error {

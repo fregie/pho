@@ -69,6 +69,7 @@ class MyApp extends StatelessWidget {
           textTheme: textThemeLight,
           navigationBarTheme: navigationBarThemeLight,
           iconTheme: iconThemeLight,
+          floatingActionButtonTheme: floatingActionButtonThemeLight,
         );
         var darkTheme = ThemeData(
           colorScheme: darkColorScheme,
@@ -123,14 +124,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     PreferredSizeWidget? appBar;
-    switch (_selectedIndex) {
-      case 0:
-        break;
-      case 1:
-        break;
-      case 2:
-        break;
-    }
+    // switch (_selectedIndex) {
+    //   case 0:
+    //     break;
+    //   case 1:
+    //     break;
+    //   case 2:
+    //     break;
+    // }
     SnackBarManager.init(context);
     return Consumer<StateModel>(
       builder: (context, model, child) => Scaffold(

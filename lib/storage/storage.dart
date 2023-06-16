@@ -174,8 +174,9 @@ class RemoteImage {
     final request = http.Request('GET', Uri.parse(url));
     final response = await client.send(request);
     if (response.statusCode != 200) {
+      final errMsg = await response.stream.bytesToString();
       throw Exception(
-          "get [$urlPath] thumbnail failed: ${response.statusCode}");
+          "get [$urlPath] thumbnail failed: [${response.reasonPhrase}] $errMsg");
     }
     await for (var data in response.stream) {
       yield data as Uint8List;

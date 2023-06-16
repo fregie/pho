@@ -536,11 +536,11 @@ class GalleryBodyState extends State<GalleryBody>
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  opaque: true,
+                                  opaque: false,
                                   transitionDuration:
-                                      const Duration(milliseconds: 400),
+                                      const Duration(milliseconds: 300),
                                   reverseTransitionDuration:
-                                      const Duration(milliseconds: 400),
+                                      const Duration(milliseconds: 300),
                                   transitionsBuilder: (BuildContext context,
                                       Animation<double> animation,
                                       Animation<double> secondaryAnimation,

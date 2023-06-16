@@ -55,6 +55,9 @@ func (d *DriveTest) TestNFS() {
 	d.Nilf(err, "new nfs drive failed: %v", err)
 	err = dri.SetRootPath(nfsRootPath)
 	d.Nilf(err, "set root path failed: %v", err)
+
+	d.testDrive(dri)
+	d.testDownloadOffset(dri)
 }
 
 func (d *DriveTest) TestWebdav() {
@@ -65,6 +68,7 @@ func (d *DriveTest) TestWebdav() {
 	d.Nilf(err, "set root path failed: %v", err)
 
 	d.testDrive(dri)
+	d.testDownloadOffset(dri)
 }
 
 func (d *DriveTest) TestSMB() {
@@ -259,11 +263,11 @@ func (d *DriveTest) testDownloadOffset(dri imgmanager.StorageDrive) {
 	d.Nilf(err, "check exist failed: %v", err)
 	d.True(exist)
 	// test download
-	reader2, length, err := dri.DownloadWithOffset(filePath, 128)
+	reader2, length, err := dri.DownloadWithOffset(filePath, 256)
 	d.Nilf(err, "download failed: %v", err)
-	buf1 := make([]byte, 128)
+	buf1 := make([]byte, 256)
 	io.ReadFull(reader2, buf1)
 	reader2.Close()
-	d.Equal(static.Pic1[128:128+128], buf1)
+	d.Equal(static.Pic1[256:256+256], buf1)
 	d.Equal(int64(len(static.Pic1)), length)
 }
