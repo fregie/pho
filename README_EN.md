@@ -42,6 +42,19 @@ Pho is a simple app designed for viewing and synchronizing photos to cloud stora
 <img src="assets/screenshot/Screenshots.png" >
 </p>
 
+### Roadmap
+- [x] Support zooming in/out of images
+- [x] Support uploading/browsing videos
+- [x] Support NFS
+- [ ] Support Alibaba Cloud Drive
+- [ ] Support iOS
+- [ ] Support web version
+- [x] Add Chinese
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=fregie/pho&type=Date)](https://star-history.com/#fregie/pho&Date)
+
 ### File Storage Logic
 The application stores files based on a straightforward principle of utilizing the time as the directory structure, and the source file name as the filename for storage. A .thumbnail directory is created in the root directory to store the generated thumbnails, and the directory structure for these thumbnails aligns with that of the source files.
 
@@ -59,46 +72,21 @@ Directory Structure Diagram:
 │   │       ├── 20220703_101923.DNG
 │   │       ├── 20220703_112336.DNG
 │   │       └── 20220703_112338.DNG
-│   ├── 08
-│       └── 01
-│           ├── 20220801_191717.DNG
-│           ├── 20220801_191718.DNG
-│           └── 20220801_191720.DNG
 ├── 2023
-│   ├── 01
-│       ├── 03
-│       │   ├── 20230103_112348.JPG
-│       │   ├── 20230103_124634.JPG
-│       │   └── 20230103_124918.DNG
-├── .thumbnail
-|   ├── 2022
-|   │   ├── 07
-|   │   │   ├── 02
-|   │   │   │   ├── 20220702_100940.JPG
-|   │   │   │   ├── 20220702_111416.JPG
-|   │   │   │   └── 20220702_111508.JPG
-|   │   │   └── 03
-|   │   │       ├── 20220703_101923.DNG
-|   │   │       ├── 20220703_112336.DNG
-|   │   │       └── 20220703_112338.DNG
-|   │   ├── 08
-|   │       └── 01
-|   │           ├── 20220801_191717.DNG
-|   │           ├── 20220801_191718.DNG
-|   │           └── 20220801_191720.DNG
-|   ├── 2023
-|   │   ├── 01
-|   │       ├── 03
-|   │       │   ├── 20230103_112348.JPG
-|   │       │   ├── 20230103_124634.JPG
-|   │       │   └── 20230103_124918.DNG
+│   └── 01
+│       └── 03
+│           ├── 20230103_112348.JPG
+│           ├── 20230103_124634.JPG
+│           └── 20230103_124918.DNG
+└── .thumbnail
+     └── 2022
+         └── 07
+             ├── 02
+             │   ├── 20220702_100940.JPG
+             │   ├── 20220702_111416.JPG
+             │   └── 20220702_111508.JPG
+             └── 03
+                 ├── 20220703_101923.DNG
+                 ├── 20220703_112336.DNG
+                 └── 20220703_112338.DNG
 ```
-
-### Roadmap
-- [x] Support zooming in/out of images
-- [x] Support uploading/browsing videos
-- [x] Support NFS
-- [ ] Support Alibaba Cloud Drive
-- [ ] Support iOS
-- [ ] Support web version
-- [x] Add Chinese
