@@ -201,6 +201,7 @@ class NFSFormState extends State<NFSForm> {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: i18n.rootPath,
+                helperText: "eg: /path/photo",
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.open_in_browser),
                   onPressed: () {

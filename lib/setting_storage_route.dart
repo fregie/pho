@@ -57,7 +57,7 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           iconTheme: Theme.of(context).iconTheme,
           elevation: 0,
-          title: Text('Storage setting',
+          title: Text(i18n.storageSetting,
               style: Theme.of(context).textTheme.titleLarge),
         ),
         body: Center(

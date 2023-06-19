@@ -167,6 +167,7 @@ class _SMBFormState extends State<SMBForm> {
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: i18n.rootPath,
+            helperText: "eg: storage/photos (no '/' or '\\' at the start)",
             suffixIcon: smbShareController!.text == ""
                 ? null
                 : IconButton(

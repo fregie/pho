@@ -4,7 +4,7 @@
     "sync": "同步",
     "cloudSync": "云端同步",
     "localFolder": "本地相册",
-    "cloudStorage": "云端储存",
+    "cloudStorage": "云端设置",
     "backgroundSync": "后台同步",
     "notSync": "张照片尚未同步",
     "unsynchronizedPhotos": "未同步照片",
