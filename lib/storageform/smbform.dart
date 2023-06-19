@@ -126,10 +126,9 @@ class _SMBFormState extends State<SMBForm> {
 
   Widget smbForm(BuildContext context) {
     List<Widget> children = [
-      input(AppLocalizations.of(context).samvbaServerAddress, smbAddrController,
-          null),
-      input(AppLocalizations.of(context).username, smbUsernameController, null),
-      input(AppLocalizations.of(context).password, smbPasswordController, null),
+      input(i18n.samvbaServerAddress, smbAddrController, null),
+      input(i18n.username, smbUsernameController, null),
+      input(i18n.password, smbPasswordController, null),
       Container(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: TextFormField(
@@ -140,7 +139,7 @@ class _SMBFormState extends State<SMBForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: AppLocalizations.of(context).share,
+            labelText: i18n.share,
             suffixIcon: IconButton(
               icon: const Icon(Icons.open_in_browser),
               onPressed: () => refreshShare().then((available) {
@@ -167,7 +166,7 @@ class _SMBFormState extends State<SMBForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: AppLocalizations.of(context).rootPath,
+            labelText: i18n.rootPath,
             suffixIcon: smbShareController!.text == ""
                 ? null
                 : IconButton(
@@ -408,14 +407,13 @@ class _SMBFormState extends State<SMBForm> {
         onPressed: () {
           testStorage().then((value) {
             if (testSuccess) {
-              SnackBarManager.showSnackBar(
-                  AppLocalizations.of(context).testSuccess);
+              SnackBarManager.showSnackBar(i18n.testSuccess);
             } else {
               showErrorDialog(errormsg!);
             }
           });
         },
-        child: Text(AppLocalizations.of(context)!.testStorage),
+        child: Text(i18n!.testStorage),
       ),
     );
   }
@@ -441,7 +439,7 @@ class _SMBFormState extends State<SMBForm> {
                 Navigator.pop(context);
               }
             : null,
-        child: Text(AppLocalizations.of(context).save),
+        child: Text(i18n.save),
       ),
     );
   }
@@ -450,7 +448,7 @@ class _SMBFormState extends State<SMBForm> {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).connectFailed),
+        title: Text(i18n.connectFailed),
         content: Text(msg),
         actions: <Widget>[
           TextButton(

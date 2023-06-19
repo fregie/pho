@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'state_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:img_syncer/global.dart';
 
 class ChooseAlbumRoute extends StatefulWidget {
   const ChooseAlbumRoute({Key? key}) : super(key: key);
@@ -71,7 +71,7 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           iconTheme: Theme.of(context).iconTheme,
           elevation: 0,
-          title: Text(AppLocalizations.of(context).chooseAlbum,
+          title: Text(i18n.chooseAlbum,
               style: Theme.of(context).textTheme.titleLarge),
         ),
         body: CustomScrollView(
@@ -153,7 +153,7 @@ class AlbumCard extends StatelessWidget {
                           future: path.assetCountAsync,
                           builder: (context, snapshot) => Text(
                               snapshot.hasData
-                                  ? "${snapshot.data} ${AppLocalizations.of(context).pics}"
+                                  ? "${snapshot.data} ${i18n.pics}"
                                   : 'unknown count pics',
                               style: Theme.of(context).textTheme.bodySmall),
                         ),
@@ -172,7 +172,7 @@ class AlbumCard extends StatelessWidget {
                           });
                           Navigator.pop(context);
                         },
-                        child: Text(AppLocalizations.of(context).choose),
+                        child: Text(i18n.choose),
                       ),
                     ),
                   ],

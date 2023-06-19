@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:img_syncer/choose_album_route.dart';
 import 'package:img_syncer/setting_storage_route.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:img_syncer/global.dart';
 
 class SyncBody extends StatefulWidget {
   const SyncBody({
@@ -182,7 +182,7 @@ class SyncBodyState extends State<SyncBody> {
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
                         const SizedBox(width: 10),
-                        Text(AppLocalizations.of(context).localFolder),
+                        Text(i18n.localFolder),
                       ],
                     ),
                   ),
@@ -208,7 +208,7 @@ class SyncBodyState extends State<SyncBody> {
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
                         SizedBox(width: 10),
-                        Text(AppLocalizations.of(context).cloudStorage),
+                        Text(i18n.cloudStorage),
                       ],
                     ),
                   ),
@@ -239,7 +239,7 @@ class SyncBodyState extends State<SyncBody> {
                           Icons.cloud_sync_outlined,
                         ),
                         SizedBox(width: 10),
-                        Text(AppLocalizations.of(context).backgroundSync),
+                        Text(i18n.backgroundSync),
                       ],
                     ),
                   ),
@@ -276,21 +276,20 @@ class SyncBodyState extends State<SyncBody> {
         continue;
       }
       setState(() {
-        uploadState[asset.title!] = AppLocalizations.of(context).uploading;
+        uploadState[asset.title!] = i18n.uploading;
       });
       try {
         await storage.uploadAssetEntity(asset);
       } catch (e) {
         print(e);
         setState(() {
-          uploadState[asset.title!] =
-              "${AppLocalizations.of(context).uploadFailed}: $e";
+          uploadState[asset.title!] = "${i18n.uploadFailed}: $e";
         });
         continue;
       }
       setState(() {
         toUpload -= 1;
-        uploadState[asset.title!] = AppLocalizations.of(context).uploaded;
+        uploadState[asset.title!] = i18n.uploaded;
       });
     }
     stateModel.setUploadState(false);
@@ -310,7 +309,7 @@ class SyncBodyState extends State<SyncBody> {
       appBar: AppBar(
         centerTitle: false,
         title: Text(
-          AppLocalizations.of(context).cloudSync,
+          i18n.cloudSync,
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         actions: [
@@ -318,7 +317,7 @@ class SyncBodyState extends State<SyncBody> {
             padding: const EdgeInsets.fromLTRB(0, 0, 5, 5),
             alignment: Alignment.bottomRight,
             child: Text(
-              "$toUpload ${AppLocalizations.of(context).notSync}",
+              "$toUpload ${i18n.notSync}",
               style: const TextStyle(color: Colors.grey),
             ),
           ),
@@ -352,9 +351,7 @@ class SyncBodyState extends State<SyncBody> {
                     ? stopSync
                     : syncPhotots,
                 icon: syncing ? CircularProgress() : const Icon(Icons.sync),
-                label: Text(syncing
-                    ? AppLocalizations.of(context).stop
-                    : AppLocalizations.of(context).sync)),
+                label: Text(syncing ? i18n.stop : i18n.sync)),
           ),
         ],
       ),
@@ -367,7 +364,7 @@ class SyncBodyState extends State<SyncBody> {
               Container(
                 padding: const EdgeInsets.fromLTRB(15, 0, 10, 0),
                 child: Text(
-                  AppLocalizations.of(context).unsynchronizedPhotos,
+                  i18n.unsynchronizedPhotos,
                   style: TextStyle(
                     fontSize: 13,
                   ),
@@ -397,8 +394,8 @@ class SyncBodyState extends State<SyncBody> {
                         fit: BoxFit.cover),
                   ),
                   title: Text(toShow[index].name()!),
-                  subtitle: Text(uploadState[toShow[index].name()] ??
-                      AppLocalizations.of(context).notUploaded),
+                  subtitle: Text(
+                      uploadState[toShow[index].name()] ?? i18n.notUploaded),
                 );
               },
             ),

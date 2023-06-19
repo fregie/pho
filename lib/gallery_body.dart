@@ -158,8 +158,8 @@ class GalleryBodyState extends State<GalleryBody>
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text("${AppLocalizations.of(context).deleteThisPhotos}?"),
-        content: Text(AppLocalizations.of(context).cantBeUndone),
+        title: Text("${i18n.deleteThisPhotos}?"),
+        content: Text(i18n.cantBeUndone),
         actions: <Widget>[
           TextButton(
             onPressed: () {
@@ -188,16 +188,16 @@ class GalleryBodyState extends State<GalleryBody>
                 SnackBarManager.showSnackBar(e.toString());
               }
               SnackBarManager.showSnackBar(
-                  '${AppLocalizations.of(context).delete} ${toDelete.length} ${AppLocalizations.of(context).photos}.');
+                  '${i18n.delete} ${toDelete.length} ${i18n.photos}.');
               clearSelection();
               setState(() {});
               Navigator.of(context).pop();
             },
-            child: Text(AppLocalizations.of(context).yes),
+            child: Text(i18n.yes),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context).cancel),
+            child: Text(i18n.cancel),
           ),
         ],
       ),
@@ -237,13 +237,12 @@ class GalleryBodyState extends State<GalleryBody>
     if (!status.isGranted) {
       status = await Permission.photos.request();
       if (!status.isGranted) {
-        SnackBarManager.showSnackBar(
-            AppLocalizations.of(context).permissionDenied);
+        SnackBarManager.showSnackBar(i18n.permissionDenied);
         return;
       }
     }
     if (settingModel.localFolderAbsPath == null) {
-      SnackBarManager.showSnackBar(AppLocalizations.of(context).setLocalFirst);
+      SnackBarManager.showSnackBar(i18n.setLocalFirst);
       return;
     }
     final all =
@@ -281,12 +280,10 @@ class GalleryBodyState extends State<GalleryBody>
         count++;
       }
     } catch (e) {
-      SnackBarManager.showSnackBar(
-          "${AppLocalizations.of(context).downloadFailed}: $e");
+      SnackBarManager.showSnackBar("${i18n.downloadFailed}: $e");
     }
     stateModel.setDownloadState(false);
-    SnackBarManager.showSnackBar(
-        "${AppLocalizations.of(context).download} $count ${AppLocalizations.of(context).photos}");
+    SnackBarManager.showSnackBar("${i18n.download} $count ${i18n.photos}");
     eventBus.fire(LocalRefreshEvent());
     clearSelection();
   }
@@ -296,8 +293,7 @@ class GalleryBodyState extends State<GalleryBody>
       return;
     }
     if (!settingModel.isRemoteStorageSetted) {
-      SnackBarManager.showSnackBar(
-          AppLocalizations.of(context).storageNotSetted);
+      SnackBarManager.showSnackBar(i18n.storageNotSetted);
       return;
     }
     final all =
@@ -317,13 +313,12 @@ class GalleryBodyState extends State<GalleryBody>
       try {
         await storage.uploadAssetEntity(entity);
       } catch (e) {
-        SnackBarManager.showSnackBar(
-            "${AppLocalizations.of(context).uploadFailed}: $e");
+        SnackBarManager.showSnackBar("${i18n.uploadFailed}: $e");
       }
     }
     stateModel.setUploadState(false);
     SnackBarManager.showSnackBar(
-        "${AppLocalizations.of(context).successfullyUpload} ${assets.length} ${AppLocalizations.of(context).photos}");
+        "${i18n.successfullyUpload} ${assets.length} ${i18n.photos}");
     eventBus.fire(RemoteRefreshEvent());
 
     clearSelection();
@@ -353,24 +348,20 @@ class GalleryBodyState extends State<GalleryBody>
                         child: Row(
                           children: [
                             _bottomSheetIconButtun(
-                                Icons.share_outlined,
-                                AppLocalizations.of(context).share,
-                                _shareAsset),
-                            _bottomSheetIconButtun(
-                                Icons.delete_outline,
-                                AppLocalizations.of(context).delete,
-                                () => _showDeleteDialog(context)),
+                                Icons.share_outlined, i18n.share, _shareAsset),
+                            _bottomSheetIconButtun(Icons.delete_outline,
+                                i18n.delete, () => _showDeleteDialog(context)),
                             if (widget.useLocal)
                               _bottomSheetIconButtun(
                                   Icons.cloud_upload_outlined,
-                                  AppLocalizations.of(context).upload,
+                                  i18n.upload,
                                   uploadSelected,
                                   isEnable: !model.isDownloading &&
                                       !model.isUploading),
                             if (!widget.useLocal)
                               _bottomSheetIconButtun(
                                   Icons.cloud_download_outlined,
-                                  AppLocalizations.of(context).download,
+                                  i18n.download,
                                   downloadSelected,
                                   isEnable: !model.isDownloading &&
                                       !model.isUploading),
@@ -390,9 +381,9 @@ class GalleryBodyState extends State<GalleryBody>
       builder: (context, model, child) {
         String text = 'Pho';
         if (model.isUploading) {
-          text = '${AppLocalizations.of(context).uploading}...';
+          text = '${i18n.uploading}...';
         } else if (model.isDownloading) {
-          text = '${AppLocalizations.of(context).downloading}...';
+          text = '${i18n.downloading}...';
         }
         return SliverAppBar(
           pinned: false,
@@ -507,7 +498,7 @@ class GalleryBodyState extends State<GalleryBody>
                         ));
                         currentChildren = <Widget>[];
                         DateFormat format = DateFormat(
-                            'yyyy MMMM d${AppLocalizations.of(context).chineseday}  EEEEE',
+                            'yyyy MMMM d${i18n.chineseday}  EEEEE',
                             Localizations.localeOf(context).languageCode);
                         children.add(Container(
                           padding: const EdgeInsets.all(15),

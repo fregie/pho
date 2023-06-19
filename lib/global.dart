@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/logger.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 late String httpBaseUrl;
 
@@ -143,4 +144,10 @@ class SnackBarManager {
       );
     }
   }
+}
+
+late AppLocalizations i18n;
+
+void initI18n(BuildContext context) {
+  i18n = AppLocalizations.of(context);
 }

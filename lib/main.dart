@@ -133,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //     break;
     // }
     SnackBarManager.init(context);
+    initI18n(context);
     return Consumer<StateModel>(
       builder: (context, model, child) => Scaffold(
         appBar: appBar,
@@ -162,15 +163,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 destinations: <Widget>[
                   NavigationDestination(
                     icon: const Icon(Icons.phone_android),
-                    label: AppLocalizations.of(context).local,
+                    label: i18n.local,
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.cloud),
-                    label: AppLocalizations.of(context).cloud,
+                    label: i18n.cloud,
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.cloud_sync),
-                    label: AppLocalizations.of(context).sync,
+                    label: i18n.sync,
                   ),
                 ],
               ),

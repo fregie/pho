@@ -4,7 +4,7 @@ import 'package:img_syncer/storageform/webdavform.dart';
 import 'package:img_syncer/storageform/nfsform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/state_model.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:img_syncer/global.dart';
 
 class SettingStorageRoute extends StatefulWidget {
   const SettingStorageRoute({Key? key}) : super(key: key);
@@ -71,7 +71,7 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
                     TextEditingController(text: driveName[currentDrive]),
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: AppLocalizations.of(context)!.remoteStorageType,
+                    labelText: i18n!.remoteStorageType,
                     suffixIcon: PopupMenuButton<String>(
                       icon: const Icon(Icons.arrow_drop_down),
                       itemBuilder: (BuildContext context) {

@@ -3,7 +3,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/sync_timer.dart';
 import 'package:img_syncer/state_model.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:img_syncer/global.dart';
 
 class BackgroundSyncSettingRoute extends StatefulWidget {
   const BackgroundSyncSettingRoute({Key? key}) : super(key: key);
@@ -53,13 +53,13 @@ class _BackgroundSyncSettingRouteState
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         iconTheme: Theme.of(context).iconTheme,
         elevation: 0,
-        title: Text(AppLocalizations.of(context).backgroundSync,
+        title: Text(i18n.backgroundSync,
             style: Theme.of(context).textTheme.titleLarge),
       ),
       body: ListView(
         children: [
           ListTile(
-            title: Text(AppLocalizations.of(context).enableBackgroundSync),
+            title: Text(i18n.enableBackgroundSync),
             trailing: Switch(
               value: _backgroundSyncEnabled,
               onChanged: (value) async {
@@ -73,7 +73,7 @@ class _BackgroundSyncSettingRouteState
             ),
           ),
           ListTile(
-            title: Text(AppLocalizations.of(context).syncOnlyOnWifi),
+            title: Text(i18n.syncOnlyOnWifi),
             trailing: Switch(
               value: _backgroundSyncWifiOnly,
               onChanged: (value) async {
@@ -87,7 +87,7 @@ class _BackgroundSyncSettingRouteState
             ),
           ),
           ListTile(
-            title: Text(AppLocalizations.of(context).syncInterval),
+            title: Text(i18n.syncInterval),
             trailing: DropdownButton<Duration>(
               value: _backgroundSyncInterval,
               items: [
@@ -97,35 +97,35 @@ class _BackgroundSyncSettingRouteState
                 // ),
                 DropdownMenuItem(
                   value: Duration(minutes: 10),
-                  child: Text('10 ${AppLocalizations.of(context).minite}'),
+                  child: Text('10 ${i18n.minite}'),
                 ),
                 DropdownMenuItem(
                   value: Duration(hours: 1),
-                  child: Text('1 ${AppLocalizations.of(context).hour}'),
+                  child: Text('1 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: Duration(hours: 3),
-                  child: Text('3 ${AppLocalizations.of(context).hour}'),
+                  child: Text('3 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: Duration(hours: 6),
-                  child: Text('6 ${AppLocalizations.of(context).hour}'),
+                  child: Text('6 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: Duration(hours: 12),
-                  child: Text('12 ${AppLocalizations.of(context).hour}'),
+                  child: Text('12 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: Duration(days: 1),
-                  child: Text('1 ${AppLocalizations.of(context).day}'),
+                  child: Text('1 ${i18n.day}'),
                 ),
                 DropdownMenuItem(
                   value: Duration(days: 3),
-                  child: Text('3 ${AppLocalizations.of(context).day}'),
+                  child: Text('3 ${i18n.day}'),
                 ),
                 DropdownMenuItem(
                   value: Duration(days: 7),
-                  child: Text('1 ${AppLocalizations.of(context).week}'),
+                  child: Text('1 ${i18n.week}'),
                 ),
               ],
               onChanged: (value) async {
