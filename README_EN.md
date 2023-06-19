@@ -32,7 +32,6 @@ Pho is a simple app designed for viewing and synchronizing photos to cloud stora
 - [x] Webdav
 - [x] NFS
 - [ ] Alibaba Cloud Drive
-- [ ] quark
 - [ ] baidu netdisk
 - [ ] oneDrive
 - [ ] google drive
@@ -97,7 +96,7 @@ Directory Structure Diagram:
 
 ### Roadmap
 - [x] Support zooming in/out of images
-- [ ] Support uploading/browsing videos
+- [x] Support uploading/browsing videos
 - [x] Support NFS
 - [ ] Support Alibaba Cloud Drive
 - [ ] Support iOS
