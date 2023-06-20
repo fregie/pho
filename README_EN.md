@@ -51,9 +51,12 @@ Pho is a simple app designed for viewing and synchronizing photos to cloud stora
 - [ ] Support web version
 - [x] Add Chinese
 
-### Star History
+### Contribute
+Thank you all for your positive feedback.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=fregie/pho&type=Date)](https://star-history.com/#fregie/pho&Date)
+There have been quite a few people who have provided requirements for this project, but as an individual, my resources are limited. If you are interested, you are welcome to join.
+
+You can communicate by replying in the issue section and help in developing some features by submitting your pull request.
 
 ### File Storage Logic
 The application stores files based on a straightforward principle of utilizing the time as the directory structure, and the source file name as the filename for storage. A .thumbnail directory is created in the root directory to store the generated thumbnails, and the directory structure for these thumbnails aligns with that of the source files.
@@ -90,3 +93,10 @@ Directory Structure Diagram:
                  ├── 20220703_112336.DNG
                  └── 20220703_112338.DNG
 ```
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=fregie/pho&type=Date)](https://star-history.com/#fregie/pho&Date)
+
+### Join QQ group
+<img src="assets/pho-qq-group.jpg" width="400">
