@@ -251,6 +251,9 @@ func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date 
 			im.logger.Println("Error getting image metadata:", err)
 		}
 	}
+	if imgTime.Before(time.Date(1990, 1, 1, 0, 0, 0, 0, time.UTC)) {
+		imgTime = time.Now()
+	}
 	t, err := time.Parse("2006:01:02 15:04:05", date)
 	if err == nil {
 		imgTime = t

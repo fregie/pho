@@ -1,6 +1,4 @@
 import 'dart:typed_data';
-
-import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
 import 'package:date_format/date_format.dart';
@@ -56,9 +54,12 @@ class RemoteStorage {
     if (name == null) {
       throw Exception("asset name is null");
     }
-    final createDate = asset.createDateTime;
-    final date = formatDate(
-        createDate, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
+    var date = asset.createDateTime;
+    if (date.isBefore(DateTime(1990, 1, 1))) {
+      date = asset.modifiedDateTime;
+    }
+    final dateStr =
+        formatDate(date, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
     final f = await asset.file;
     if (f == null) {
       throw Exception("asset file is null");
@@ -72,9 +73,8 @@ class RemoteStorage {
     if (thumbnailData == null) {
       throw Exception("asset thumbnail is null");
     }
-    // final start = DateTime.now();
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
-    req.headers['Image-Date'] = date;
+    req.headers['Image-Date'] = dateStr;
     req.contentLength = await f.length();
     f.openRead().listen((chunk) {
       req.sink.add(chunk);
@@ -90,16 +90,12 @@ class RemoteStorage {
       Uri.parse("$httpBaseUrl/thumbnail/$name"),
       body: thumbnailData,
       headers: {
-        'Image-Date': date,
+        'Image-Date': dateStr,
       },
     );
     if (thumbRsp.statusCode != 200) {
       throw Exception("upload thumbnail failed: ${thumbRsp.statusCode}");
     }
-    // final end = DateTime.now();
-    // print("upload ${f.lengthSync()}bytes in ${end.difference(start)}s");
-    // print(
-    //     "speed: ${f.lengthSync() * 8 / end.difference(start).inSeconds / 1024 / 1024}mbps");
   }
 
   // @protected
