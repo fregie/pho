@@ -140,7 +140,7 @@ func (d *Webdav) DownloadWithOffset(path string, offset int64) (io.ReadCloser, i
 	return reader, info.Size(), nil
 }
 
-func (d *Webdav) Upload(path string, reader io.ReadCloser, lastModified time.Time) error {
+func (d *Webdav) Upload(path string, reader io.ReadCloser, size int64, lastModified time.Time) error {
 	if reader == nil {
 		return fmt.Errorf("reader is nil")
 	}

@@ -43,11 +43,12 @@ func (a *api) httpUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	date := r.Header.Get("Image-Date")
+	length := r.ContentLength
 	var err error
 	if isVideo(path) {
-		err = a.im.UploadVideo(r.Body, nil, path, date)
+		err = a.im.UploadVideo(r.Body, nil, length, 0, path, date)
 	} else {
-		err = a.im.UploadImg(r.Body, nil, path, date)
+		err = a.im.UploadImg(r.Body, nil, length, 0, path, date)
 	}
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -70,7 +71,8 @@ func (a *api) httpUploadThumbnail(w http.ResponseWriter, r *http.Request) {
 	}
 	name := strings.TrimPrefix(path, "/thumbnail/")
 	date := r.Header.Get("Image-Date")
-	err := a.im.UploadImg(nil, r.Body, name, date)
+	length := r.ContentLength
+	err := a.im.UploadImg(nil, r.Body, 0, length, name, date)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -82,32 +83,10 @@ func (s *DriveNFSTestSuite) TestUploadDownload() {
 	s.Nilf(err, "set drive nfs failed: %v", err)
 	s.True(rsp1.Success)
 	// test upload
-	cli, err := s.srv.Upload(ctx)
-	s.Nil(err)
-	// test upload file
-	reader := bytes.NewReader(static.Pic1)
-	err = cli.Send(&pb.UploadRequest{
-		Name: "pic1.jpg",
-	})
-	s.Nil(err)
-	buf := make([]byte, 4096)
-	for {
-		n, err := reader.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				s.Nil(err)
-			}
-		}
-		err = cli.Send(&pb.UploadRequest{
-			Data: buf[:n],
-		})
-		s.Nil(err)
-	}
-	rsp2, err := cli.CloseAndRecv()
-	s.Nil(err)
-	s.Truef(rsp2.Success, "upload failed: %v", rsp2.Message)
+	resp, err := http.Post(fmt.Sprintf("http://%s/pic1.jpg", httpAddr), "image/jpeg", bytes.NewReader(static.Pic1))
+	s.Nilf(err, "upload pic failed: %v", err)
+	s.Equal(http.StatusOK, resp.StatusCode)
+
 	filePath := "/storage/2022/11/08/pic1.jpg"
 	s.waitFile(filePath, 5*time.Second)
 	f, err := s.cli.Open(filePath)
@@ -120,28 +99,18 @@ func (s *DriveNFSTestSuite) TestUploadDownload() {
 
 // get file content
 func (s *DriveNFSTestSuite) get(ctx context.Context, path string) ([]byte, error) {
-	cli, err := s.srv.Get(ctx, &pb.GetRequest{
-		Path: path,
-	})
+	if path[0] != '/' {
+		path = "/" + path
+	}
+	resp, err := http.Get(fmt.Sprintf("http://%s%s", httpAddr, path))
 	if err != nil {
 		return nil, err
 	}
-	buf := new(bytes.Buffer)
-	for {
-		rsp, err := cli.Recv()
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return nil, err
-			}
-		}
-		_, err = buf.Write(rsp.Data)
-		if err != nil {
-			return nil, err
-		}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(resp.Status)
 	}
-	return buf.Bytes(), nil
+	return io.ReadAll(resp.Body)
 }
 
 // waitFile waits for file to exist

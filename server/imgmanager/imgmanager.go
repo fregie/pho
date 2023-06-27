@@ -102,7 +102,7 @@ func (im *ImgManager) runWorker() {
 		case actUpload:
 			err := im.dri.Upload(
 				act.path,
-				io.NopCloser(bytes.NewReader(act.content)), act.lastModified)
+				io.NopCloser(bytes.NewReader(act.content)), int64(len(act.content)), act.lastModified)
 			if err != nil {
 				im.logger.Println("Error uploading image:", err)
 			}
@@ -143,7 +143,7 @@ func (im *ImgManager) GenerateThumbnail(path string, content []byte) error {
 		return err
 	}
 	thumbPath := filepath.Join(defaultThumbnailDir, path)
-	err = im.dri.Upload(thumbPath, io.NopCloser(buf), time.Time{})
+	err = im.dri.Upload(thumbPath, io.NopCloser(buf), int64(buf.Len()), time.Time{})
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (im *ImgManager) GenerateThumbnailAsync(path string, content []byte) {
 	})
 }
 
-func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, name, date string) error {
+func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, contentSize, thumbnailSize int64, name, date string) error {
 	videoTime, err := time.Parse("2006:01:02 15:04:05", date)
 	if err != nil {
 		im.logger.Println("Error parsing video date:", err)
@@ -183,7 +183,7 @@ func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, name, dat
 		if content == nil {
 			return
 		}
-		e := im.dri.Upload(path, io.NopCloser(content), videoTime)
+		e := im.dri.Upload(path, io.NopCloser(content), contentSize, videoTime)
 		if e != nil {
 			im.logger.Println("Error uploading video:", err)
 			err = fmt.Errorf("error uploading video: %w", e)
@@ -195,7 +195,7 @@ func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, name, dat
 			return
 		}
 		e := im.dri.Upload(filepath.Join(defaultThumbnailDir, path),
-			io.NopCloser(thumbnailContent), videoTime)
+			io.NopCloser(thumbnailContent), thumbnailSize, videoTime)
 		if e != nil {
 			im.logger.Println("Error uploading video:", err)
 			err = fmt.Errorf("error uploading video thumbnail: %w", e)
@@ -205,7 +205,7 @@ func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, name, dat
 	return err
 }
 
-func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date string) error {
+func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, contentSize, thumbnailSize int64, name, date string) error {
 	errCh := make(chan error, 2)
 	var data []byte
 	var thumbData []byte
@@ -272,7 +272,7 @@ func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date 
 	// TODO: check if file exist
 	if len(data) > 0 {
 		err = im.dri.Upload(path,
-			io.NopCloser(bytes.NewReader(data)), imgTime)
+			io.NopCloser(bytes.NewReader(data)), int64(len(data)), imgTime)
 		if err != nil {
 			im.logger.Println("Error uploading image:", err)
 			return err
@@ -280,7 +280,7 @@ func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, name, date 
 	}
 	if len(thumbData) > 0 {
 		err = im.dri.Upload(filepath.Join(defaultThumbnailDir, path),
-			io.NopCloser(bytes.NewReader(thumbData)), imgTime)
+			io.NopCloser(bytes.NewReader(thumbData)), int64(len(thumbData)), imgTime)
 		if err != nil {
 			im.logger.Println("Error uploading thumbnail:", err)
 			return err

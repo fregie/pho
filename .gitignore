@@ -44,3 +44,4 @@ app.*.map.json
 /android/app/release
 output
 *.apk
+baidu_drive_test.go

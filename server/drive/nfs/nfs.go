@@ -213,7 +213,7 @@ func (d *Nfs) Delete(path string) error {
 	return nil
 }
 
-func (d *Nfs) Upload(path string, reader io.ReadCloser, lastModified time.Time) error {
+func (d *Nfs) Upload(path string, reader io.ReadCloser, size int64, lastModified time.Time) error {
 	if err := d.checkConn(); err != nil {
 		return err
 	}

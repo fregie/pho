@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 
 const (
 	grpcAddr   = "127.0.0.1:50051"
+	httpAddr   = "127.0.0.1:8000"
 	smbSrvAddr = "smb"
 	smbAddr    = "127.0.0.1:445"
 	smbUser    = "fregie"
@@ -118,28 +120,30 @@ func initSmbDir() error {
 
 func waitfile(srv pb.ImgSyncerClient, path string, timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	if path[0] != '/' {
+		path = "/" + path
+	}
 	defer cancel()
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			stream, err := srv.Get(ctx, &pb.GetRequest{
-				Path: path,
-			})
+			resp, err := http.Get(fmt.Sprintf("http://%s%s", httpAddr, path))
 			if err != nil {
 				goto CONTINUE
 			}
-			for {
-				_, err := stream.Recv()
-				if err != nil {
-					if err == io.EOF {
-						return nil
-					} else {
-						goto CONTINUE
-					}
-				}
+			defer resp.Body.Close()
+			data, err := io.ReadAll(resp.Body)
+			if err != nil {
+				goto CONTINUE
 			}
+			rsp := string(data)
+			rsp = rsp
+			if resp.StatusCode != http.StatusOK {
+				goto CONTINUE
+			}
+			return nil
 		}
 	CONTINUE:
 		time.Sleep(200 * time.Millisecond)

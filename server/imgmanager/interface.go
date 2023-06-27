@@ -8,7 +8,7 @@ import (
 )
 
 type StorageDrive interface {
-	Upload(string, io.ReadCloser, time.Time) error
+	Upload(string, io.ReadCloser, int64, time.Time) error
 	IsExist(path string) (bool, error)
 	Download(path string) (io.ReadCloser, int64, error)
 	DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error)
@@ -35,7 +35,7 @@ const (
 
 type UnimplementedDrive struct{}
 
-func (d *UnimplementedDrive) Upload(_ string, _ io.ReadCloser, _ time.Time) error {
+func (d *UnimplementedDrive) Upload(_ string, _ io.ReadCloser, _ int64, _ time.Time) error {
 	return errors.New("no available drive")
 }
 

@@ -8,94 +8,6 @@
 import 'dart:core' as $core;
 import 'dart:convert' as $convert;
 import 'dart:typed_data' as $typed_data;
-@$core.Deprecated('Use helloRequestDescriptor instead')
-const HelloRequest$json = const {
-  '1': 'HelloRequest',
-  '2': const [
-    const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
-  ],
-};
-
-/// Descriptor for `HelloRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List helloRequestDescriptor = $convert.base64Decode('CgxIZWxsb1JlcXVlc3QSEgoEbmFtZRgBIAEoCVIEbmFtZQ==');
-@$core.Deprecated('Use helloResponseDescriptor instead')
-const HelloResponse$json = const {
-  '1': 'HelloResponse',
-  '2': const [
-    const {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
-  ],
-};
-
-/// Descriptor for `HelloResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List helloResponseDescriptor = $convert.base64Decode('Cg1IZWxsb1Jlc3BvbnNlEhgKB21lc3NhZ2UYASABKAlSB21lc3NhZ2U=');
-@$core.Deprecated('Use uploadRequestDescriptor instead')
-const UploadRequest$json = const {
-  '1': 'UploadRequest',
-  '2': const [
-    const {'1': 'data', '3': 1, '4': 1, '5': 12, '10': 'data'},
-    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'date', '3': 3, '4': 1, '5': 9, '10': 'date'},
-    const {'1': 'thumbnailData', '3': 4, '4': 1, '5': 12, '10': 'thumbnailData'},
-  ],
-};
-
-/// Descriptor for `UploadRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List uploadRequestDescriptor = $convert.base64Decode('Cg1VcGxvYWRSZXF1ZXN0EhIKBGRhdGEYASABKAxSBGRhdGESEgoEbmFtZRgCIAEoCVIEbmFtZRISCgRkYXRlGAMgASgJUgRkYXRlEiQKDXRodW1ibmFpbERhdGEYBCABKAxSDXRodW1ibmFpbERhdGE=');
-@$core.Deprecated('Use uploadResponseDescriptor instead')
-const UploadResponse$json = const {
-  '1': 'UploadResponse',
-  '2': const [
-    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
-    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
-  ],
-};
-
-/// Descriptor for `UploadResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List uploadResponseDescriptor = $convert.base64Decode('Cg5VcGxvYWRSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2U=');
-@$core.Deprecated('Use getRequestDescriptor instead')
-const GetRequest$json = const {
-  '1': 'GetRequest',
-  '2': const [
-    const {'1': 'path', '3': 1, '4': 1, '5': 9, '10': 'path'},
-  ],
-};
-
-/// Descriptor for `GetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getRequestDescriptor = $convert.base64Decode('CgpHZXRSZXF1ZXN0EhIKBHBhdGgYASABKAlSBHBhdGg=');
-@$core.Deprecated('Use getResponseDescriptor instead')
-const GetResponse$json = const {
-  '1': 'GetResponse',
-  '2': const [
-    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
-    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
-    const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
-  ],
-};
-
-/// Descriptor for `GetResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getResponseDescriptor = $convert.base64Decode('CgtHZXRSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2USEgoEZGF0YRgDIAEoDFIEZGF0YQ==');
-@$core.Deprecated('Use getThumbnailRequestDescriptor instead')
-const GetThumbnailRequest$json = const {
-  '1': 'GetThumbnailRequest',
-  '2': const [
-    const {'1': 'path', '3': 1, '4': 1, '5': 9, '10': 'path'},
-  ],
-};
-
-/// Descriptor for `GetThumbnailRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getThumbnailRequestDescriptor = $convert.base64Decode('ChNHZXRUaHVtYm5haWxSZXF1ZXN0EhIKBHBhdGgYASABKAlSBHBhdGg=');
-@$core.Deprecated('Use getThumbnailResponseDescriptor instead')
-const GetThumbnailResponse$json = const {
-  '1': 'GetThumbnailResponse',
-  '2': const [
-    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
-    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
-    const {'1': 'data', '3': 3, '4': 1, '5': 12, '10': 'data'},
-  ],
-};
-
-/// Descriptor for `GetThumbnailResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getThumbnailResponseDescriptor = $convert.base64Decode('ChRHZXRUaHVtYm5haWxSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2USEgoEZGF0YRgDIAEoDFIEZGF0YQ==');
 @$core.Deprecated('Use listByDateRequestDescriptor instead')
 const ListByDateRequest$json = const {
   '1': 'ListByDateRequest',
@@ -342,3 +254,25 @@ const ListDriveNFSDirResponse$json = const {
 
 /// Descriptor for `ListDriveNFSDirResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List listDriveNFSDirResponseDescriptor = $convert.base64Decode('ChdMaXN0RHJpdmVORlNEaXJSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhgKB21lc3NhZ2UYAiABKAlSB21lc3NhZ2USEgoEZGlycxgDIAMoCVIEZGlycw==');
+@$core.Deprecated('Use setDriveBaiduNetDiskRequestDescriptor instead')
+const SetDriveBaiduNetDiskRequest$json = const {
+  '1': 'SetDriveBaiduNetDiskRequest',
+  '2': const [
+    const {'1': 'refreshToken', '3': 1, '4': 1, '5': 9, '10': 'refreshToken'},
+    const {'1': 'accessToken', '3': 2, '4': 1, '5': 9, '10': 'accessToken'},
+  ],
+};
+
+/// Descriptor for `SetDriveBaiduNetDiskRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDriveBaiduNetDiskRequestDescriptor = $convert.base64Decode('ChtTZXREcml2ZUJhaWR1TmV0RGlza1JlcXVlc3QSIgoMcmVmcmVzaFRva2VuGAEgASgJUgxyZWZyZXNoVG9rZW4SIAoLYWNjZXNzVG9rZW4YAiABKAlSC2FjY2Vzc1Rva2Vu');
+@$core.Deprecated('Use setDriveBaiduNetDiskResponseDescriptor instead')
+const SetDriveBaiduNetDiskResponse$json = const {
+  '1': 'SetDriveBaiduNetDiskResponse',
+  '2': const [
+    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SetDriveBaiduNetDiskResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDriveBaiduNetDiskResponseDescriptor = $convert.base64Decode('ChxTZXREcml2ZUJhaWR1TmV0RGlza1Jlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSGAoHbWVzc2FnZRgCIAEoCVIHbWVzc2FnZQ==');

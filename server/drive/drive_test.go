@@ -31,7 +31,7 @@ const (
 	smbShare   = "photos"
 	smbRootDir = "storage"
 
-	webdavUrl      = "http://127.0.0.1:8000"
+	webdavUrl      = "http://127.0.0.1:8080"
 	webdavUser     = "fregie"
 	webdavPass     = "password"
 	webdavRootPath = "storage"
@@ -204,7 +204,7 @@ func (d *DriveTest) testDrive(dri imgmanager.StorageDrive) {
 	d.False(exist)
 	// test upload
 	reader := bytes.NewReader(static.Pic1)
-	err = dri.Upload(filePath, io.NopCloser(reader), time.Now())
+	err = dri.Upload(filePath, io.NopCloser(reader), int64(len(static.Pic1)), time.Now())
 	d.Nilf(err, "upload failed: %v", err)
 	// check exist
 	exist, err = dri.IsExist(filePath)
@@ -228,9 +228,11 @@ func (d *DriveTest) testDrive(dri imgmanager.StorageDrive) {
 
 	// check Range
 	filePath2 := "/dir/pic2.jpg"
-	err = dri.Upload(filePath, io.NopCloser(reader), time.Now())
+	reader.Seek(0, io.SeekStart)
+	err = dri.Upload(filePath, io.NopCloser(reader), int64(len(static.Pic1)), time.Now())
 	d.Nilf(err, "upload failed: %v", err)
-	err = dri.Upload(filePath2, io.NopCloser(reader), time.Now())
+	reader.Seek(0, io.SeekStart)
+	err = dri.Upload(filePath2, io.NopCloser(reader), int64(len(static.Pic1)), time.Now())
 	d.Nilf(err, "upload failed: %v", err)
 	// check exist
 	exist, err = dri.IsExist(filePath)
@@ -256,7 +258,7 @@ func (d *DriveTest) testDownloadOffset(dri imgmanager.StorageDrive) {
 	filePath := "/dir/pic1.jpg"
 	// upload
 	reader := bytes.NewReader(static.Pic1)
-	err := dri.Upload(filePath, io.NopCloser(reader), time.Now())
+	err := dri.Upload(filePath, io.NopCloser(reader), int64(len(static.Pic1)), time.Now())
 	d.Nilf(err, "upload failed: %v", err)
 	// check exist
 	exist, err := dri.IsExist(filePath)

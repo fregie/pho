@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
@@ -19,144 +18,15 @@ type api struct {
 }
 
 func NewApi(im *imgmanager.ImgManager) *api {
-	return &api{
+	a := &api{
 		im: im,
 	}
-}
-
-func (a *api) Hello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
-	return &pb.HelloResponse{Message: "Hello " + in.Name}, nil
-}
-
-func (a *api) Upload(stream pb.ImgSyncer_UploadServer) error {
-	rsp := &pb.UploadResponse{Success: true}
-	req, err := stream.Recv()
-	if err != nil {
-		return err
-	}
-	if req.Name == "" {
-		rsp.Success, rsp.Message = false, "param error: name is empty"
-		return stream.SendAndClose(rsp)
-	}
-	reader, writer := io.Pipe()
-	thumbReader, thumbWriter := io.Pipe()
-	defer reader.Close()
-	defer thumbReader.Close()
-	defer writer.Close()
-	defer thumbWriter.Close()
-	var e error
-	go func() {
-		defer writer.Close()
-		defer thumbWriter.Close()
-		if len(req.Data) > 0 {
-			_, err = writer.Write(req.Data)
-			if err != nil {
-				e = err
-				return
-			}
-		}
-		for {
-			req, err := stream.Recv()
-			if err != nil {
-				if err == io.EOF {
-					break
-				} else {
-					e = err
-					return
-				}
-			}
-			if len(req.Data) > 0 {
-				_, err = writer.Write(req.Data)
-				if err != nil {
-					e = err
-					return
-				}
-			}
-			if len(req.ThumbnailData) > 0 {
-				_, err = thumbWriter.Write(req.ThumbnailData)
-				if err != nil {
-					e = err
-					return
-				}
-			}
-		}
-	}()
-	if isVideo(req.Name) {
-		err = a.im.UploadVideo(reader, thumbReader, req.Name, req.Date)
-	} else {
-		err = a.im.UploadImg(reader, thumbReader, req.Name, req.Date)
-	}
-	if err != nil {
-		rsp.Success, rsp.Message = false, err.Error()
-		return stream.SendAndClose(rsp)
-	}
-	if e != nil {
-		return e
-	}
-	return stream.SendAndClose(rsp)
-}
-
-func (a *api) Get(req *pb.GetRequest, stream pb.ImgSyncer_GetServer) error {
-	if req.Path == "" {
-		stream.Send(&pb.GetResponse{Success: false, Message: "param error: path is empty"})
-		return nil
-	}
-	img, err := a.im.GetImg(req.Path)
-	if err != nil {
-		stream.Send(&pb.GetResponse{Success: false, Message: err.Error()})
-		return nil
-	}
-	defer img.Content.Close()
-	data := make([]byte, 1024*10)
-	for {
-		n, err := img.Content.Read(data)
-		if n > 0 {
-			err = stream.Send(&pb.GetResponse{Data: data[:n], Success: true})
-			if err != nil {
-				return fmt.Errorf("send data error: %s", err.Error())
-			}
-		}
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return fmt.Errorf("read data error: %s", err.Error())
-			}
-		}
-	}
-
-	return nil
-}
-
-func (a *api) GetThumbnail(req *pb.GetThumbnailRequest, stream pb.ImgSyncer_GetThumbnailServer) error {
-	if req.Path == "" {
-		stream.Send(&pb.GetThumbnailResponse{Success: false, Message: "param error: path is empty"})
-		return nil
-	}
-	img, e := a.im.GetThumbnail(req.Path)
-	if e != nil {
-		stream.Send(&pb.GetThumbnailResponse{Success: false, Message: fmt.Sprintf("get thumbnail %s error: %s", req.Path, e.Error())})
-		return nil
-	}
-	defer img.Content.Close()
-	data := make([]byte, 1024*10)
-	for {
-		n, err := img.Content.Read(data)
-		if n > 0 {
-			err = stream.Send(&pb.GetThumbnailResponse{Data: data[:n], Success: true})
-			if err != nil {
-				return err
-			}
-		}
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return err
-			}
-		}
-	}
-	return nil
+	// d, err := baidu.NewBaiduNetdiskDrive("122.1c512cea17b9bc74f22ee48ac79f70ec.Y_QxdX2BkODHiacqBEu93B0c9b61dJ9EP6brS2A.FHz9Vg", "121.7dc52f9eaa479ca5c59444e2ddfa74fb.YnbMm-Af780yKJZpK8frsyFxUtLpvTtrJe6lK7S.2Vt6VQ")
+	// if err != nil {
+	// 	log.Printf("NewBaiduNetdiskDrive error: %v", err)
+	// }
+	// a.im.SetDrive(d)
+	return a
 }
 
 func (a *api) ListByDate(ctx context.Context, req *pb.ListByDateRequest) (rsp *pb.ListByDateResponse, err error) {

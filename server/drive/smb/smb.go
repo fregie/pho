@@ -149,7 +149,7 @@ func (s *Smb) SetRootPath(rootPath string) error {
 	return nil
 }
 
-func (s *Smb) Upload(path string, content io.ReadCloser, lastModified time.Time) error {
+func (s *Smb) Upload(path string, content io.ReadCloser, size int64, lastModified time.Time) error {
 	defer content.Close()
 	if err := s.checkConn(); err != nil {
 		return err

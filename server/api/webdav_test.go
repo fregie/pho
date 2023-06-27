@@ -3,7 +3,9 @@ package api_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -17,7 +19,7 @@ import (
 )
 
 const (
-	webdavUrl      = "http://127.0.0.1:8000"
+	webdavUrl      = "http://127.0.0.1:8080"
 	webdavSrvAddr  = "http://webdav"
 	webdavUser     = "fregie"
 	webdavPass     = "password"
@@ -85,32 +87,9 @@ func (s *DriveWebdavTestSuite) TestUploadDownload() {
 	s.Nil(err)
 	s.True(rsp3.Success)
 	// test upload
-	cli, err := s.srv.Upload(ctx)
-	s.Nil(err)
-	// test upload file
-	reader := bytes.NewReader(static.Pic1)
-	err = cli.Send(&pb.UploadRequest{
-		Name: "pic1.jpg",
-	})
-	s.Nil(err)
-	buf := make([]byte, 4096)
-	for {
-		n, err := reader.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				s.Nil(err)
-			}
-		}
-		err = cli.Send(&pb.UploadRequest{
-			Data: buf[:n],
-		})
-		s.Nil(err)
-	}
-	rsp4, err := cli.CloseAndRecv()
-	s.Nil(err)
-	s.Truef(rsp4.Success, "failed to upload file: %s", rsp4.Message)
+	resp, err := http.Post(fmt.Sprintf("http://%s/pic1.jpg", httpAddr), "image/jpeg", bytes.NewReader(static.Pic1))
+	s.Nilf(err, "upload pic failed: %v", err)
+	s.Equal(http.StatusOK, resp.StatusCode)
 	filePath := "/storage/2022/11/08/pic1.jpg"
 	s.waitFile(filePath, 5*time.Second)
 	fdata, err := s.cli.Read(filePath)
@@ -148,28 +127,18 @@ func (s *DriveWebdavTestSuite) waitFile(path string, timeout time.Duration) {
 }
 
 func (s *DriveWebdavTestSuite) get(ctx context.Context, path string) ([]byte, error) {
-	cli, err := s.srv.Get(ctx, &pb.GetRequest{
-		Path: path,
-	})
+	if path[0] != '/' {
+		path = "/" + path
+	}
+	resp, err := http.Get(fmt.Sprintf("http://%s%s", httpAddr, path))
 	if err != nil {
 		return nil, err
 	}
-	buf := new(bytes.Buffer)
-	for {
-		rsp, err := cli.Recv()
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return nil, err
-			}
-		}
-		_, err = buf.Write(rsp.Data)
-		if err != nil {
-			return nil, err
-		}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(resp.Status)
 	}
-	return buf.Bytes(), nil
+	return io.ReadAll(resp.Body)
 }
 
 func cleanWebdav() error {

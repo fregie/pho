@@ -45,12 +45,12 @@ func main() {
 		Error.Fatalf("failed to listen: %v", err)
 	}
 
-	api := api.NewApi(imgManager)
+	apiServer := api.NewApi(imgManager)
 	Info.Printf("Listening http on %s", *httpAddr)
-	go http.ListenAndServe(*httpAddr, api.HttpHandler())
+	go http.ListenAndServe(*httpAddr, apiServer.HttpHandler())
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterImgSyncerServer(grpcServer, api)
+	pb.RegisterImgSyncerServer(grpcServer, apiServer)
 	reflection.Register(grpcServer)
 	Info.Printf("Listening grpc on %s", lis.Addr().String())
 	Error.Fatal(grpcServer.Serve(lis))

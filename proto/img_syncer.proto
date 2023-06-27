@@ -4,10 +4,6 @@ package img_syncer;
 option go_package = "github.com/fregie/img_syncer/proto";
 
 service ImgSyncer {
-  rpc Hello (HelloRequest) returns (HelloResponse) {}
-  rpc Upload (stream UploadRequest) returns (UploadResponse) {}
-  rpc Get (GetRequest) returns (stream GetResponse) {}
-  rpc GetThumbnail (GetThumbnailRequest) returns (stream GetThumbnailResponse) {}
   rpc ListByDate (ListByDateRequest) returns (ListByDateResponse) {}
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
   rpc FilterNotUploaded (FilterNotUploadedRequest) returns (FilterNotUploadedResponse) {}
@@ -22,6 +18,7 @@ service ImgSyncer {
   // NFS Drive
   rpc SetDriveNFS (SetDriveNFSRequest) returns (SetDriveNFSResponse) {}
   rpc ListDriveNFSDir (ListDriveNFSDirRequest) returns (ListDriveNFSDirResponse) {}
+  rpc SetDriveBaiduNetDisk (SetDriveBaiduNetDiskRequest) returns (SetDriveBaiduNetDiskResponse) {}
 }
 
 // enum ContentType {
@@ -29,43 +26,6 @@ service ImgSyncer {
 //   IMAGE_PNG = 1;
 //   IMAGE_GIF = 2;
 // }
-
-message HelloRequest {
-  string name = 1;
-}
-
-message HelloResponse {
-  string message = 1;
-}
-
-message UploadRequest {
-  bytes data = 1;
-  string name = 2;
-  string date = 3; // YYYY:MM:DD HH:MM:SS
-  bytes thumbnailData = 4;
-}
-message UploadResponse {
-  bool success = 1;
-  string message = 2;
-}
-
-message GetRequest {
-  string path = 1;
-}
-message GetResponse {
-  bool success = 1;
-  string message = 2;
-  bytes data = 3;
-}
-
-message GetThumbnailRequest {
-  string path = 1;
-}
-message GetThumbnailResponse {
-  bool success = 1;
-  string message = 2;
-  bytes data = 3;
-}
 
 message ListByDateRequest {
   string date = 1; // YYYY:MM:DD
@@ -169,4 +129,13 @@ message ListDriveNFSDirResponse {
   bool success = 1;
   string message = 2;
   repeated string dirs = 3;
+}
+
+message SetDriveBaiduNetDiskRequest {
+  string refreshToken = 1;
+  string accessToken = 2;
+}
+message SetDriveBaiduNetDiskResponse {
+  bool success = 1;
+  string message = 2;
 }

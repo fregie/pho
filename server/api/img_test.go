@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"testing"
 	"time"
 
@@ -64,24 +65,13 @@ func (s *ImageTestSuite) TestGetThumnail() {
 	data, err := s.get(ctx, pic1ShouldPath)
 	s.Nilf(err, "get pic failed: %v", err)
 	s.Equal(static.Pic1, data)
-	cli, err := s.srv.GetThumbnail(ctx, &pb.GetThumbnailRequest{
-		Path: pic1ShouldPath,
-	})
-	s.Nil(err)
-	buf := new(bytes.Buffer)
-	for {
-		rsp, err := cli.Recv()
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				s.Nil(err)
-			}
-		}
-		_, err = buf.Write(rsp.Data)
-		s.Nil(err)
-	}
-	s.True(len(buf.Bytes()) > 0)
+	resp, err := http.Get(fmt.Sprintf("http://%s/thumbnail/%s", httpAddr, pic1ShouldPath))
+	s.Nilf(err, "get thumbnail failed: %v", err)
+	defer resp.Body.Close()
+	s.Equal(http.StatusOK, resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	s.Nilf(err, "read thumbnail failed: %v", err)
+	s.Truef(len(body) > 0, "thumbnail is empty")
 }
 
 func (s *ImageTestSuite) TestList() {
@@ -120,65 +110,27 @@ func (s *ImageTestSuite) TestDelete() {
 }
 
 func (s *ImageTestSuite) get(ctx context.Context, path string) ([]byte, error) {
-	cli, err := s.srv.Get(ctx, &pb.GetRequest{
-		Path: path,
-	})
+	resp, err := http.Get(fmt.Sprintf("http://%s/%s", httpAddr, path))
 	if err != nil {
 		return nil, err
 	}
-	buf := new(bytes.Buffer)
-	for {
-		rsp, err := cli.Recv()
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return nil, err
-			}
-		}
-		_, err = buf.Write(rsp.Data)
-		if err != nil {
-			return nil, err
-		}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status: %d", resp.StatusCode)
 	}
-	return buf.Bytes(), nil
+	return io.ReadAll(resp.Body)
 }
 
 func (s *ImageTestSuite) uploadPic1(ctx context.Context) error {
-	cli, err := s.srv.Upload(ctx)
+	name := "pic1.jpg"
+	resp, err := http.Post(fmt.Sprintf("http://%s/%s", httpAddr, name), "image/jpeg", bytes.NewReader(static.Pic1))
 	if err != nil {
 		return err
 	}
-	reader := bytes.NewReader(static.Pic1)
-	err = cli.Send(&pb.UploadRequest{
-		Name: "pic1.jpg",
-	})
-	if err != nil {
-		return err
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http status: %d", resp.StatusCode)
 	}
-	buf := make([]byte, 4096)
-	for {
-		n, err := reader.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return err
-			}
-		}
-		err = cli.Send(&pb.UploadRequest{
-			Data: buf[:n],
-		})
-		if err != nil {
-			return err
-		}
-	}
-	rsp, err := cli.CloseAndRecv()
-	if err != nil {
-		return err
-	}
-	if !rsp.Success {
-		return fmt.Errorf("upload failed: %s", rsp.Message)
-	}
+	io.Copy(io.Discard, resp.Body)
 	return nil
 }

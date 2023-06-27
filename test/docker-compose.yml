@@ -16,7 +16,7 @@ services:
   webdav:
     image: bytemark/webdav
     ports:
-      - "8000:80"
+      - "8080:80"
     environment:
       AUTH_TYPE: Digest
       USERNAME: fregie
@@ -41,6 +41,7 @@ services:
     build: ../server
     ports:
       - "50051:50051"
+      - "8000:8000"
     networks:
       - backend
 
