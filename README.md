@@ -102,6 +102,7 @@ Pho - 一个用于查看和上传照片的无服务端应用
 
 ### 支持开发者
 如果你觉得这个项目对你有帮助,可以请我喝杯咖啡.这将给予我很大动力继续开发维护这个项目.
-
+<p>
 <img src="assets/pay_qr/alipay_qr.jpg" width="250">
 <img src="assets/pay_qr/wechat_qr.png" width="250">
+</p>
