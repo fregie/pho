@@ -31,8 +31,8 @@ Pho - 一个用于查看和上传照片的无服务端应用
 - [x] Samba
 - [x] Webdav
 - [x] NFS
+- [x] 百度网盘
 - [ ] 阿里网盘
-- [ ] 百度网盘
 - [ ] oneDrive
 - [ ] google drive
 - [ ] google photo
@@ -46,7 +46,7 @@ Pho - 一个用于查看和上传照片的无服务端应用
 - [x] 支持放大/缩小图片
 - [x] 支持上传/浏览视频
 - [x] 支持NFS
-- [ ] 支持阿里网盘
+- [x] 支持百度网盘
 - [ ] 支持IOS端
 - [ ] 支持desktop端
 - [x] 支持中文
@@ -99,3 +99,9 @@ Pho - 一个用于查看和上传照片的无服务端应用
 
 ### 加入QQ交流反馈群
 <img src="assets/pho-qq-group.jpg" width="400">
+
+### 支持开发者
+如果你觉得这个项目对你有帮助,可以请我喝杯咖啡.这将给予我很大动力继续开发维护这个项目.
+
+<img src="assets/pay_qr/alipay_qr.jpg" width="400">
+<img src="assets/pay_qr/wechat_qr.png" width="400">
