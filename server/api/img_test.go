@@ -68,9 +68,9 @@ func (s *ImageTestSuite) TestGetThumnail() {
 	resp, err := http.Get(fmt.Sprintf("http://%s/thumbnail/%s", httpAddr, pic1ShouldPath))
 	s.Nilf(err, "get thumbnail failed: %v", err)
 	defer resp.Body.Close()
-	s.Equal(http.StatusOK, resp.StatusCode)
 	body, err := io.ReadAll(resp.Body)
 	s.Nilf(err, "read thumbnail failed: %v", err)
+	s.Equalf(http.StatusOK, resp.StatusCode, "body: %s", body)
 	s.Truef(len(body) > 0, "thumbnail is empty")
 }
 
@@ -123,7 +123,23 @@ func (s *ImageTestSuite) get(ctx context.Context, path string) ([]byte, error) {
 
 func (s *ImageTestSuite) uploadPic1(ctx context.Context) error {
 	name := "pic1.jpg"
-	resp, err := http.Post(fmt.Sprintf("http://%s/%s", httpAddr, name), "image/jpeg", bytes.NewReader(static.Pic1))
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/%s", httpAddr, name), bytes.NewReader(static.Pic1))
+	req.Header.Set("Content-Type", "image/jpeg")
+	req.Header.Set("Image-Date", "2022:11:08 12:34:36")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("http status: %d", resp.StatusCode)
+	}
+	io.Copy(io.Discard, resp.Body)
+
+	req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/thumbnail/%s", httpAddr, name), bytes.NewReader(static.Pic1))
+	req.Header.Set("Content-Type", "image/jpeg")
+	req.Header.Set("Image-Date", "2022:11:08 12:34:36")
+	resp, err = http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
