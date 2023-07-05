@@ -9,7 +9,7 @@ import (
 
 type StorageDrive interface {
 	Upload(string, io.ReadCloser, int64, time.Time) error
-	IsExist(path string) (bool, error)
+	// IsExist(path string) (bool, error)
 	Download(path string) (io.ReadCloser, int64, error)
 	DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error)
 	Delete(path string) error

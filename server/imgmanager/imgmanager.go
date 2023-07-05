@@ -185,7 +185,7 @@ func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, contentSi
 		}
 		e := im.dri.Upload(path, io.NopCloser(content), contentSize, videoTime)
 		if e != nil {
-			im.logger.Println("Error uploading video:", err)
+			im.logger.Println("Error uploading video:", e)
 			err = fmt.Errorf("error uploading video: %w", e)
 		}
 	}()
@@ -315,25 +315,6 @@ func (im *ImgManager) GetThumbnail(path string) (*Image, error) {
 	img := &Image{}
 	var err error
 	thumbnailPath := filepath.Join(defaultThumbnailDir, path)
-	exist, err := im.dri.IsExist(thumbnailPath)
-	if err != nil {
-		return img, fmt.Errorf("error checking thumbnail exist: %w", err)
-	}
-	if !exist {
-		img.Content, img.Size, err = im.dri.Download(path)
-		if err != nil {
-			return img, fmt.Errorf("error downloading image: %w", err)
-		}
-		content, err := io.ReadAll(img.Content)
-		if err != nil {
-			return img, fmt.Errorf("error reading image content: %w", err)
-		}
-		img.Content.Close()
-		err = im.GenerateThumbnail(path, content)
-		if err != nil {
-			return img, fmt.Errorf("error generating thumbnail: %w", err)
-		}
-	}
 	img.Content, img.Size, err = im.dri.Download(thumbnailPath)
 	if err != nil {
 		return img, fmt.Errorf("error downloading thumbnail: %w", err)

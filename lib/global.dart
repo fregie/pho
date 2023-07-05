@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 late String httpBaseUrl;
+late int httpPort;
 
 class Global {
   static Future init() async {
@@ -21,6 +22,7 @@ class Global {
         return;
       }
       httpBaseUrl = "http://127.0.0.1:${ports[1]}";
+      httpPort = int.parse(ports[1]);
       storage = RemoteStorage("127.0.0.1", int.parse(ports[0]));
       // storage = RemoteStorage("192.168.100.235", 50051);
       final prefs = await SharedPreferences.getInstance();
@@ -114,6 +116,27 @@ class Global {
             });
           }
           break;
+        case Drive.baiduNetdisk:
+          final refreshToken = prefs.getString("baidu_refresh_token");
+          final accessToken = prefs.getString("baidu_access_token");
+          final expiresAt = prefs.getInt("baidu_expires_at");
+          if (refreshToken == null || refreshToken == "") {
+            break;
+          }
+          storage.cli
+              .setDriveBaiduNetDisk(SetDriveBaiduNetDiskRequest(
+            refreshToken: refreshToken,
+            accessToken: accessToken,
+          ))
+              .then((rsp) {
+            if (rsp.success) {
+              logger.i("set drive baidu netdisk success");
+              settingModel.setRemoteStorageSetted(true);
+            } else {
+              settingModel.setRemoteStorageSetted(false);
+              assetModel.remoteLastError = rsp.message;
+            }
+          });
       }
       reloadAutoSyncTimer();
     });

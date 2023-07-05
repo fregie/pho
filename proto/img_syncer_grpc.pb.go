@@ -33,6 +33,7 @@ type ImgSyncerClient interface {
 	SetDriveNFS(ctx context.Context, in *SetDriveNFSRequest, opts ...grpc.CallOption) (*SetDriveNFSResponse, error)
 	ListDriveNFSDir(ctx context.Context, in *ListDriveNFSDirRequest, opts ...grpc.CallOption) (*ListDriveNFSDirResponse, error)
 	SetDriveBaiduNetDisk(ctx context.Context, in *SetDriveBaiduNetDiskRequest, opts ...grpc.CallOption) (*SetDriveBaiduNetDiskResponse, error)
+	StartBaiduNetdiskLogin(ctx context.Context, in *StartBaiduNetdiskLoginRequest, opts ...grpc.CallOption) (*StartBaiduNetdiskLoginResponse, error)
 }
 
 type imgSyncerClient struct {
@@ -151,6 +152,15 @@ func (c *imgSyncerClient) SetDriveBaiduNetDisk(ctx context.Context, in *SetDrive
 	return out, nil
 }
 
+func (c *imgSyncerClient) StartBaiduNetdiskLogin(ctx context.Context, in *StartBaiduNetdiskLoginRequest, opts ...grpc.CallOption) (*StartBaiduNetdiskLoginResponse, error) {
+	out := new(StartBaiduNetdiskLoginResponse)
+	err := c.cc.Invoke(ctx, "/img_syncer.ImgSyncer/StartBaiduNetdiskLogin", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ImgSyncerServer is the server API for ImgSyncer service.
 // All implementations must embed UnimplementedImgSyncerServer
 // for forward compatibility
@@ -170,6 +180,7 @@ type ImgSyncerServer interface {
 	SetDriveNFS(context.Context, *SetDriveNFSRequest) (*SetDriveNFSResponse, error)
 	ListDriveNFSDir(context.Context, *ListDriveNFSDirRequest) (*ListDriveNFSDirResponse, error)
 	SetDriveBaiduNetDisk(context.Context, *SetDriveBaiduNetDiskRequest) (*SetDriveBaiduNetDiskResponse, error)
+	StartBaiduNetdiskLogin(context.Context, *StartBaiduNetdiskLoginRequest) (*StartBaiduNetdiskLoginResponse, error)
 	mustEmbedUnimplementedImgSyncerServer()
 }
 
@@ -212,6 +223,9 @@ func (UnimplementedImgSyncerServer) ListDriveNFSDir(context.Context, *ListDriveN
 }
 func (UnimplementedImgSyncerServer) SetDriveBaiduNetDisk(context.Context, *SetDriveBaiduNetDiskRequest) (*SetDriveBaiduNetDiskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDriveBaiduNetDisk not implemented")
+}
+func (UnimplementedImgSyncerServer) StartBaiduNetdiskLogin(context.Context, *StartBaiduNetdiskLoginRequest) (*StartBaiduNetdiskLoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartBaiduNetdiskLogin not implemented")
 }
 func (UnimplementedImgSyncerServer) mustEmbedUnimplementedImgSyncerServer() {}
 
@@ -442,6 +456,24 @@ func _ImgSyncer_SetDriveBaiduNetDisk_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ImgSyncer_StartBaiduNetdiskLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartBaiduNetdiskLoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImgSyncerServer).StartBaiduNetdiskLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/img_syncer.ImgSyncer/StartBaiduNetdiskLogin",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImgSyncerServer).StartBaiduNetdiskLogin(ctx, req.(*StartBaiduNetdiskLoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ImgSyncer_ServiceDesc is the grpc.ServiceDesc for ImgSyncer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -496,6 +528,10 @@ var ImgSyncer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetDriveBaiduNetDisk",
 			Handler:    _ImgSyncer_SetDriveBaiduNetDisk_Handler,
+		},
+		{
+			MethodName: "StartBaiduNetdiskLogin",
+			Handler:    _ImgSyncer_StartBaiduNetdiskLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

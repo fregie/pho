@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:img_syncer/global.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 
 RemoteStorage storage = RemoteStorage("127.0.0.1", 10000);
 
@@ -120,7 +121,7 @@ class RemoteStorage {
             maxReturn: maxReturn,
           ),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 60));
     if (!rsp.success) {
       throw Exception("list images failed: ${rsp.message}");
     }
@@ -183,12 +184,27 @@ class RemoteImage {
     if (thumbnailData != null) {
       return thumbnailData!;
     }
-    var currentData = BytesBuilder();
-    var dataStream = thumbnailStream();
-    await for (var d in dataStream) {
-      currentData.add(d);
+    int maxRetries = 3;
+    int retryCount = 0;
+    bool succeeded = false;
+    while (retryCount < maxRetries && !succeeded) {
+      try {
+        var currentData = BytesBuilder();
+        var dataStream = thumbnailStream();
+        await for (var d in dataStream) {
+          currentData.add(d);
+        }
+        thumbnailData = currentData.takeBytes();
+        succeeded = true;
+      } catch (e) {
+        print("get $path thumbnail failed: $e");
+        retryCount++;
+      }
     }
-    thumbnailData = currentData.takeBytes();
+    if (!succeeded) {
+      final data = await rootBundle.load("assets/images/broken.png");
+      thumbnailData = data.buffer.asUint8List();
+    }
     return thumbnailData!;
   }
 

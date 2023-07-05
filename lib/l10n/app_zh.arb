@@ -54,5 +54,6 @@
     "testSuccess": "连接成功,请点击保存",
     "connectFailed": "连接失败",
     "selectRoot": "选择根目录",
-    "currentPath": "当前目录"
+    "currentPath": "当前目录",
+    "baiduNetdisk": "百度网盘"
 }

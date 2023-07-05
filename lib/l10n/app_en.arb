@@ -54,5 +54,6 @@
   "testSuccess": "Test success,you can save now",
   "connectFailed": "Storage connection failed",
   "selectRoot": "Select root path",
-  "currentPath": "Current path"
+  "currentPath": "Current path",
+  "baiduNetdisk": "Baidu Netdisk"
 }

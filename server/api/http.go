@@ -11,11 +11,19 @@ import (
 	"strings"
 )
 
+func (a *api) SetHttpPort(port int) {
+	a.httpPort = port
+}
+
 func (a *api) HttpHandler() http.Handler {
 	return http.HandlerFunc(a.httpHandler)
 }
 
 func (a *api) httpHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/baidu/callback" {
+		a.httpBaiduCallback(w, r)
+		return
+	}
 	switch r.Method {
 	case http.MethodGet:
 		if strings.HasPrefix(r.URL.Path, "/thumbnail/") {

@@ -7,6 +7,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class ListByDateRequest extends $pb.GeneratedMessage {
@@ -1503,5 +1504,137 @@ class SetDriveBaiduNetDiskResponse extends $pb.GeneratedMessage {
   $core.bool hasMessage() => $_has(1);
   @$pb.TagNumber(2)
   void clearMessage() => clearField(2);
+}
+
+class StartBaiduNetdiskLoginRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'StartBaiduNetdiskLoginRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  StartBaiduNetdiskLoginRequest._() : super();
+  factory StartBaiduNetdiskLoginRequest() => create();
+  factory StartBaiduNetdiskLoginRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory StartBaiduNetdiskLoginRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  StartBaiduNetdiskLoginRequest clone() => StartBaiduNetdiskLoginRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  StartBaiduNetdiskLoginRequest copyWith(void Function(StartBaiduNetdiskLoginRequest) updates) => super.copyWith((message) => updates(message as StartBaiduNetdiskLoginRequest)) as StartBaiduNetdiskLoginRequest; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static StartBaiduNetdiskLoginRequest create() => StartBaiduNetdiskLoginRequest._();
+  StartBaiduNetdiskLoginRequest createEmptyInstance() => create();
+  static $pb.PbList<StartBaiduNetdiskLoginRequest> createRepeated() => $pb.PbList<StartBaiduNetdiskLoginRequest>();
+  @$core.pragma('dart2js:noInline')
+  static StartBaiduNetdiskLoginRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StartBaiduNetdiskLoginRequest>(create);
+  static StartBaiduNetdiskLoginRequest? _defaultInstance;
+}
+
+class StartBaiduNetdiskLoginResponse extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'StartBaiduNetdiskLoginResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'refreshToken', protoName: 'refreshToken')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'accessToken', protoName: 'accessToken')
+    ..aInt64(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'exiresAt', protoName: 'exiresAt')
+    ..hasRequiredFields = false
+  ;
+
+  StartBaiduNetdiskLoginResponse._() : super();
+  factory StartBaiduNetdiskLoginResponse({
+    $core.bool? success,
+    $core.String? message,
+    $core.String? refreshToken,
+    $core.String? accessToken,
+    $fixnum.Int64? exiresAt,
+  }) {
+    final _result = create();
+    if (success != null) {
+      _result.success = success;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
+    if (refreshToken != null) {
+      _result.refreshToken = refreshToken;
+    }
+    if (accessToken != null) {
+      _result.accessToken = accessToken;
+    }
+    if (exiresAt != null) {
+      _result.exiresAt = exiresAt;
+    }
+    return _result;
+  }
+  factory StartBaiduNetdiskLoginResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory StartBaiduNetdiskLoginResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  StartBaiduNetdiskLoginResponse clone() => StartBaiduNetdiskLoginResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  StartBaiduNetdiskLoginResponse copyWith(void Function(StartBaiduNetdiskLoginResponse) updates) => super.copyWith((message) => updates(message as StartBaiduNetdiskLoginResponse)) as StartBaiduNetdiskLoginResponse; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static StartBaiduNetdiskLoginResponse create() => StartBaiduNetdiskLoginResponse._();
+  StartBaiduNetdiskLoginResponse createEmptyInstance() => create();
+  static $pb.PbList<StartBaiduNetdiskLoginResponse> createRepeated() => $pb.PbList<StartBaiduNetdiskLoginResponse>();
+  @$core.pragma('dart2js:noInline')
+  static StartBaiduNetdiskLoginResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StartBaiduNetdiskLoginResponse>(create);
+  static StartBaiduNetdiskLoginResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get refreshToken => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set refreshToken($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRefreshToken() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRefreshToken() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get accessToken => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set accessToken($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasAccessToken() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearAccessToken() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get exiresAt => $_getI64(4);
+  @$pb.TagNumber(5)
+  set exiresAt($fixnum.Int64 v) { $_setInt64(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasExiresAt() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearExiresAt() => clearField(5);
 }
 

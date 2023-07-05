@@ -57,6 +57,7 @@ func RunGrpcServer() (string, error) {
 	}
 
 	api := api.NewApi(imgManager)
+	api.SetHttpPort(httpPort)
 	grpcServer := grpc.NewServer()
 	pb.RegisterImgSyncerServer(grpcServer, api)
 	reflection.Register(grpcServer)

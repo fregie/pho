@@ -8,9 +8,12 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -18,8 +21,9 @@ import (
 )
 
 const (
-	phoAppKey    = "8wylQfdIzIpNFOGHZSnOOQ98QLDFvl1U"
-	phoSecretKey = "lKAurWfMvbUqPddUmOFVgim3Ui1oM56M"
+	PhoAppKey    = "8wylQfdIzIpNFOGHZSnOOQ98QLDFvl1U"
+	PhoSecretKey = "lKAurWfMvbUqPddUmOFVgim3Ui1oM56M"
+	tempFilePath = "/data/data/com.example.img_syncer/baidu_tmp"
 )
 
 type BaiduNetdisk struct {
@@ -29,7 +33,11 @@ type BaiduNetdisk struct {
 	tokenLock     sync.RWMutex
 	rootPath      string
 	httpc         *http.Client
-	fsIDMap       sync.Map
+	// fsIDMap       sync.Map
+	dlinkMap   sync.Map
+	dlinkChan  chan string
+	fsCache    *fsNode
+	cacheRLock sync.RWMutex
 }
 
 type generalRsp struct {
@@ -41,9 +49,23 @@ func NewBaiduNetdiskDrive(refreshToken, accessToken string) (*BaiduNetdisk, erro
 	d := &BaiduNetdisk{
 		refreshToken: refreshToken,
 		accessToken:  accessToken,
-		httpc:        &http.Client{},
-		rootPath:     "/apps/pho",
+		httpc: &http.Client{
+			Transport: &http.Transport{
+				Proxy: http.ProxyFromEnvironment,
+				DialContext: (&net.Dialer{
+					KeepAlive: 30 * time.Second, // 设置TCP连接的保活时间
+				}).DialContext,
+				MaxIdleConns:          100,              // 最大空闲连接数
+				MaxIdleConnsPerHost:   10,               // 每个主机的最大空闲连接数
+				IdleConnTimeout:       90 * time.Second, // 空闲连接超时时间
+				TLSHandshakeTimeout:   10 * time.Second, // TLS握手超时时间
+				ExpectContinueTimeout: 1 * time.Second,  // 等待`Expect: 100-continue`响应超时时间
+			},
+		},
+		rootPath:  "/apps/pho",
+		dlinkChan: make(chan string, 100),
 	}
+	go d.dlinkCacher()
 	err := d.MkdirAll(d.rootPath)
 	if err != nil {
 		return nil, fmt.Errorf("mkdir root path[%s] error: %v", d.rootPath, err)
@@ -61,7 +83,7 @@ func (d *BaiduNetdisk) IsExist(path string) (bool, error) {
 		}
 	}
 	fullPath := filepath.Join(d.rootPath, path)
-	return d.isExist(fullPath, false)
+	return d.isDirExist(fullPath)
 }
 
 func (d *BaiduNetdisk) Download(path string) (io.ReadCloser, int64, error) {
@@ -78,32 +100,49 @@ func (d *BaiduNetdisk) DownloadWithOffset(path string, offset int64) (io.ReadClo
 		}
 	}
 	fullPath := filepath.Join(d.rootPath, path)
-	retried := 0
-RETRY:
-	v, ok := d.fsIDMap.Load(fullPath)
-	if !ok {
-		err := d.refreshFileInfo(fullPath)
-		if err == nil {
-			v, ok = d.fsIDMap.Load(fullPath)
-			if ok {
-				goto FSID_FOUND
-			}
-		} else {
-			return nil, 0, fmt.Errorf("refresh file info error: %v", err)
-		}
-		return nil, 0, fmt.Errorf("file not exist")
+	downloadLink, fileSize, err := d.getDlink(fullPath)
+	if err != nil {
+		return nil, 0, fmt.Errorf("get download link error: %v", err)
 	}
-FSID_FOUND:
-	info := v.(*BaiduFileInfo)
-	reqUrl := fmt.Sprintf("https://pan.baidu.com/rest/2.0/xpan/multimedia?method=filemetas&access_token=%s&fsids=[%d]&dlink=1", d.AccessToken(), info.FsID)
-	req, err := http.NewRequest("GET", reqUrl, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s&access_token=%s", downloadLink, d.AccessToken()), nil)
 	if err != nil {
 		return nil, 0, err
 	}
 	req.Header.Set("User-Agent", "pan.baidu.com")
+	if offset > 0 {
+		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", offset))
+	}
 	resp, err := d.httpc.Do(req)
 	if err != nil {
 		return nil, 0, err
+	}
+	return resp.Body, fileSize, nil
+}
+
+func (d *BaiduNetdisk) getDlink(fullPath string) (string, int64, error) {
+	v1, ok := d.dlinkMap.Load(fullPath)
+	if ok {
+		info := v1.(*BaiduFileInfo)
+		if info.Dlink != "" || info.Size() != 0 {
+			return info.Dlink, info.Size(), nil
+		}
+	}
+	retried := 0
+RETRY:
+	fsID, err := d.getFsID(fullPath)
+	if err != nil {
+		return "", 0, fmt.Errorf("get fsid error: %v", err)
+	}
+
+	reqUrl := fmt.Sprintf("https://pan.baidu.com/rest/2.0/xpan/multimedia?method=filemetas&access_token=%s&fsids=[%d]&dlink=1", d.AccessToken(), fsID)
+	req, err := http.NewRequest("GET", reqUrl, nil)
+	if err != nil {
+		return "", 0, err
+	}
+	req.Header.Set("User-Agent", "pan.baidu.com")
+	resp, err := d.httpc.Do(req)
+	if err != nil {
+		return "", 0, err
 	}
 	defer resp.Body.Close()
 	var rsp struct {
@@ -112,16 +151,16 @@ FSID_FOUND:
 	}
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, 0, err
+		return "", 0, err
 	}
 	if err := json.Unmarshal(data, &rsp); err != nil {
-		return nil, 0, err
+		return "", 0, err
 	}
 	if rsp.Errno != ErrorNoSuccess {
 		if rsp.Errno == ErrorNoAccessToken {
 			d.refreshAccessToken()
 		}
-		return nil, 0, fmt.Errorf("baidu netdisk (DownloadWithOffset) error: [%d] %s", rsp.Errno, rsp.ErrMsg)
+		return "", 0, fmt.Errorf("baidu netdisk (DownloadWithOffset) error: [%d] %s", rsp.Errno, rsp.ErrMsg)
 	}
 	if len(rsp.List) != 1 {
 		// 可能是fsid索引过期,刷新后重试
@@ -130,26 +169,15 @@ FSID_FOUND:
 			retried++
 			goto RETRY
 		}
-		return nil, 0, fmt.Errorf("baidu netdisk error: file not exist")
+		return "", 0, fmt.Errorf("baidu netdisk error: file not exist")
 	}
-	downloadLink := rsp.List[0].Dlink
-	fileSize := rsp.List[0].Size()
-	if downloadLink == "" {
-		return nil, 0, fmt.Errorf("baidu netdisk error: file Dlink is empty")
+	dlink := rsp.List[0].Dlink
+	size := rsp.List[0].Size()
+	if dlink == "" || size == 0 {
+		return "", 0, fmt.Errorf("baidu netdisk error: dlink is empty or size is 0")
 	}
-	req, err = http.NewRequest("GET", fmt.Sprintf("%s&access_token=%s", downloadLink, d.AccessToken()), nil)
-	if err != nil {
-		return nil, 0, err
-	}
-	req.Header.Set("User-Agent", "pan.baidu.com")
-	if offset > 0 {
-		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", offset))
-	}
-	resp, err = d.httpc.Do(req)
-	if err != nil {
-		return nil, 0, err
-	}
-	return resp.Body, fileSize, nil
+	d.dlinkMap.Store(fullPath, &rsp.List[0])
+	return rsp.List[0].Dlink, rsp.List[0].Size(), nil
 }
 
 func (d *BaiduNetdisk) Delete(path string) error {
@@ -190,9 +218,9 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 		return fmt.Errorf("reader is nil")
 	}
 	defer reader.Close()
-	if size >= 100*1024*1024 {
-		return fmt.Errorf("file size too large, only support file size less than 100MB for now")
-	}
+	// if size >= 100*1024*1024 {
+	// 	return fmt.Errorf("file size too large, only support file size less than 100MB for now")
+	// }
 	if d.rootPath == "" {
 		return fmt.Errorf("root path not set")
 	}
@@ -210,13 +238,14 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 		return err
 	}
 	// Upload
-	// TODO: use temp file
-	// 这里用内存存下来整个文件,传输大文件很可能爆内存.后续改成使用临时文件
 	reqUrl := fmt.Sprintf("https://pan.baidu.com/rest/2.0/xpan/file?method=precreate&access_token=%s", d.AccessToken())
 	blockMd5 := md5.New()
 	blockList := make([]string, 0)
 	buf := make([]byte, 4*1024*1024)
-	fileData := make([]byte, 0, size)
+	tmpFile, err := os.OpenFile(tempFilePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	if err != nil {
+		return fmt.Errorf("open temp file error: %v", err)
+	}
 	for {
 		finishRead := false
 		n, err := io.ReadFull(reader, buf)
@@ -230,11 +259,19 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 		blockMd5.Reset()
 		blockMd5.Write(buf[:n])
 		blockList = append(blockList, fmt.Sprintf(`"%s"`, hex.EncodeToString(blockMd5.Sum(nil))))
-		fileData = append(fileData, buf[:n]...)
+		_, err = tmpFile.Write(buf[:n])
+		if err != nil {
+			return fmt.Errorf("write temp file error: %v", err)
+		}
 		if finishRead {
 			break
 		}
 	}
+	err = tmpFile.Sync()
+	if err != nil {
+		return fmt.Errorf("sync temp file error: %v", err)
+	}
+	tmpFile.Close()
 	blockListStr := fmt.Sprintf("[%s]", strings.Join(blockList, ","))
 	formData := url.Values{
 		"path":       {fullPath},
@@ -269,57 +306,88 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 	}
 	uploadID := preRsp.UploadID
 	// Upload block
+	wg := sync.WaitGroup{}
+	wg.Add(len(preRsp.BlockList))
+	var e error
+
+	tmpFile, err = os.OpenFile(tempFilePath, os.O_RDONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("open temp file error: %v", err)
+	}
 	for _, partseq := range preRsp.BlockList {
-		reqUrl = fmt.Sprintf("https://c.pcs.baidu.com/rest/2.0/pcs/superfile2?method=upload&access_token=%s&uploadid=%s&path=%s&type=tmpfile&partseq=%d", d.AccessToken(), uploadID, fullPath, partseq)
-		body := &bytes.Buffer{}
-		writer := multipart.NewWriter(body)
-		start := partseq * 4 * 1024 * 1024
-		end := (partseq + 1) * 4 * 1024 * 1024
-		if end > len(fileData) {
-			end = len(fileData)
-		}
-		part, err := writer.CreateFormFile("file", filepath.Base(fullPath))
+		buffer := make([]byte, 4*1024*1024)
+		n, err := io.ReadFull(tmpFile, buffer)
 		if err != nil {
-			return fmt.Errorf("create form file error: %v", err)
-		}
-		_, err = part.Write(fileData[start:end])
-		if err != nil {
-			return fmt.Errorf("write form file error: %v", err)
-		}
-		err = writer.Close()
-		if err != nil {
-			return fmt.Errorf("close writer error: %v", err)
-		}
-		req, err := http.NewRequest("POST", reqUrl, body)
-		if err != nil {
-			return fmt.Errorf("create request error: %v", err)
-		}
-		req.Header.Set("Content-Type", writer.FormDataContentType())
-		resp, err := d.httpc.Do(req)
-		if err != nil {
-			return fmt.Errorf("upload block error: %v", err)
-		}
-		var rsp struct {
-			Errno  int    `json:"error_code"`
-			ErrMsg string `json:"error_msg"`
-		}
-		data, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("upload block error: %v", err)
-		}
-		if err := json.Unmarshal(data, &rsp); err != nil {
-			return fmt.Errorf("upload block error: %v", err)
-		}
-		if rsp.Errno != ErrorNoSuccess {
-			if rsp.Errno == ErrorNoAccessToken {
-				d.refreshAccessToken()
+			if err == io.EOF || err == io.ErrUnexpectedEOF {
+			} else {
+				return fmt.Errorf("read temp file error: %v", err)
 			}
-			return fmt.Errorf("baidu netdisk (Upload block) error: [%d] %s", rsp.Errno, rsp.ErrMsg)
 		}
-		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("upload block error: %s", resp.Status)
-		}
-		resp.Body.Close()
+		go func(partseq int) {
+			defer wg.Done()
+			time.Sleep(time.Duration(partseq) * 100 * time.Millisecond)
+			reqUrl = fmt.Sprintf("https://c.pcs.baidu.com/rest/2.0/pcs/superfile2?method=upload&access_token=%s&uploadid=%s&path=%s&type=tmpfile&partseq=%d", d.AccessToken(), uploadID, fullPath, partseq)
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("file", filepath.Base(fullPath))
+			if err != nil {
+				e = fmt.Errorf("create form file error: %v", err)
+				return
+			}
+			_, err = part.Write(buffer[:n])
+			if err != nil {
+				e = fmt.Errorf("write form file error: %v", err)
+				return
+			}
+			err = writer.Close()
+			if err != nil {
+				e = fmt.Errorf("close writer error: %v", err)
+				return
+			}
+			req, err := http.NewRequest("POST", reqUrl, body)
+			if err != nil {
+				e = fmt.Errorf("create request error: %v", err)
+				return
+			}
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			resp, err := d.httpc.Do(req)
+			if err != nil {
+				e = fmt.Errorf("upload block error: %v", err)
+				return
+			}
+			defer resp.Body.Close()
+			var rsp struct {
+				Errno  int    `json:"error_code"`
+				ErrMsg string `json:"error_msg"`
+			}
+			data, err := io.ReadAll(resp.Body)
+			if err != nil {
+				e = fmt.Errorf("upload block error: %v", err)
+				return
+			}
+			if err := json.Unmarshal(data, &rsp); err != nil {
+				e = fmt.Errorf("upload block error: %v", err)
+				return
+			}
+			if rsp.Errno != ErrorNoSuccess {
+				if rsp.Errno == ErrorNoAccessToken {
+					d.refreshAccessToken()
+				}
+				if rsp.Errno == 10 {
+					return
+				}
+				e = fmt.Errorf("baidu netdisk (Upload block) error: [%d] %s", rsp.Errno, rsp.ErrMsg)
+				return
+			}
+			if resp.StatusCode != http.StatusOK {
+				e = fmt.Errorf("upload block error: %s", resp.Status)
+				return
+			}
+		}(partseq)
+	}
+	wg.Wait()
+	if e != nil {
+		return e
 	}
 	// Create file
 	reqUrl = fmt.Sprintf("https://pan.baidu.com/rest/2.0/xpan/file?method=create&access_token=%s", d.AccessToken())
@@ -359,14 +427,63 @@ func (d *BaiduNetdisk) Range(dir string, deal func(fs.FileInfo) bool) error {
 		}
 	}
 	fullpath := filepath.ToSlash(filepath.Join(d.rootPath, dir))
+	if fullpath == d.rootPath {
+		d.cacheDir()
+	}
 	err := d.rangeFullDir(fullpath, deal)
 	return err
 }
 
-func (d *BaiduNetdisk) rangeFullDir(fullDir string, deal func(fs.FileInfo) bool) error {
-	start := 0
+func (d *BaiduNetdisk) refreshFileInfo(fullpath string) error {
+	dir := filepath.Dir(fullpath)
+	err := d.rangeFullDir(dir, func(fi fs.FileInfo) bool {
+		return true
+	})
+	return err
+}
+
+func (d *BaiduNetdisk) dlinkCacher() {
+	ticker := time.NewTicker(2 * time.Second)
+	fsIDs := make([]string, 0, 100)
 	for {
-		reqUrl := fmt.Sprintf("https://pan.baidu.com/rest/2.0/xpan/file?method=list&access_token=%s&dir=%s&order=time&desc=1&limit=1000&start=%d", d.AccessToken(), fullDir, start)
+		select {
+		case fsID := <-d.dlinkChan:
+			_, ok := d.dlinkMap.Load(fsID)
+			if !ok {
+				fsIDs = append(fsIDs, fsID)
+			}
+			if len(fsIDs) >= 100 {
+				err := d.cacheDlinks(fsIDs)
+				if err != nil {
+					log.Printf("cache dlinks error: %v", err)
+					continue
+				}
+				fsIDs = fsIDs[:0]
+				ticker.Reset(2 * time.Second)
+			}
+		case <-ticker.C:
+			if len(fsIDs) > 0 {
+				err := d.cacheDlinks(fsIDs)
+				if err != nil {
+					log.Printf("cache dlinks error: %v", err)
+					continue
+				}
+				fsIDs = fsIDs[:0]
+			}
+		}
+	}
+}
+
+func (d *BaiduNetdisk) cacheDlinks(fsIDs []string) error {
+	if len(fsIDs) == 0 {
+		return nil
+	}
+	for start := 0; start < len(fsIDs); start += 100 {
+		end := start + 100
+		if end > len(fsIDs) {
+			end = len(fsIDs)
+		}
+		reqUrl := fmt.Sprintf("https://pan.baidu.com/rest/2.0/xpan/multimedia?method=filemetas&access_token=%s&fsids=[%s]&dlink=1", d.AccessToken(), strings.Join(fsIDs[start:end], ","))
 		req, err := http.NewRequest("GET", reqUrl, nil)
 		if err != nil {
 			return err
@@ -392,30 +509,14 @@ func (d *BaiduNetdisk) rangeFullDir(fullDir string, deal func(fs.FileInfo) bool)
 			if rsp.Errno == ErrorNoAccessToken {
 				d.refreshAccessToken()
 			}
-			return fmt.Errorf("baidu netdisk (Range) error: [%d] %s", rsp.Errno, rsp.ErrMsg)
+			return fmt.Errorf("baidu netdisk (DownloadWithOffset) error: [%d] %s", rsp.Errno, rsp.ErrMsg)
 		}
-		for i, item := range rsp.List {
-			clone := item
-			d.fsIDMap.Store(item.Path, &clone)
-			if !deal(&rsp.List[i]) {
-				return nil
+		for i := range rsp.List {
+			if rsp.List[i].Dlink != "" && rsp.List[i].Size() > 0 {
+				d.dlinkMap.Store(rsp.List[i].Path, &rsp.List[i])
 			}
 		}
-		if len(rsp.List) < 1000 {
-			break
-		}
-		start += 1000
 	}
-	return nil
-}
 
-func (d *BaiduNetdisk) refreshFileInfo(fullpath string) error {
-	dir := filepath.Dir(fullpath)
-	err := d.rangeFullDir(dir, func(fi fs.FileInfo) bool {
-		if fi.Name() == filepath.Base(fullpath) {
-			return false
-		}
-		return true
-	})
-	return err
+	return nil
 }

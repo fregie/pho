@@ -276,3 +276,24 @@ const SetDriveBaiduNetDiskResponse$json = const {
 
 /// Descriptor for `SetDriveBaiduNetDiskResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List setDriveBaiduNetDiskResponseDescriptor = $convert.base64Decode('ChxTZXREcml2ZUJhaWR1TmV0RGlza1Jlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSGAoHbWVzc2FnZRgCIAEoCVIHbWVzc2FnZQ==');
+@$core.Deprecated('Use startBaiduNetdiskLoginRequestDescriptor instead')
+const StartBaiduNetdiskLoginRequest$json = const {
+  '1': 'StartBaiduNetdiskLoginRequest',
+};
+
+/// Descriptor for `StartBaiduNetdiskLoginRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List startBaiduNetdiskLoginRequestDescriptor = $convert.base64Decode('Ch1TdGFydEJhaWR1TmV0ZGlza0xvZ2luUmVxdWVzdA==');
+@$core.Deprecated('Use startBaiduNetdiskLoginResponseDescriptor instead')
+const StartBaiduNetdiskLoginResponse$json = const {
+  '1': 'StartBaiduNetdiskLoginResponse',
+  '2': const [
+    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+    const {'1': 'refreshToken', '3': 3, '4': 1, '5': 9, '10': 'refreshToken'},
+    const {'1': 'accessToken', '3': 4, '4': 1, '5': 9, '10': 'accessToken'},
+    const {'1': 'exiresAt', '3': 5, '4': 1, '5': 3, '10': 'exiresAt'},
+  ],
+};
+
+/// Descriptor for `StartBaiduNetdiskLoginResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List startBaiduNetdiskLoginResponseDescriptor = $convert.base64Decode('Ch5TdGFydEJhaWR1TmV0ZGlza0xvZ2luUmVzcG9uc2USGAoHc3VjY2VzcxgBIAEoCFIHc3VjY2VzcxIYCgdtZXNzYWdlGAIgASgJUgdtZXNzYWdlEiIKDHJlZnJlc2hUb2tlbhgDIAEoCVIMcmVmcmVzaFRva2VuEiAKC2FjY2Vzc1Rva2VuGAQgASgJUgthY2Nlc3NUb2tlbhIaCghleGlyZXNBdBgFIAEoA1IIZXhpcmVzQXQ=');

@@ -163,23 +163,25 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           ),
           title: Text(all[currentIndex].name()!,
               style: const TextStyle(fontSize: 15)),
-          subtitle: RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-              children: [
-                TextSpan(
-                  text: currentAsset.imageWidth != null &&
-                          currentAsset.imageHeight != null
-                      ? "${(currentAsset.imageWidth! * currentAsset.imageHeight! / 1024 / 1024).floor()} MP"
-                      : null,
+          subtitle: currentAsset.isVideo()
+              ? null
+              : RichText(
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    children: [
+                      TextSpan(
+                        text: currentAsset.imageWidth != null &&
+                                currentAsset.imageHeight != null
+                            ? "${(currentAsset.imageWidth! * currentAsset.imageHeight! / 1024 / 1024).floor()} MP"
+                            : null,
+                      ),
+                      TextSpan(
+                          text: currentAsset.imageWidth != null
+                              ? "  \u2022  ${currentAsset.imageWidth!}x${currentAsset.imageHeight!}"
+                              : null),
+                    ],
+                  ),
                 ),
-                TextSpan(
-                    text: currentAsset.imageWidth != null
-                        ? "  \u2022  ${currentAsset.imageWidth!}x${currentAsset.imageHeight!}"
-                        : null),
-              ],
-            ),
-          ),
         ));
 
         columns.add(ListTile(
@@ -200,9 +202,11 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
             text: TextSpan(
               style: const TextStyle(fontSize: 14, color: Colors.grey),
               children: [
-                TextSpan(
-                    text: "${currentAsset.imageSize.toStringAsFixed(1)} MB"),
-                TextSpan(text: "  \u2022  ${all[currentIndex].path()}"),
+                if (!currentAsset.isVideo())
+                  TextSpan(
+                      text:
+                          "${currentAsset.imageSize.toStringAsFixed(1)} MB  \u2022  "),
+                TextSpan(text: all[currentIndex].path()),
               ],
             ),
           ),
@@ -412,10 +416,11 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
                 currentIndex = index;
               });
               all[index].readInfoFromData().then((value) {
-                for (int i = -1; i != 0 && i <= 1; i++) {
-                  if (index + i >= 0 && index + i < all.length) {
-                    all[index + i].readInfoFromData();
-                  }
+                if (index + 1 >= 0 && index + 1 < all.length) {
+                  all[index + 1].readInfoFromData();
+                }
+                if (index - 1 >= 0 && index - 1 < all.length) {
+                  all[index - 1].readInfoFromData();
                 }
               });
               if (all.length - index < 5) {

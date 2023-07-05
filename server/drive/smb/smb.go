@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -23,6 +24,7 @@ type Smb struct {
 	rootPath          string
 	fs                *smb2.Share
 	lastConnTimestamp int64
+	downloadLock      sync.Mutex
 }
 
 func NewSmbDrive(addr, username, password string) *Smb {
@@ -206,28 +208,31 @@ func (s *Smb) IsExist(path string) (bool, error) {
 }
 
 func (s *Smb) Download(path string) (io.ReadCloser, int64, error) {
-	if err := s.checkConn(); err != nil {
-		return nil, 0, err
-	}
-	if s.rootPath == "" {
-		return nil, 0, fmt.Errorf("root path is empty")
-	}
-	fullPath := filepath.Join(s.rootPath, path)
-	f, err := s.fs.Open(fullPath)
-	if err != nil {
-		s.cleanLastConnTime()
-		return nil, 0, err
-	}
-	var size int64
-	fi, err := f.Stat()
-	if err == nil {
-		size = fi.Size()
-	}
-	s.updateLastConnTime()
-	return f, size, nil
+	// if err := s.checkConn(); err != nil {
+	// 	return nil, 0, err
+	// }
+	// if s.rootPath == "" {
+	// 	return nil, 0, fmt.Errorf("root path is empty")
+	// }
+	// fullPath := filepath.Join(s.rootPath, path)
+	// f, err := s.fs.Open(fullPath)
+	// if err != nil {
+	// 	s.cleanLastConnTime()
+	// 	return nil, 0, err
+	// }
+	// fi, err := f.Stat()
+	// if err != nil {
+	// 	return nil, 0, fmt.Errorf("stat %s error: %v", path, err)
+	// }
+	// log.Printf("got %s stat, size: %d", path, fi.Size())
+	// s.updateLastConnTime()
+	// return f, fi.Size(), nil
+	return s.DownloadWithOffset(path, 0)
 }
 
 func (s *Smb) DownloadWithOffset(path string, offset int64) (io.ReadCloser, int64, error) {
+	s.downloadLock.Lock()
+	defer s.downloadLock.Unlock()
 	if err := s.checkConn(); err != nil {
 		return nil, 0, err
 	}

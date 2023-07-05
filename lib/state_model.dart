@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:img_syncer/global.dart';
 import 'event_bus.dart';
 import 'package:img_syncer/asset.dart';
 import 'dart:async';
@@ -17,12 +18,13 @@ SettingModel settingModel = SettingModel();
 AssetModel assetModel = AssetModel();
 StateModel stateModel = StateModel();
 
-enum Drive { smb, webDav, nfs }
+enum Drive { smb, webDav, nfs, baiduNetdisk }
 
 Map<Drive, String> driveName = {
   Drive.smb: 'SMB',
   Drive.webDav: 'WebDAV',
   Drive.nfs: 'NFS',
+  Drive.baiduNetdisk: 'BaiduNetdisk',
 };
 
 class SettingModel extends ChangeNotifier {
@@ -155,17 +157,17 @@ class AssetModel extends ChangeNotifier {
         if (entities.length < pageSize) {
           localHasMore = false;
         }
-        for (var entity in entities) {
-          final asset = Asset(local: entity);
+        for (var i = 0; i < entities.length; i++) {
+          final asset = Asset(local: entities[i]);
           if (settingModel.localFolderAbsPath == null) {
-            final file = await entity.file;
+            final file = await entities[i].file;
             if (file != null) {
               settingModel.localFolderAbsPath = file.parent.path;
             }
           }
-          await asset.thumbnailDataAsync();
           localAssets.add(asset);
           notifyListeners();
+          asset.thumbnailDataAsync().then((value) => notifyListeners());
         }
       }
     }
@@ -190,9 +192,9 @@ class AssetModel extends ChangeNotifier {
       for (var image in images) {
         try {
           final asset = Asset(remote: image);
-          final thumbnailData = await asset.thumbnailDataAsync();
           remoteAssets.add(asset);
           notifyListeners();
+          asset.thumbnailDataAsync().then((value) => notifyListeners());
         } catch (e) {
           print(e);
         }

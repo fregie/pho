@@ -19,6 +19,7 @@ service ImgSyncer {
   rpc SetDriveNFS (SetDriveNFSRequest) returns (SetDriveNFSResponse) {}
   rpc ListDriveNFSDir (ListDriveNFSDirRequest) returns (ListDriveNFSDirResponse) {}
   rpc SetDriveBaiduNetDisk (SetDriveBaiduNetDiskRequest) returns (SetDriveBaiduNetDiskResponse) {}
+  rpc StartBaiduNetdiskLogin (StartBaiduNetdiskLoginRequest) returns (StartBaiduNetdiskLoginResponse) {}
 }
 
 // enum ContentType {
@@ -138,4 +139,13 @@ message SetDriveBaiduNetDiskRequest {
 message SetDriveBaiduNetDiskResponse {
   bool success = 1;
   string message = 2;
+}
+
+message StartBaiduNetdiskLoginRequest {}
+message StartBaiduNetdiskLoginResponse {
+  bool success = 1;
+  string message = 2;
+  string refreshToken = 3;
+  string accessToken = 4;
+  int64 exiresAt = 5;
 }

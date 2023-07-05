@@ -13,7 +13,10 @@ import (
 )
 
 type api struct {
-	im *imgmanager.ImgManager
+	im                *imgmanager.ImgManager
+	httpPort          int
+	baiduLogginInChan chan *pb.StartBaiduNetdiskLoginResponse
+
 	pb.UnimplementedImgSyncerServer
 }
 
@@ -21,11 +24,6 @@ func NewApi(im *imgmanager.ImgManager) *api {
 	a := &api{
 		im: im,
 	}
-	// d, err := baidu.NewBaiduNetdiskDrive("122.1c512cea17b9bc74f22ee48ac79f70ec.Y_QxdX2BkODHiacqBEu93B0c9b61dJ9EP6brS2A.FHz9Vg", "121.7dc52f9eaa479ca5c59444e2ddfa74fb.YnbMm-Af780yKJZpK8frsyFxUtLpvTtrJe6lK7S.2Vt6VQ")
-	// if err != nil {
-	// 	log.Printf("NewBaiduNetdiskDrive error: %v", err)
-	// }
-	// a.im.SetDrive(d)
 	return a
 }
 

@@ -43,7 +43,7 @@ func (d *BaiduNetdisk) refreshAccessToken() error {
 	if d.refreshToken == "" {
 		return fmt.Errorf("refresh token is empty")
 	}
-	url := fmt.Sprintf("https://openapi.baidu.com/oauth/2.0/token?grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s", d.RefreshToken(), phoAppKey, phoSecretKey)
+	url := fmt.Sprintf("https://openapi.baidu.com/oauth/2.0/token?grant_type=refresh_token&refresh_token=%s&client_id=%s&client_secret=%s", d.RefreshToken(), PhoAppKey, PhoSecretKey)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err

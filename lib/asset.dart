@@ -158,7 +158,7 @@ class Asset extends ImageProvider<Asset> {
     if (_thumbnailData != null && _thumbnailData!.isNotEmpty) {
       return MemoryImage(_thumbnailData!);
     }
-    return Image.asset("assets/images/broken.png").image;
+    return Image.asset("assets/images/gray.jpg").image;
   }
 
   Future<Uint8List> thumbnailDataAsync() async {
