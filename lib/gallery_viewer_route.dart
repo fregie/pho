@@ -10,7 +10,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'event_bus.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 import 'package:img_syncer/video_route.dart';
 import 'package:img_syncer/global.dart';
 

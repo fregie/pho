@@ -45,3 +45,4 @@ app.*.map.json
 output
 *.apk
 baidu_drive_test.go
+debug-info

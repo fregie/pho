@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:img_syncer/global.dart';
@@ -17,7 +16,6 @@ class VideoRoute extends StatefulWidget {
 }
 
 class _VideoRouteState extends State<VideoRoute> {
-  final FijkPlayer player = FijkPlayer();
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
   bool isInitialized = false;
@@ -25,14 +23,12 @@ class _VideoRouteState extends State<VideoRoute> {
   @override
   void initState() {
     super.initState();
-    player.setOption(FijkOption.playerCategory, "mediacodec-all-videos", 1);
     initializePlayer();
   }
 
   @override
   void dispose() {
     super.dispose();
-    player.release();
     chewieController.dispose();
     videoPlayerController.dispose();
   }
