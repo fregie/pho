@@ -55,5 +55,6 @@
   "connectFailed": "Storage connection failed",
   "selectRoot": "Select root path",
   "currentPath": "Current path",
-  "baiduNetdisk": "Baidu Netdisk"
+  "baiduNetdisk": "Baidu Netdisk",
+  "baiduNetdiskLogin": "Baidu Netdisk Login"
 }

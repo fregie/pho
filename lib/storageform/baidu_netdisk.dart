@@ -52,10 +52,10 @@ class BaiduNetdiskFormState extends State<BaiduNetdiskForm> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         FilledButton(
-          child: const Text(
-            "百度网盘登录",
+          child: Text(
+            i18n.baiduNetdiskLogin,
             textAlign: TextAlign.center,
-            style: TextStyle(height: 1.0),
+            style: const TextStyle(height: 1.0),
           ),
           onPressed: () async {
             storage.cli
@@ -63,7 +63,7 @@ class BaiduNetdiskFormState extends State<BaiduNetdiskForm> {
                 .then((StartBaiduNetdiskLoginResponse resp) {
               rsp = resp;
               if (rsp!.success) {
-                SnackBarManager.showSnackBar("登陆成功, 可以点击保存了");
+                SnackBarManager.showSnackBar(i18n.testSuccess);
                 setState(() {
                   loginSuccess = true;
                 });
