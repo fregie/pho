@@ -80,7 +80,7 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
                         : driveName[currentDrive]),
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: i18n!.remoteStorageType,
+                    labelText: i18n.remoteStorageType,
                     suffixIcon: PopupMenuButton<String>(
                       icon: const Icon(Icons.arrow_drop_down),
                       itemBuilder: (BuildContext context) {

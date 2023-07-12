@@ -30,8 +30,8 @@ class SettingBody extends StatelessWidget {
                             builder: (context) => const ChooseAlbumRoute()),
                       );
                     },
-                    child: Row(
-                      children: const [
+                    child: const Row(
+                      children: [
                         Icon(
                           Icons.folder_outlined,
                           // color: Theme.of(context).colorScheme.secondary,
@@ -55,8 +55,8 @@ class SettingBody extends StatelessWidget {
                             builder: (context) => const SettingStorageRoute(),
                           ));
                     },
-                    child: Row(
-                      children: const [
+                    child: const Row(
+                      children: [
                         Icon(
                           Icons.cloud_outlined,
                           // color: Theme.of(context).colorScheme.secondary,

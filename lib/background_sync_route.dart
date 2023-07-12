@@ -96,35 +96,35 @@ class _BackgroundSyncSettingRouteState
                 //   child: Text('1 minute'),
                 // ),
                 DropdownMenuItem(
-                  value: Duration(minutes: 10),
+                  value: const Duration(minutes: 10),
                   child: Text('10 ${i18n.minite}'),
                 ),
                 DropdownMenuItem(
-                  value: Duration(hours: 1),
+                  value: const Duration(hours: 1),
                   child: Text('1 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
-                  value: Duration(hours: 3),
+                  value: const Duration(hours: 3),
                   child: Text('3 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
-                  value: Duration(hours: 6),
+                  value: const Duration(hours: 6),
                   child: Text('6 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
-                  value: Duration(hours: 12),
+                  value: const Duration(hours: 12),
                   child: Text('12 ${i18n.hour}'),
                 ),
                 DropdownMenuItem(
-                  value: Duration(days: 1),
+                  value: const Duration(days: 1),
                   child: Text('1 ${i18n.day}'),
                 ),
                 DropdownMenuItem(
-                  value: Duration(days: 3),
+                  value: const Duration(days: 3),
                   child: Text('3 ${i18n.day}'),
                 ),
                 DropdownMenuItem(
-                  value: Duration(days: 7),
+                  value: const Duration(days: 7),
                   child: Text('1 ${i18n.week}'),
                 ),
               ],

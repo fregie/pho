@@ -245,9 +245,7 @@ class Asset extends ImageProvider<Asset> {
       await PhotoManager.editor.deleteWithIds([local!.id]);
     }
     if (hasRemote) {
-      final rsp = await remote!.cli.delete(DeleteRequest(
-        paths: [remote!.path],
-      ));
+      final rsp = await remote!.cli.delete(DeleteRequest());
       if (!rsp.success) {
         throw Exception("delete failed: ${rsp.message}");
       }

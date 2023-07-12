@@ -203,11 +203,11 @@ class SyncBodyState extends State<SyncBody> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.cloud_outlined,
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text(i18n.cloudStorage),
                       ],
                     ),
@@ -235,10 +235,10 @@ class SyncBodyState extends State<SyncBody> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.cloud_sync_outlined,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text(i18n.backgroundSync),
                       ],
                     ),
@@ -365,7 +365,7 @@ class SyncBodyState extends State<SyncBody> {
                 padding: const EdgeInsets.fromLTRB(15, 0, 10, 0),
                 child: Text(
                   i18n.unsynchronizedPhotos,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                   ),
                 ),

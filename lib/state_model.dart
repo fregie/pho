@@ -3,7 +3,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:img_syncer/global.dart';
 import 'event_bus.dart';
 import 'package:img_syncer/asset.dart';
 import 'dart:async';

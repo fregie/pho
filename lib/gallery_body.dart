@@ -16,7 +16,6 @@ import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:img_syncer/global.dart';
 
 class GalleryBody extends StatefulWidget {
