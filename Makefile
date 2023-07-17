@@ -27,7 +27,7 @@ server:
     -o server/output/${BUILD_NAME} ./server
 
 server-aar: protobuf
-	CGO_ENABLED=0 gomobile bind -target=android -androidapi 19 -ldflags "-s -w" -o android/app/libs/server.aar ./server/run
+	CGO_ENABLED=0 gomobile bind -target=android -androidapi 21 -ldflags "-s -w" -o android/app/libs/server.aar ./server/run
 
 server-ios: protobuf
 	CGO_ENABLED=0 gomobile bind -target=ios -ldflags "-s -w" -o ios/Frameworks/RUN.xcframework ./server/run
