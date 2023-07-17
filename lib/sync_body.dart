@@ -10,6 +10,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:img_syncer/choose_album_route.dart';
 import 'package:img_syncer/setting_storage_route.dart';
 import 'package:img_syncer/global.dart';
+import 'package:path/path.dart';
 
 class SyncBody extends StatefulWidget {
   const SyncBody({
@@ -91,12 +92,15 @@ class SyncBodyState extends State<SyncBody> {
     int count = 0;
     int originLength = toShow.length;
     for (var asset in all) {
-      if (names[asset.title] == true) {
+      final file = await asset.originFile;
+      final name = basename(file!.path);
+      if (names[name] == true) {
         count++;
         if (count <= originLength) {
           continue;
         }
         final a = Asset(local: asset);
+        await a.getLocalFile();
         await a.thumbnailDataAsync();
         toShow.add(a);
         if (count >= originLength + pageSize) {
@@ -139,7 +143,9 @@ class SyncBodyState extends State<SyncBody> {
           if (assets.isEmpty) {
             break;
           }
-          all.addAll(assets);
+          for (var asset in assets) {
+            all.add(asset);
+          }
           assetOffset += assetPageSize;
         }
         break;
@@ -269,27 +275,29 @@ class SyncBodyState extends State<SyncBody> {
       if (_needStopSync) {
         break;
       }
-      if (names[asset.title] != true) {
+      final file = await asset.originFile;
+      if (file == null) {
         continue;
       }
-      if (asset.title == null) {
+      final fileName = basename(file!.path);
+      if (names[fileName] != true) {
         continue;
       }
       setState(() {
-        uploadState[asset.title!] = i18n.uploading;
+        uploadState[fileName] = i18n.uploading;
       });
       try {
         await storage.uploadAssetEntity(asset);
       } catch (e) {
         print(e);
         setState(() {
-          uploadState[asset.title!] = "${i18n.uploadFailed}: $e";
+          uploadState[fileName] = "${i18n.uploadFailed}: $e";
         });
         continue;
       }
       setState(() {
         toUpload -= 1;
-        uploadState[asset.title!] = i18n.uploaded;
+        uploadState[fileName] = i18n.uploaded;
       });
     }
     stateModel.setUploadState(false);

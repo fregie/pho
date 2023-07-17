@@ -1,0 +1,8 @@
+framework module "RUN" {
+	header "ref.h"
+    header "Run.objc.h"
+    header "Universe.objc.h"
+    header "RUN.h"
+
+    export *
+}

@@ -12,6 +12,8 @@ import 'event_bus.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:img_syncer/video_route.dart';
 import 'package:img_syncer/global.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 class GalleryViewerRoute extends StatefulWidget {
   const GalleryViewerRoute({
@@ -110,44 +112,34 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
               )));
         }
         if (currentAsset.make != null && currentAsset.model != null) {
-          columns.add(ListTile(
-            leading: const SizedBox(
-              width: 40, // 设置宽度
-              child: Align(
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.camera_outlined,
-                  color: Color.fromARGB(255, 120, 120, 120),
+          List<String> children = [
+            if (currentAsset.fNumber != null) "f/${currentAsset.fNumber}",
+            if (currentAsset.exposureTime != null)
+              "${currentAsset.exposureTime!}",
+            if (currentAsset.focalLength != null)
+              "${currentAsset.focalLength}mm",
+            if (currentAsset.iSO != null) "ISO${currentAsset.iSO}",
+          ];
+          columns.add(
+            ListTile(
+              leading: const SizedBox(
+                width: 40, // 设置宽度
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.camera_outlined,
+                    color: Color.fromARGB(255, 120, 120, 120),
+                  ),
                 ),
               ),
-            ),
-            title: Text("${currentAsset.make} ${currentAsset.model}",
-                style: const TextStyle(fontSize: 15)),
-            subtitle: RichText(
-              text: TextSpan(
+              title: Text("${currentAsset.make} ${currentAsset.model}",
+                  style: const TextStyle(fontSize: 15)),
+              subtitle: Text(
+                children.join("  \u2022  "),
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
-                children: [
-                  TextSpan(
-                    text: (currentAsset.fNumber != null)
-                        ? "f/${currentAsset.fNumber}"
-                        : null,
-                  ),
-                  TextSpan(
-                      text: currentAsset.exposureTime != null
-                          ? "  \u2022  ${currentAsset.exposureTime}"
-                          : null),
-                  TextSpan(
-                      text: currentAsset.focalLength != null
-                          ? "  \u2022  ${currentAsset.focalLength}mm"
-                          : null),
-                  TextSpan(
-                      text: currentAsset.iSO != null
-                          ? "  \u2022  ISO${currentAsset.iSO}"
-                          : null),
-                ],
               ),
             ),
-          ));
+          );
         }
         columns.add(ListTile(
           leading: const SizedBox(
@@ -280,11 +272,27 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     try {
       if (asset.name() != null) {
         final data = await asset.imageDataAsync();
-        final absPath = '${settingModel.localFolderAbsPath}/${asset.name()}';
-        final file = File(absPath);
-        await file.writeAsBytes(data);
-        await file.setLastModified(asset.dateCreated());
-        await scanFile(absPath);
+        if (Platform.isAndroid) {
+          final absPath = '${settingModel.localFolderAbsPath}/${asset.name()}';
+          final file = File(absPath);
+          await file.writeAsBytes(data);
+          await file.setLastModified(asset.dateCreated());
+          await scanFile(absPath);
+        }
+        if (Platform.isIOS) {
+          var appDocDir = await getTemporaryDirectory();
+          String savePath = "${appDocDir.path}/${asset.name()}";
+          final file = File(savePath);
+          await file.writeAsBytes(data);
+          await file.setLastModified(asset.dateCreated());
+          await GallerySaver.saveImage(savePath, toDcim: true);
+          // final result = await ImageGallerySaver.saveImage(data,
+          //     quality: 100, name: asset.name());
+          // if (!result['isSuccess']) {
+          //   print("save image failed");
+          //   SnackBarManager.showSnackBar("save image failed");
+          // }
+        }
       }
     } catch (e) {
       SnackBarManager.showSnackBar(e.toString());
@@ -313,17 +321,15 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     }
     stateModel.setUploadState(true);
     final entity = asset.local!;
-    if (entity.title != null) {
-      try {
-        await storage.uploadAssetEntity(entity);
-      } catch (e) {
-        print(e);
-        SnackBarManager.showSnackBar(e.toString());
-      }
+    try {
+      await storage.uploadAssetEntity(entity);
+    } catch (e) {
+      print(e);
+      SnackBarManager.showSnackBar(e.toString());
     }
     stateModel.setUploadState(false);
     if (mounted) {
-      SnackBarManager.showSnackBar("Upload ${entity.title} success");
+      SnackBarManager.showSnackBar("Upload ${asset.name()} success");
     }
     loadingDialog.remove();
   }

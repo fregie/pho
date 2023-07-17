@@ -9,6 +9,7 @@ import 'package:img_syncer/logger.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
 
 late String httpBaseUrl;
 late int httpPort;
@@ -123,10 +124,13 @@ class Global {
           if (refreshToken == null || refreshToken == "") {
             break;
           }
+          final temporaryDir = await getTemporaryDirectory();
+          print("temp dir: ${temporaryDir.path}");
           storage.cli
               .setDriveBaiduNetDisk(SetDriveBaiduNetDiskRequest(
             refreshToken: refreshToken,
             accessToken: accessToken,
+            tmpDir: temporaryDir.path,
           ))
               .then((rsp) {
             if (rsp.success) {

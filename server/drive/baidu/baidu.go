@@ -23,7 +23,7 @@ import (
 const (
 	PhoAppKey    = "8wylQfdIzIpNFOGHZSnOOQ98QLDFvl1U"
 	PhoSecretKey = "lKAurWfMvbUqPddUmOFVgim3Ui1oM56M"
-	tempFilePath = "/data/data/com.example.img_syncer/baidu_tmp"
+	// androidDefaultTempFilePath = "/data/data/com.example.img_syncer/baidu_tmp"
 )
 
 type BaiduNetdisk struct {
@@ -38,6 +38,7 @@ type BaiduNetdisk struct {
 	dlinkChan  chan string
 	fsCache    *fsNode
 	cacheRLock sync.RWMutex
+	tmpFileDir string
 }
 
 type generalRsp struct {
@@ -71,6 +72,10 @@ func NewBaiduNetdiskDrive(refreshToken, accessToken string) (*BaiduNetdisk, erro
 		return nil, fmt.Errorf("mkdir root path[%s] error: %v", d.rootPath, err)
 	}
 	return d, nil
+}
+
+func (d *BaiduNetdisk) SetTmpDir(dir string) {
+	d.tmpFileDir = dir
 }
 
 func (d *BaiduNetdisk) IsExist(path string) (bool, error) {
@@ -229,6 +234,9 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 			return err
 		}
 	}
+	if d.tmpFileDir == "" {
+		return fmt.Errorf("tmp file dir not set")
+	}
 	if d.rootPath == "" {
 		return fmt.Errorf("root path is empty")
 	}
@@ -242,7 +250,8 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 	blockMd5 := md5.New()
 	blockList := make([]string, 0)
 	buf := make([]byte, 4*1024*1024)
-	tmpFile, err := os.OpenFile(tempFilePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
+	tmpFilePath := filepath.Join(d.tmpFileDir, "baidu_tmp")
+	tmpFile, err := os.OpenFile(tmpFilePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
 	if err != nil {
 		return fmt.Errorf("open temp file error: %v", err)
 	}
@@ -310,7 +319,7 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 	wg.Add(len(preRsp.BlockList))
 	var e error
 
-	tmpFile, err = os.OpenFile(tempFilePath, os.O_RDONLY, 0644)
+	tmpFile, err = os.OpenFile(tmpFilePath, os.O_RDONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("open temp file error: %v", err)
 	}

@@ -135,13 +135,16 @@ message ListDriveNFSDirResponse {
 message SetDriveBaiduNetDiskRequest {
   string refreshToken = 1;
   string accessToken = 2;
+  string tmpDir = 3;
 }
 message SetDriveBaiduNetDiskResponse {
   bool success = 1;
   string message = 2;
 }
 
-message StartBaiduNetdiskLoginRequest {}
+message StartBaiduNetdiskLoginRequest {
+  string tmpDir = 1;
+}
 message StartBaiduNetdiskLoginResponse {
   bool success = 1;
   string message = 2;

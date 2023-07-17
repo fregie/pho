@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
+import 'dart:io';
 
 class Asset extends ImageProvider<Asset> {
   bool hasLocal = false;
@@ -33,8 +34,11 @@ class Asset extends ImageProvider<Asset> {
   String? fNumber;
   String? focalLength;
 
+  File? localFile;
+
   Asset({this.local, this.remote}) {
     if (local != null) {
+      getLocalFile();
       hasLocal = true;
     }
     if (remote != null) {
@@ -46,8 +50,24 @@ class Asset extends ImageProvider<Asset> {
     return hasLocal;
   }
 
+  Future<File?> getLocalFile() async {
+    if (localFile != null) {
+      return localFile;
+    }
+    if (hasLocal) {
+      localFile = await local!.originFile;
+    }
+    return localFile;
+  }
+
   String? name() {
     if (hasLocal) {
+      if (local!.title != null && local!.title != "") {
+        return local!.title;
+      }
+      if (localFile != null) {
+        return basename(localFile!.path);
+      }
       return local!.title;
     }
     if (hasRemote) {
@@ -229,6 +249,9 @@ class Asset extends ImageProvider<Asset> {
 
   String path() {
     if (hasLocal) {
+      if (localFile != null) {
+        return localFile!.path;
+      }
       if (local!.relativePath == null) {
         return "unknown";
       }

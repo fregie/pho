@@ -5,6 +5,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'state_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/global.dart';
+import 'package:flutter/services.dart';
 
 class ChooseAlbumRoute extends StatefulWidget {
   const ChooseAlbumRoute({Key? key}) : super(key: key);
@@ -36,12 +37,15 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
     return paths;
   }
 
-  Future<Uint8List> getFirstPhotoThumbnail(AssetPathEntity path) async {
+  Future<Uint8List?> getFirstPhotoThumbnail(AssetPathEntity path) async {
     final List<AssetEntity> entities =
         await path.getAssetListPaged(page: 0, size: 1);
-    final entity = entities[0];
-    final data = await entity.thumbnailData;
-    return data!;
+    if (entities.isNotEmpty) {
+      final entity = entities[0];
+      final data = await entity.thumbnailData;
+      return data!;
+    }
+    return null;
   }
 
   @override
@@ -53,9 +57,10 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
           future: getFirstPhotoThumbnail(path),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return const Center(
-                child: Text('No album found'),
-              );
+              // return const Center(
+              //   child: Text('No album found'),
+              // );
+              return const SizedBox();
             }
             return AlbumCard(
               path: path,
@@ -161,7 +166,7 @@ class AlbumCard extends StatelessWidget {
                     ),
                     Container(
                       alignment: Alignment.centerRight,
-                      width: 100,
+                      width: 120,
                       padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                       child: FilledButton(
                         style: Theme.of(context).textButtonTheme.style,

@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:io';
+import 'package:path/path.dart';
 
 import 'package:flutter/material.dart';
 import 'event_bus.dart';
@@ -159,11 +160,12 @@ class AssetModel extends ChangeNotifier {
         for (var i = 0; i < entities.length; i++) {
           final asset = Asset(local: entities[i]);
           if (settingModel.localFolderAbsPath == null) {
-            final file = await entities[i].file;
+            final file = await entities[i].originFile;
             if (file != null) {
               settingModel.localFolderAbsPath = file.parent.path;
             }
           }
+          await asset.getLocalFile();
           localAssets.add(asset);
           notifyListeners();
           asset.thumbnailDataAsync().then((value) => notifyListeners());
@@ -256,9 +258,8 @@ Future<void> refreshUnsynchronizedPhotos() async {
           break;
         }
         for (var asset in assets) {
-          if (asset.title != null) {
-            req.names.add(asset.title!);
-          }
+          final f = await asset.originFile;
+          req.names.add(basename(f!.path));
         }
         offset += pageSize;
       }

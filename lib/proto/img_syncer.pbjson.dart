@@ -260,11 +260,12 @@ const SetDriveBaiduNetDiskRequest$json = const {
   '2': const [
     const {'1': 'refreshToken', '3': 1, '4': 1, '5': 9, '10': 'refreshToken'},
     const {'1': 'accessToken', '3': 2, '4': 1, '5': 9, '10': 'accessToken'},
+    const {'1': 'tmpDir', '3': 3, '4': 1, '5': 9, '10': 'tmpDir'},
   ],
 };
 
 /// Descriptor for `SetDriveBaiduNetDiskRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List setDriveBaiduNetDiskRequestDescriptor = $convert.base64Decode('ChtTZXREcml2ZUJhaWR1TmV0RGlza1JlcXVlc3QSIgoMcmVmcmVzaFRva2VuGAEgASgJUgxyZWZyZXNoVG9rZW4SIAoLYWNjZXNzVG9rZW4YAiABKAlSC2FjY2Vzc1Rva2Vu');
+final $typed_data.Uint8List setDriveBaiduNetDiskRequestDescriptor = $convert.base64Decode('ChtTZXREcml2ZUJhaWR1TmV0RGlza1JlcXVlc3QSIgoMcmVmcmVzaFRva2VuGAEgASgJUgxyZWZyZXNoVG9rZW4SIAoLYWNjZXNzVG9rZW4YAiABKAlSC2FjY2Vzc1Rva2VuEhYKBnRtcERpchgDIAEoCVIGdG1wRGly');
 @$core.Deprecated('Use setDriveBaiduNetDiskResponseDescriptor instead')
 const SetDriveBaiduNetDiskResponse$json = const {
   '1': 'SetDriveBaiduNetDiskResponse',
@@ -279,10 +280,13 @@ final $typed_data.Uint8List setDriveBaiduNetDiskResponseDescriptor = $convert.ba
 @$core.Deprecated('Use startBaiduNetdiskLoginRequestDescriptor instead')
 const StartBaiduNetdiskLoginRequest$json = const {
   '1': 'StartBaiduNetdiskLoginRequest',
+  '2': const [
+    const {'1': 'tmpDir', '3': 1, '4': 1, '5': 9, '10': 'tmpDir'},
+  ],
 };
 
 /// Descriptor for `StartBaiduNetdiskLoginRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List startBaiduNetdiskLoginRequestDescriptor = $convert.base64Decode('Ch1TdGFydEJhaWR1TmV0ZGlza0xvZ2luUmVxdWVzdA==');
+final $typed_data.Uint8List startBaiduNetdiskLoginRequestDescriptor = $convert.base64Decode('Ch1TdGFydEJhaWR1TmV0ZGlza0xvZ2luUmVxdWVzdBIWCgZ0bXBEaXIYASABKAlSBnRtcERpcg==');
 @$core.Deprecated('Use startBaiduNetdiskLoginResponseDescriptor instead')
 const StartBaiduNetdiskLoginResponse$json = const {
   '1': 'StartBaiduNetdiskLoginResponse',

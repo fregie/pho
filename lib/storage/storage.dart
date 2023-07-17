@@ -51,20 +51,18 @@ class RemoteStorage {
   }
 
   Future<void> uploadAssetEntity(AssetEntity asset) async {
-    final name = asset.title;
-    if (name == null) {
-      throw Exception("asset name is null");
+    final file = await asset.originFile;
+    if (file == null) {
+      throw Exception("asset file is null");
     }
+    print("upload ${basename(file.path)}");
+    final name = basename(file.path);
     var date = asset.createDateTime;
     if (date.isBefore(DateTime(1990, 1, 1))) {
       date = asset.modifiedDateTime;
     }
     final dateStr =
         formatDate(date, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
-    final f = await asset.file;
-    if (f == null) {
-      throw Exception("asset file is null");
-    }
     var thumbnailSize = const ThumbnailSize.square(200);
     if (asset.type == AssetType.video) {
       thumbnailSize = const ThumbnailSize.square(800);
@@ -76,15 +74,16 @@ class RemoteStorage {
     }
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
     req.headers['Image-Date'] = dateStr;
-    req.contentLength = await f.length();
-    f.openRead().listen((chunk) {
+    req.contentLength = await file.length();
+    file.openRead().listen((chunk) {
       req.sink.add(chunk);
     }, onDone: () {
       req.sink.close();
     });
     final response = await req.send();
     if (response.statusCode != 200) {
-      throw Exception("upload failed: ${response.statusCode}");
+      final body = await response.stream.bytesToString();
+      throw Exception("upload failed: [${response.statusCode}] $body");
     }
 
     final thumbRsp = await http.post(

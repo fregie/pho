@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:img_syncer/event_bus.dart';
+import 'package:path/path.dart';
 
 Timer? autoSyncTimer;
 
@@ -40,10 +41,12 @@ Future<void> reloadAutoSyncTimer() async {
     }
     final all = await getPhotos();
     for (var asset in all) {
-      if (names[asset.title] != true) {
+      final file = await asset.originFile;
+      if (file == null) {
         continue;
       }
-      if (asset.title == null) {
+      final fileName = basename(file.path);
+      if (names[fileName] != true) {
         continue;
       }
       try {

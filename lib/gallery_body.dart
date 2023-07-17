@@ -17,6 +17,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:img_syncer/global.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 class GalleryBody extends StatefulWidget {
   const GalleryBody({Key? key, required this.useLocal}) : super(key: key);
@@ -260,22 +262,21 @@ class GalleryBodyState extends State<GalleryBody>
           continue;
         }
         final data = await asset.imageDataAsync();
-        final absPath = '${settingModel.localFolderAbsPath}/${asset.name()}';
-        final file = File(absPath);
-        await file.writeAsBytes(data);
-        await file.setLastModified(asset.dateCreated());
-        await scanFile(absPath);
+        if (Platform.isAndroid) {
+          final absPath = '${settingModel.localFolderAbsPath}/${asset.name()}';
+          final file = File(absPath);
+          await file.writeAsBytes(data);
+          await file.setLastModified(asset.dateCreated());
+          await scanFile(absPath);
+        } else if (Platform.isIOS) {
+          var appDocDir = await getTemporaryDirectory();
+          String savePath = "${appDocDir.path}/${asset.name()}";
+          final file = File(savePath);
+          await file.writeAsBytes(data);
+          await file.setLastModified(asset.dateCreated());
+          await GallerySaver.saveImage(savePath, toDcim: true);
+        }
 
-        // final tempDir = await getTemporaryDirectory();
-        // final file = File('${tempDir.path}/${asset.name()}');
-        // final result =
-        //     await ImageGallerySaver.saveFile(absPath, name: asset.name());
-        // if (!result['isSuccess']) {
-        //   SnackBarManager.showSnackBar(SnackBar(
-        //     content: Text("Download ${asset.name()} failed"),
-        //   ));
-        //   continue;
-        // }
         count++;
       }
     } catch (e) {
@@ -306,9 +307,6 @@ class GalleryBodyState extends State<GalleryBody>
     stateModel.setUploadState(true);
     for (var asset in assets) {
       final entity = asset.local!;
-      if (entity.title == null) {
-        continue;
-      }
       try {
         await storage.uploadAssetEntity(entity);
       } catch (e) {

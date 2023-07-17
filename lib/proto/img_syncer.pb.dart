@@ -1388,6 +1388,7 @@ class SetDriveBaiduNetDiskRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetDriveBaiduNetDiskRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'refreshToken', protoName: 'refreshToken')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'accessToken', protoName: 'accessToken')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'tmpDir', protoName: 'tmpDir')
     ..hasRequiredFields = false
   ;
 
@@ -1395,6 +1396,7 @@ class SetDriveBaiduNetDiskRequest extends $pb.GeneratedMessage {
   factory SetDriveBaiduNetDiskRequest({
     $core.String? refreshToken,
     $core.String? accessToken,
+    $core.String? tmpDir,
   }) {
     final _result = create();
     if (refreshToken != null) {
@@ -1402,6 +1404,9 @@ class SetDriveBaiduNetDiskRequest extends $pb.GeneratedMessage {
     }
     if (accessToken != null) {
       _result.accessToken = accessToken;
+    }
+    if (tmpDir != null) {
+      _result.tmpDir = tmpDir;
     }
     return _result;
   }
@@ -1443,6 +1448,15 @@ class SetDriveBaiduNetDiskRequest extends $pb.GeneratedMessage {
   $core.bool hasAccessToken() => $_has(1);
   @$pb.TagNumber(2)
   void clearAccessToken() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get tmpDir => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set tmpDir($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTmpDir() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTmpDir() => clearField(3);
 }
 
 class SetDriveBaiduNetDiskResponse extends $pb.GeneratedMessage {
@@ -1508,11 +1522,20 @@ class SetDriveBaiduNetDiskResponse extends $pb.GeneratedMessage {
 
 class StartBaiduNetdiskLoginRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'StartBaiduNetdiskLoginRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'tmpDir', protoName: 'tmpDir')
     ..hasRequiredFields = false
   ;
 
   StartBaiduNetdiskLoginRequest._() : super();
-  factory StartBaiduNetdiskLoginRequest() => create();
+  factory StartBaiduNetdiskLoginRequest({
+    $core.String? tmpDir,
+  }) {
+    final _result = create();
+    if (tmpDir != null) {
+      _result.tmpDir = tmpDir;
+    }
+    return _result;
+  }
   factory StartBaiduNetdiskLoginRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory StartBaiduNetdiskLoginRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
@@ -1533,6 +1556,15 @@ class StartBaiduNetdiskLoginRequest extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static StartBaiduNetdiskLoginRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StartBaiduNetdiskLoginRequest>(create);
   static StartBaiduNetdiskLoginRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get tmpDir => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set tmpDir($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasTmpDir() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTmpDir() => clearField(1);
 }
 
 class StartBaiduNetdiskLoginResponse extends $pb.GeneratedMessage {

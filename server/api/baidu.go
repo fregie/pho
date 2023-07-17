@@ -33,6 +33,9 @@ func (a *api) SetDriveBaiduNetDisk(ctx context.Context, req *pb.SetDriveBaiduNet
 		rsp.Success, rsp.Message = false, err.Error()
 		return
 	}
+	if req.TmpDir != "" {
+		d.SetTmpDir(req.TmpDir)
+	}
 	a.im.SetDrive(d)
 	return
 }
@@ -50,6 +53,13 @@ func (a *api) StartBaiduNetdiskLogin(ctx context.Context, req *pb.StartBaiduNetd
 	case <-newCtx.Done():
 		rsp.Success, rsp.Message = false, "login timeout"
 	case rsp = <-a.baiduLogginInChan:
+	}
+	if rsp.Success && req.TmpDir != "" {
+		d := a.im.Drive()
+		baidu, ok := d.(*baidu.BaiduNetdisk)
+		if ok {
+			baidu.SetTmpDir(req.TmpDir)
+		}
 	}
 	close(a.baiduLogginInChan)
 	a.baiduLogginInChan = nil

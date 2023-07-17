@@ -6,6 +6,7 @@ import 'package:img_syncer/storage/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:img_syncer/global.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
 
 class BaiduNetdiskForm extends StatefulWidget {
   const BaiduNetdiskForm({Key? key}) : super(key: key);
@@ -58,8 +59,11 @@ class BaiduNetdiskFormState extends State<BaiduNetdiskForm> {
             style: const TextStyle(height: 1.0),
           ),
           onPressed: () async {
+            final temporaryDir = await getTemporaryDirectory();
             storage.cli
-                .startBaiduNetdiskLogin(StartBaiduNetdiskLoginRequest())
+                .startBaiduNetdiskLogin(StartBaiduNetdiskLoginRequest(
+              tmpDir: temporaryDir.path,
+            ))
                 .then((StartBaiduNetdiskLoginResponse resp) {
               rsp = resp;
               if (rsp!.success) {
