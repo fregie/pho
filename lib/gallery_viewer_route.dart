@@ -195,9 +195,11 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
               children: [
                 if (!currentAsset.isVideo())
                   TextSpan(
-                      text:
-                          "${currentAsset.imageSize.toStringAsFixed(1)} MB  \u2022  "),
-                TextSpan(text: all[currentIndex].path()),
+                      text: "${currentAsset.imageSize.toStringAsFixed(1)} MB"),
+                if (Platform.isAndroid) ...[
+                  const TextSpan(text: "  \u2022  "),
+                  TextSpan(text: all[currentIndex].path()),
+                ]
               ],
             ),
           ),

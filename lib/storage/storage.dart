@@ -8,6 +8,8 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:img_syncer/global.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:img_syncer/util.dart';
 
 RemoteStorage storage = RemoteStorage("127.0.0.1", 10000);
 
@@ -33,11 +35,21 @@ class RemoteStorage {
 
   Future<void> uploadXFile(XFile file) async {
     final name = basename(file.path);
-    final lastModified = await file.lastModified();
-    final date = formatDate(
-        lastModified, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
+    final date = await file.lastModified();
+    final dateStr =
+        formatDate(date, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
+    var thumbnailSize = 200;
+    if (isVideoByPath(file.path)) {
+      thumbnailSize = 800;
+    }
+    var thumbnailData = await FlutterImageCompress.compressWithFile(
+      file.path,
+      minWidth: thumbnailSize,
+      minHeight: thumbnailSize,
+      quality: 90,
+    );
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
-    req.headers['Image-Date'] = date;
+    req.headers['Image-Date'] = dateStr;
     req.contentLength = await file.length();
     file.openRead().listen((chunk) {
       req.sink.add(chunk);
@@ -47,6 +59,16 @@ class RemoteStorage {
     final response = await req.send();
     if (response.statusCode != 200) {
       throw Exception("upload failed: ${response.statusCode}");
+    }
+    final thumbRsp = await http.post(
+      Uri.parse("$httpBaseUrl/thumbnail/$name"),
+      body: thumbnailData,
+      headers: {
+        'Image-Date': dateStr,
+      },
+    );
+    if (thumbRsp.statusCode != 200) {
+      throw Exception("upload thumbnail failed: ${thumbRsp.statusCode}");
     }
   }
 
@@ -142,22 +164,7 @@ class RemoteImage {
   });
 
   bool isVideo() {
-    switch (extension(path)) {
-      case ".mp4":
-      case ".avi":
-      case ".mov":
-      case ".mkv":
-      case ".flv":
-      case ".rmvb":
-      case ".rm":
-      case ".3gp":
-      case ".wmv":
-      case ".mpeg":
-      case ".mpg":
-      case ".webm":
-        return true;
-    }
-    return false;
+    return isVideoByPath(path);
   }
 
   Stream<Uint8List> thumbnailStream() async* {

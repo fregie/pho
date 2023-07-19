@@ -37,7 +37,11 @@ dependencies:
   photo_album_manager: ^1.2.0
   toast: ^0.3.0
   grpc: ^3.1.0
-  photo_manager: ^2.6.0
+  # photo_manager: ^2.6.0
+  photo_manager:
+    git:
+      url: git@github.com:fluttercandies/flutter_photo_manager.git
+      ref: main
   photo_view:
     git:
       url: git@github.com:bluefireteam/photo_view.git

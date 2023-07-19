@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
 import 'package:img_syncer/background_sync_route.dart';
@@ -221,37 +223,38 @@ class SyncBodyState extends State<SyncBody> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  height: 60,
-                  width: constraints.maxWidth * 0.5,
-                  padding: const EdgeInsets.fromLTRB(15, 8, 10, 8),
-                  child: FilledButton.tonal(
-                    style: style,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const BackgroundSyncSettingRoute()),
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.cloud_sync_outlined,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(i18n.backgroundSync),
-                      ],
+            if (Platform.isAndroid)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    height: 60,
+                    width: constraints.maxWidth * 0.5,
+                    padding: const EdgeInsets.fromLTRB(15, 8, 10, 8),
+                    child: FilledButton.tonal(
+                      style: style,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const BackgroundSyncSettingRoute()),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.cloud_sync_outlined,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(i18n.backgroundSync),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         );
       },

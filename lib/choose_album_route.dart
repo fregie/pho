@@ -32,8 +32,20 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
     await requestPermission();
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
         type: RequestType.common, hasAll: true);
-    // ignore: deprecated_member_use
-    paths.sort((a, b) => b.assetCount.compareTo(a.assetCount));
+    // sort by asset count by assetCountAsync
+    // 使用Future.wait来获取所有异步值并保存到Map中
+    final Map<AssetPathEntity, int> assetCountMap = {};
+    await Future.wait(paths.map((path) async {
+      int assetCount = await path.assetCountAsync;
+      assetCountMap[path] = assetCount;
+    }));
+
+    // 使用sort方法对paths进行排序
+    paths.sort((a, b) {
+      int countA = assetCountMap[a] ?? 0;
+      int countB = assetCountMap[b] ?? 0;
+      return countB.compareTo(countA); // 从大到小排序
+    });
     return paths;
   }
 
@@ -56,15 +68,9 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
         FutureBuilder(
           future: getFirstPhotoThumbnail(path),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              // return const Center(
-              //   child: Text('No album found'),
-              // );
-              return const SizedBox();
-            }
             return AlbumCard(
               path: path,
-              thumbnail: snapshot.data as Uint8List,
+              thumbnail: snapshot.data,
             );
           },
         ),
@@ -99,7 +105,7 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
 
 class AlbumCard extends StatelessWidget {
   final AssetPathEntity path;
-  final Uint8List thumbnail;
+  final Uint8List? thumbnail;
   const AlbumCard({
     Key? key,
     required this.path,
@@ -127,7 +133,9 @@ class AlbumCard extends StatelessWidget {
               SizedBox(
                   width: constraints.maxWidth,
                   height: constraints.maxHeight - 80,
-                  child: Image.memory(thumbnail, fit: BoxFit.cover)),
+                  child: thumbnail != null
+                      ? Image.memory(thumbnail!, fit: BoxFit.cover)
+                      : Image.asset("assets/images/gray.jpg")),
               Container(
                   alignment: Alignment.centerLeft,
                   height: 40,

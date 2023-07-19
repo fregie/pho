@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
 import 'package:chewie/chewie.dart';
@@ -46,13 +47,22 @@ class _VideoRouteState extends State<VideoRoute> {
       videoPlayerController = VideoPlayerController.network(url);
     }
     await videoPlayerController.initialize();
+    Widget customControls = const MaterialControls();
+    if (Platform.isIOS || Platform.isMacOS) {
+      customControls = const CupertinoControls(
+          backgroundColor: Color.fromARGB(255, 82, 82, 82),
+          iconColor: Colors.white);
+    }
     chewieController = ChewieController(
       videoPlayerController: videoPlayerController,
       autoPlay: true,
-      looping: true,
+      looping: false,
       showControlsOnInitialize: false,
       showOptions: false,
-      customControls: const MaterialControls(),
+      customControls: customControls,
+      allowFullScreen: false,
+      allowMuting: false,
+      controlsSafeAreaMinimum: const EdgeInsets.fromLTRB(0, 30, 0, 20),
     );
     setState(() {
       isInitialized = true;
@@ -67,8 +77,11 @@ class _VideoRouteState extends State<VideoRoute> {
           children: [
             Center(
               child: isInitialized
-                  ? Chewie(
-                      controller: chewieController,
+                  ? Container(
+                      // padding: const EdgeInsets.fromLTRB(0, 80, 0, 20),
+                      child: Chewie(
+                        controller: chewieController,
+                      ),
                     )
                   : const CircularProgressIndicator(),
             ),

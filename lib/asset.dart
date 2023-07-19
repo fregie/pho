@@ -35,6 +35,7 @@ class Asset extends ImageProvider<Asset> {
   String? focalLength;
 
   File? localFile;
+  String? localTitle;
 
   Asset({this.local, this.remote}) {
     if (local != null) {
@@ -56,12 +57,16 @@ class Asset extends ImageProvider<Asset> {
     }
     if (hasLocal) {
       localFile = await local!.originFile;
+      localTitle = await local!.titleAsync;
     }
     return localFile;
   }
 
   String? name() {
     if (hasLocal) {
+      if (localTitle != null && localTitle != "") {
+        return localTitle;
+      }
       if (local!.title != null && local!.title != "") {
         return local!.title;
       }
