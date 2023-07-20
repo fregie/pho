@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:path/path.dart';
+import 'package:date_format/date_format.dart';
 
 import 'package:flutter/material.dart';
 import 'event_bus.dart';
@@ -52,7 +53,7 @@ class StateModel extends ChangeNotifier {
   bool _isSelectionMode = false;
   bool isUploading = false;
   bool isDownloading = false;
-  List<String> notSyncedNames = [];
+  List<String> notSyncedIDs = [];
 
   bool get isSelectionMode => _isSelectionMode;
 
@@ -74,8 +75,8 @@ class StateModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setNotSyncedPhotos(List<String> names) {
-    notSyncedNames = names;
+  void setNotSyncedPhotos(List<String> ids) {
+    notSyncedIDs = ids;
     notifyListeners();
   }
 }
@@ -246,8 +247,8 @@ Future<void> refreshUnsynchronizedPhotos() async {
           ),
         ],
       ));
-      FilterNotUploadedRequest req =
-          FilterNotUploadedRequest(names: List<String>.empty(growable: true));
+      FilterNotUploadedRequest req = FilterNotUploadedRequest(
+          photos: List<FilterNotUploadedRequestInfo>.empty(growable: true));
       int offset = 0;
       int pageSize = 100;
 
@@ -258,14 +259,23 @@ Future<void> refreshUnsynchronizedPhotos() async {
           break;
         }
         for (var asset in assets) {
-          final f = await asset.originFile;
-          req.names.add(basename(f!.path));
+          var date = asset.createDateTime;
+          if (date.isBefore(DateTime(1990, 1, 1))) {
+            date = asset.modifiedDateTime;
+          }
+          final dateStr = formatDate(
+              date, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
+          req.photos.add(FilterNotUploadedRequestInfo(
+            id: asset.id,
+            name: await asset.titleAsync,
+            date: dateStr,
+          ));
         }
         offset += pageSize;
       }
       final rsp = await storage.cli.filterNotUploaded(req);
       if (rsp.success) {
-        stateModel.setNotSyncedPhotos(rsp.notUploaed);
+        stateModel.setNotSyncedPhotos(rsp.notUploaedIDs);
       } else {
         throw Exception("Refresh unsynchronized photos failed: ${rsp.message}");
       }

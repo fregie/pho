@@ -168,22 +168,17 @@ func (im *ImgManager) GenerateThumbnailAsync(path string, content []byte) {
 	})
 }
 
-func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, contentSize, thumbnailSize int64, name, date string) error {
-	videoTime, err := time.Parse("2006:01:02 15:04:05", date)
-	if err != nil {
-		im.logger.Println("Error parsing video date:", err)
-		videoTime = time.Now()
-	}
-	path := filepath.Join(videoTime.Format("2006/01/02"), name)
+func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, contentSize, thumbnailSize int64, name string, date time.Time) error {
+	path := filepath.Join(date.Format("2006/01/02"), name)
 	wg := sync.WaitGroup{}
 	wg.Add(2)
-	err = nil
+	var err error
 	go func() {
 		defer wg.Done()
 		if content == nil {
 			return
 		}
-		e := im.dri.Upload(path, io.NopCloser(content), contentSize, videoTime)
+		e := im.dri.Upload(path, io.NopCloser(content), contentSize, date)
 		if e != nil {
 			im.logger.Println("Error uploading video:", e)
 			err = fmt.Errorf("error uploading video: %w", e)
@@ -195,7 +190,7 @@ func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, contentSi
 			return
 		}
 		e := im.dri.Upload(filepath.Join(defaultThumbnailDir, path),
-			io.NopCloser(thumbnailContent), thumbnailSize, videoTime)
+			io.NopCloser(thumbnailContent), thumbnailSize, date)
 		if e != nil {
 			im.logger.Println("Error uploading video:", err)
 			err = fmt.Errorf("error uploading video thumbnail: %w", e)
@@ -205,7 +200,7 @@ func (im *ImgManager) UploadVideo(content, thumbnailContent io.Reader, contentSi
 	return err
 }
 
-func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, contentSize, thumbnailSize int64, name, date string) error {
+func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, contentSize, thumbnailSize int64, name string, date time.Time) error {
 	errCh := make(chan error, 2)
 	var data []byte
 	var thumbData []byte
@@ -232,47 +227,42 @@ func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, contentSize
 	if len(data) == 0 && len(thumbData) == 0 {
 		return fmt.Errorf("no image data")
 	}
-	var imgTime time.Time
-	if date == "" && len(data) > 0 {
+	if date.IsZero() && len(data) > 0 {
 		// try to get image time from metadata
 		meta, err := GetImageMetadata(data)
 		if err == nil {
 			im.logger.Printf("Image metadata: %+v", meta)
+			var dateStr string
 			if meta.Datetime != "" {
-				date = meta.Datetime
+				dateStr = meta.Datetime
 			} else if meta.DateTimeOriginal != "" {
-				date = meta.DateTimeOriginal
+				dateStr = meta.DateTimeOriginal
 			} else if meta.CreateDate != "" {
-				date = meta.CreateDate
+				dateStr = meta.CreateDate
 			} else if meta.ModifyDate != "" {
-				date = meta.ModifyDate
+				dateStr = meta.ModifyDate
 			}
-		} else {
-			im.logger.Println("Error getting image metadata:", err)
+			if dateStr != "" {
+				date, err = time.Parse("2006:01:02 15:04:05", dateStr)
+				if err != nil {
+					im.logger.Println("Error parsing date:", err)
+				}
+			}
 		}
 	}
-	if imgTime.Before(time.Date(1990, 1, 1, 0, 0, 0, 0, time.UTC)) {
-		imgTime = time.Now()
-	}
-	t, err := time.Parse("2006:01:02 15:04:05", date)
-	if err == nil {
-		imgTime = t
+	if date.Before(time.Date(1990, 1, 1, 0, 0, 0, 0, time.UTC)) {
+		date = time.Now()
 	}
 	// try to get image time from given date
-	if imgTime.IsZero() {
-		t, err := time.Parse("2006:01:02 15:04:05", date)
-		if err == nil {
-			imgTime = t
-		}
+	if date.IsZero() {
+		date = time.Now()
 	}
-	if imgTime.IsZero() {
-		imgTime = time.Now()
-	}
-	path := filepath.Join(imgTime.Format("2006/01/02"), name)
+	path := filepath.Join(date.Format("2006/01/02"), name)
+	var err error
 	// TODO: check if file exist
 	if len(data) > 0 {
 		err = im.dri.Upload(path,
-			io.NopCloser(bytes.NewReader(data)), int64(len(data)), imgTime)
+			io.NopCloser(bytes.NewReader(data)), int64(len(data)), date)
 		if err != nil {
 			im.logger.Println("Error uploading image:", err)
 			return err
@@ -280,7 +270,7 @@ func (im *ImgManager) UploadImg(content, thumbnailContent io.Reader, contentSize
 	}
 	if len(thumbData) > 0 {
 		err = im.dri.Upload(filepath.Join(defaultThumbnailDir, path),
-			io.NopCloser(bytes.NewReader(thumbData)), int64(len(thumbData)), imgTime)
+			io.NopCloser(bytes.NewReader(thumbData)), int64(len(thumbData)), date)
 		if err != nil {
 			im.logger.Println("Error uploading thumbnail:", err)
 			return err

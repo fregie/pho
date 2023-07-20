@@ -71,7 +71,7 @@ func (a *api) Delete(ctx context.Context, req *pb.DeleteRequest) (rsp *pb.Delete
 
 func (a *api) FilterNotUploaded(ctx context.Context, req *pb.FilterNotUploadedRequest) (rsp *pb.FilterNotUploadedResponse, err error) {
 	rsp = &pb.FilterNotUploadedResponse{Success: true}
-	if len(req.Names) == 0 {
+	if len(req.Photos) == 0 {
 		rsp.Success, rsp.Message = false, "param error: names is empty"
 		return
 	}
@@ -81,10 +81,14 @@ func (a *api) FilterNotUploaded(ctx context.Context, req *pb.FilterNotUploadedRe
 		all[name] = true
 		return true
 	})
-	rsp.NotUploaed = make([]string, 0, 100)
-	for _, name := range req.Names {
-		if !all[name] {
-			rsp.NotUploaed = append(rsp.NotUploaed, name)
+	rsp.NotUploaedIDs = make([]string, 0, 100)
+	for _, info := range req.Photos {
+		t, err := time.Parse("2006:01:02 15:04:05", info.Date)
+		if err != nil {
+			continue
+		}
+		if !all[encodeName(t, info.Name)] {
+			rsp.NotUploaedIDs = append(rsp.NotUploaedIDs, info.Id)
 		}
 	}
 	return

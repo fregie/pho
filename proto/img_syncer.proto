@@ -47,13 +47,19 @@ message DeleteResponse {
   string message = 2;
 }
 
+message FilterNotUploadedRequestInfo {
+  string name = 1;
+  string date = 2;
+  string id = 3;
+}
+
 message FilterNotUploadedRequest {
-  repeated string names = 1;
+  repeated FilterNotUploadedRequestInfo photos = 1;
 }
 message FilterNotUploadedResponse {
   bool success = 1;
   string message = 2;
-  repeated string notUploaed = 3;
+  repeated string notUploaedIDs = 3;
 }
 
 message SetDriveSMBRequest {

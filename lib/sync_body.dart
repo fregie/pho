@@ -86,17 +86,16 @@ class SyncBodyState extends State<SyncBody> {
       return;
     }
     _isLoadingMore = true;
-    toUpload = stateModel.notSyncedNames.length;
-    Map names = {};
-    for (final name in stateModel.notSyncedNames) {
-      names[name] = true;
+    toUpload = stateModel.notSyncedIDs.length;
+    Map ids = {};
+    for (final id in stateModel.notSyncedIDs) {
+      ids[id] = true;
     }
     int count = 0;
     int originLength = toShow.length;
     for (var asset in all) {
-      final file = await asset.originFile;
-      final name = basename(file!.path);
-      if (names[name] == true) {
+      final id = asset.id;
+      if (ids[id] == true) {
         count++;
         if (count <= originLength) {
           continue;
@@ -269,38 +268,34 @@ class SyncBodyState extends State<SyncBody> {
     setState(() {
       syncing = true;
     });
-    Map names = {};
-    for (final name in stateModel.notSyncedNames) {
-      names[name] = true;
+    Map ids = {};
+    for (final id in stateModel.notSyncedIDs) {
+      ids[id] = true;
     }
     stateModel.setUploadState(true);
     for (var asset in all) {
       if (_needStopSync) {
         break;
       }
-      final file = await asset.originFile;
-      if (file == null) {
-        continue;
-      }
-      final fileName = basename(file!.path);
-      if (names[fileName] != true) {
+      final id = asset.id;
+      if (ids[id] != true) {
         continue;
       }
       setState(() {
-        uploadState[fileName] = i18n.uploading;
+        uploadState[id] = i18n.uploading;
       });
       try {
         await storage.uploadAssetEntity(asset);
       } catch (e) {
         print(e);
         setState(() {
-          uploadState[fileName] = "${i18n.uploadFailed}: $e";
+          uploadState[id] = "${i18n.uploadFailed}: $e";
         });
         continue;
       }
       setState(() {
         toUpload -= 1;
-        uploadState[fileName] = i18n.uploaded;
+        uploadState[id] = i18n.uploaded;
       });
     }
     stateModel.setUploadState(false);
@@ -406,7 +401,7 @@ class SyncBodyState extends State<SyncBody> {
                   ),
                   title: Text(toShow[index].name()!),
                   subtitle: Text(
-                      uploadState[toShow[index].name()] ?? i18n.notUploaded),
+                      uploadState[toShow[index].local!.id] ?? i18n.notUploaded),
                 );
               },
             ),

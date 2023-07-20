@@ -57,7 +57,7 @@ dependencies:
   dynamic_color: ^1.6.2
   synchronized: ^3.0.1
   rxdart: ^0.27.7
-  image: ^4.0.15
+  image: ^4.0.17
   share_plus: ^7.0.2
   logger: ^1.3.0
   connectivity_plus: ^4.0.1

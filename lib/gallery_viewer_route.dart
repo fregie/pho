@@ -205,8 +205,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           ),
         ));
 
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
+        return IntrinsicHeight(
           child: Column(
             children: columns,
           ),
@@ -296,12 +295,14 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           // }
         }
       }
+      SnackBarManager.showSnackBar("Download ${asset.name()} success");
+      eventBus.fire(LocalRefreshEvent());
     } catch (e) {
       SnackBarManager.showSnackBar(e.toString());
+    } finally {
+      stateModel.setDownloadState(false);
+      loadingDialog.remove();
     }
-    stateModel.setDownloadState(false);
-    SnackBarManager.showSnackBar("Download ${asset.name()} success");
-    loadingDialog.remove();
   }
 
   void upload(Asset asset) async {
@@ -325,15 +326,17 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     final entity = asset.local!;
     try {
       await storage.uploadAssetEntity(entity);
+      if (mounted) {
+        SnackBarManager.showSnackBar("Upload ${asset.name()} success");
+      }
+      eventBus.fire(RemoteRefreshEvent());
     } catch (e) {
       print(e);
       SnackBarManager.showSnackBar(e.toString());
+    } finally {
+      stateModel.setUploadState(false);
+      loadingDialog.remove();
     }
-    stateModel.setUploadState(false);
-    if (mounted) {
-      SnackBarManager.showSnackBar("Upload ${asset.name()} success");
-    }
-    loadingDialog.remove();
   }
 
   @override
@@ -342,7 +345,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: const Color(0x00000000),
+        backgroundColor: const Color.fromARGB(32, 0, 0, 0),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -458,7 +461,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
                           }
                           // 如果是下拉手势则弹出ImageInfo
                           if (details.totalScale == 1.0 &&
-                              details.offset!.dy < 0) {
+                              details.offset!.dy < -100) {
                             showImageInfo(context);
                           }
                         },

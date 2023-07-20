@@ -35,18 +35,14 @@ Future<void> reloadAutoSyncTimer() async {
     if (stateModel.isUploading || stateModel.isDownloading) return;
     await refreshUnsynchronizedPhotos();
     stateModel.setUploadState(true);
-    Map names = {};
-    for (final name in stateModel.notSyncedNames) {
-      names[name] = true;
+    Map ids = {};
+    for (final id in stateModel.notSyncedIDs) {
+      ids[id] = true;
     }
     final all = await getPhotos();
     for (var asset in all) {
-      final file = await asset.originFile;
-      if (file == null) {
-        continue;
-      }
-      final fileName = basename(file.path);
-      if (names[fileName] != true) {
+      final id = asset.id;
+      if (ids[id] != true) {
         continue;
       }
       try {

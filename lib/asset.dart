@@ -302,6 +302,7 @@ class Asset extends ImageProvider<Asset> {
       imageWidth = getLocal()!.width;
       imageHeight = getLocal()!.height;
       imageSize = data.length / 1024 / 1024;
+      final title = await getLocal()!.titleAsync;
       _isSizeInfoReadedFinished = true;
     } else {
       compute(img.decodeImage, data).then((image) {
@@ -312,6 +313,7 @@ class Asset extends ImageProvider<Asset> {
         }
         _isSizeInfoReadedFinished = true;
       });
+      _isSizeInfoReadedFinished = true;
     }
     compute(readExifFromBytes, data).then((exifData) {
       if (exifData.isEmpty) {

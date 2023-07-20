@@ -78,7 +78,7 @@ class RemoteStorage {
       throw Exception("asset file is null");
     }
     print("upload ${basename(file.path)}");
-    final name = basename(file.path);
+    final name = await asset.titleAsync;
     var date = asset.createDateTime;
     if (date.isBefore(DateTime(1990, 1, 1))) {
       date = asset.modifiedDateTime;
