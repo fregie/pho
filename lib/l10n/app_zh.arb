@@ -56,5 +56,7 @@
     "selectRoot": "选择根目录",
     "currentPath": "当前目录",
     "baiduNetdisk": "百度网盘",
-    "baiduNetdiskLogin": "百度网盘登录"
+    "baiduNetdiskLogin": "百度网盘登录",
+    "refreshingPleaseWait": "正在交叉对比你本地和云端的照片,如果照片数量较多可能耗时较久,请耐心等待......",
+    "setRemoteStroage": "请先点击云端设置设置网络储存"
 }

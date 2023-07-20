@@ -56,5 +56,7 @@
   "selectRoot": "Select root path",
   "currentPath": "Current path",
   "baiduNetdisk": "Baidu Netdisk",
-  "baiduNetdiskLogin": "Baidu Netdisk Login"
+  "baiduNetdiskLogin": "Baidu Netdisk Login",
+  "refreshingPleaseWait": "Comparing your local and cloud photos, if there are many photos, it may take some time. Please be patient......",
+  "setRemoteStroage": "Please set cloud storage first"
 }

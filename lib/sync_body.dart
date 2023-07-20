@@ -260,7 +260,7 @@ class SyncBodyState extends State<SyncBody> {
     );
   }
 
-  void syncPhotots() async {
+  void syncPhotos() async {
     _needStopSync = false;
     if (syncing) {
       return;
@@ -350,12 +350,24 @@ class SyncBodyState extends State<SyncBody> {
             child: FloatingActionButton.extended(
                 heroTag: "sync",
                 elevation: 2,
-                onPressed: syncing ||
-                        refreshing ||
-                        model.isDownloading ||
-                        model.isUploading
-                    ? stopSync
-                    : syncPhotots,
+                onPressed: () {
+                  if (!settingModel.isRemoteStorageSetted) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SettingStorageRoute(),
+                        ));
+                    return;
+                  }
+                  if (syncing ||
+                      refreshing ||
+                      model.isDownloading ||
+                      model.isUploading) {
+                    stopSync();
+                  } else {
+                    syncPhotos();
+                  }
+                },
                 icon: syncing ? CircularProgress() : const Icon(Icons.sync),
                 label: Text(syncing ? i18n.stop : i18n.sync)),
           ),
@@ -386,26 +398,50 @@ class SyncBodyState extends State<SyncBody> {
               ),
             ],
           ),
-          Flexible(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: toShow.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: Image(
-                        image: toShow[index].thumbnailProvider(),
-                        fit: BoxFit.cover),
-                  ),
-                  title: Text(toShow[index].name()!),
-                  subtitle: Text(
-                      uploadState[toShow[index].local!.id] ?? i18n.notUploaded),
-                );
-              },
+          if (!settingModel.isRemoteStorageSetted)
+            Container(
+              padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+              child: Center(
+                heightFactor: 10,
+                child: Text(i18n.setRemoteStroage,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    )),
+              ),
             ),
-          ),
+          refreshing
+              ? Container(
+                  padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  child: Center(
+                    heightFactor: 10,
+                    child: Text(i18n.refreshingPleaseWait,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        )),
+                  ),
+                )
+              : Flexible(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: toShow.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: Image(
+                              image: toShow[index].thumbnailProvider(),
+                              fit: BoxFit.cover),
+                        ),
+                        title: Text(toShow[index].name()!),
+                        subtitle: Text(uploadState[toShow[index].local!.id] ??
+                            i18n.notUploaded),
+                      );
+                    },
+                  ),
+                ),
         ],
       ),
     );
