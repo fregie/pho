@@ -87,10 +87,14 @@ func (s *DriveWebdavTestSuite) TestUploadDownload() {
 	s.Nil(err)
 	s.True(rsp3.Success)
 	// test upload
-	resp, err := http.Post(fmt.Sprintf("http://%s/pic1.jpg", httpAddr), "image/jpeg", bytes.NewReader(static.Pic1))
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/pic1.jpg", httpAddr), bytes.NewReader(static.Pic1))
+	s.Nilf(err, "new request failed: %v", err)
+	req.Header.Set("Content-Type", "image/jpeg")
+	req.Header.Set("Image-Date", "2022:11:08 12:34:36")
+	resp, err := http.DefaultClient.Do(req)
 	s.Nilf(err, "upload pic failed: %v", err)
 	s.Equal(http.StatusOK, resp.StatusCode)
-	filePath := "/storage/2022/11/08/pic1.jpg"
+	filePath := "/storage/2022/11/08/20221108123436_pic1.jpg"
 	s.waitFile(filePath, 5*time.Second)
 	fdata, err := s.cli.Read(filePath)
 	s.Nil(err)

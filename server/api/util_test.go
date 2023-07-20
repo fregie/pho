@@ -23,7 +23,7 @@ const (
 	smbShare   = "photos"
 	smbRootDir = "storage"
 
-	pic1ShouldPath = "2022/11/08/pic1.jpg"
+	pic1ShouldPath = "2022/11/08/20221108123436_pic1.jpg"
 )
 
 func initSmbShare() (*smb2.Share, error) {

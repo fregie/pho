@@ -67,11 +67,15 @@ func (s *DriveTestSuite) TestSetDriveSMB() {
 	s.Nil(err)
 	s.Truef(rsp3.Success, "failed to set smb share: %s", rsp3.Message)
 	// test upload
-	resp, err := http.Post(fmt.Sprintf("http://%s/pic1.jpg", httpAddr), "image/jpeg", bytes.NewReader(static.Pic1))
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/pic1.jpg", httpAddr), bytes.NewReader(static.Pic1))
+	s.Nilf(err, "new request failed: %v", err)
+	req.Header.Set("Content-Type", "image/jpeg")
+	req.Header.Set("Image-Date", "2022:11:08 12:34:36")
+	resp, err := http.DefaultClient.Do(req)
 	s.Nilf(err, "upload pic failed: %v", err)
 	s.Equal(http.StatusOK, resp.StatusCode)
 
-	filePath := "storage/2022/11/08/pic1.jpg"
+	filePath := "storage/2022/11/08/20221108123436_pic1.jpg"
 	s.waitFile(filePath, 5*time.Second)
 	fdata, err := s.share.ReadFile(filePath)
 	s.Nilf(err, "failed to read file: %s", err)
