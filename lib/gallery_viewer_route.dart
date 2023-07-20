@@ -2,8 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
 import 'package:img_syncer/state_model.dart';
-// import 'package:photo_view/photo_view.dart';
-// import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -33,7 +31,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
   late final ExtendedPageController _pageController;
   late List<Asset> all;
   late int currentIndex;
-  final bool _isOriginalScale = true;
+  bool showAppBar = true;
 
   @override
   void initState() {
@@ -63,16 +61,16 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     super.dispose();
   }
 
-  bool _isShowingAppBar = false;
+  bool _isShowingImageInfo = false;
   void showImageInfo(BuildContext context) {
     final currentAsset = all[currentIndex];
     if (!currentAsset.isInfoReady()) {
       return;
     }
-    if (_isShowingAppBar) {
+    if (_isShowingImageInfo) {
       return;
     }
-    _isShowingAppBar = true;
+    _isShowingImageInfo = true;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -211,7 +209,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           ),
         );
       },
-    ).then((value) => _isShowingAppBar = false);
+    ).then((value) => _isShowingImageInfo = false);
   }
 
   void deleteCurrent(BuildContext context) {
@@ -344,54 +342,56 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(32, 0, 0, 0),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: () => deleteCurrent(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.share_outlined),
-            onPressed: () async {
-              final data = await all[currentIndex].imageDataAsync();
-              Share.shareXFiles([
-                XFile.fromData(data,
-                    name: all[currentIndex].name(),
-                    mimeType: all[currentIndex].mimeType())
-              ]);
-            },
-          ),
-          if (!all[currentIndex].isLocal())
-            Consumer<StateModel>(
-              builder: (context, model, child) => IconButton(
-                icon: const Icon(Icons.download_outlined),
-                onPressed: () => model.isDownloading || model.isUploading
-                    ? null
-                    : download(all[currentIndex]),
-              ),
-            ),
-          if (all[currentIndex].isLocal())
-            Consumer<StateModel>(
-              builder: (context, model, child) => IconButton(
-                icon: const Icon(Icons.cloud_upload_outlined),
-                onPressed: () => model.isDownloading || model.isUploading
-                    ? null
-                    : upload(all[currentIndex]),
-              ),
-            ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () {
-              all[currentIndex].imageDataAsync().then(
-                    (value) => showImageInfo(context),
-                  );
-            },
-          ),
-        ],
-      ),
+      appBar: showAppBar
+          ? AppBar(
+              backgroundColor: const Color.fromARGB(32, 0, 0, 0),
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Colors.white),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () => deleteCurrent(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: () async {
+                    final data = await all[currentIndex].imageDataAsync();
+                    Share.shareXFiles([
+                      XFile.fromData(data,
+                          name: all[currentIndex].name(),
+                          mimeType: all[currentIndex].mimeType())
+                    ]);
+                  },
+                ),
+                if (!all[currentIndex].isLocal())
+                  Consumer<StateModel>(
+                    builder: (context, model, child) => IconButton(
+                      icon: const Icon(Icons.download_outlined),
+                      onPressed: () => model.isDownloading || model.isUploading
+                          ? null
+                          : download(all[currentIndex]),
+                    ),
+                  ),
+                if (all[currentIndex].isLocal())
+                  Consumer<StateModel>(
+                    builder: (context, model, child) => IconButton(
+                      icon: const Icon(Icons.cloud_upload_outlined),
+                      onPressed: () => model.isDownloading || model.isUploading
+                          ? null
+                          : upload(all[currentIndex]),
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  onPressed: () {
+                    all[currentIndex].imageDataAsync().then(
+                          (value) => showImageInfo(context),
+                        );
+                  },
+                ),
+              ],
+            )
+          : null,
       body: Hero(
         tag:
             "asset_${widget.useLocal ? "local" : "remote"}_${all[currentIndex].path()}",
@@ -509,6 +509,10 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
                             ),
                           ),
                         );
+                      } else {
+                        setState(() {
+                          showAppBar = !showAppBar;
+                        });
                       }
                     },
                   ),
