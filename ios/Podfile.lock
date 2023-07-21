@@ -121,7 +121,7 @@ SPEC CHECKSUMS:
   libwebp: f62cb61d0a484ba548448a4bd52aabf150ff6eef
   Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
-  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
+  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   photo_album_manager: c25d95cb4528e98cbd0c7300efa2f910d2fa27b2
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604
@@ -134,6 +134,6 @@ SPEC CHECKSUMS:
   video_player_avfoundation: 81e49bb3d9fb63dccf9fa0f6d877dc3ddbeac126
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
 
-PODFILE CHECKSUM: 6b9eb94e9f98a329f2ef624b852a6e42d090af2b
+PODFILE CHECKSUM: 5713ed29f4fa969a04e0883f90eb70502ed5f3d1
 
 COCOAPODS: 1.12.1

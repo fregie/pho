@@ -4,7 +4,6 @@ import 'package:img_syncer/asset.dart';
 import 'package:img_syncer/state_model.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'event_bus.dart';
 import 'package:extended_image/extended_image.dart';
@@ -259,14 +258,14 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     // 将加载对话框添加到Overlay中
     Overlay.of(context).insert(loadingDialog);
     // 检查并请求存储权限
-    PermissionStatus status = await Permission.photos.status;
-    if (!status.isGranted) {
-      status = await Permission.photos.request();
-      if (!status.isGranted) {
-        SnackBarManager.showSnackBar("Permission denied");
-        return;
-      }
-    }
+    // PermissionStatus status = await Permission.photos.status;
+    // if (!status.isGranted) {
+    //   status = await Permission.photos.request();
+    //   if (!status.isGranted) {
+    //     SnackBarManager.showSnackBar("Permission denied");
+    //     return;
+    //   }
+    // }
     stateModel.setDownloadState(true);
     try {
       if (asset.name() != null) {

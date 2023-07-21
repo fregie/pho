@@ -29,7 +29,7 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Allow save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo Library Access Warning</string>
+	<string>Allow access photos</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

@@ -14,7 +14,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:img_syncer/global.dart';
 import 'package:path_provider/path_provider.dart';
@@ -234,14 +233,14 @@ class GalleryBodyState extends State<GalleryBody>
       return;
     }
     // 检查并请求存储权限
-    PermissionStatus status = await Permission.photos.status;
-    if (!status.isGranted) {
-      status = await Permission.photos.request();
-      if (!status.isGranted) {
-        SnackBarManager.showSnackBar(i18n.permissionDenied);
-        return;
-      }
-    }
+    // PermissionStatus status = await Permission.photos.status;
+    // if (!status.isGranted) {
+    //   status = await Permission.photos.request();
+    //   if (!status.isGranted) {
+    //     SnackBarManager.showSnackBar(i18n.permissionDenied);
+    //     return;
+    //   }
+    // }
     if (settingModel.localFolderAbsPath == null) {
       SnackBarManager.showSnackBar(i18n.setLocalFirst);
       return;
