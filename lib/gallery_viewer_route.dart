@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/asset.dart';
 import 'package:img_syncer/state_model.dart';
@@ -307,8 +308,21 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
       return;
     }
     OverlayEntry loadingDialog = OverlayEntry(
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
+      builder: (context) => Center(
+        child: SizedBox(
+          height: 50.0,
+          width: 50.0,
+          child: Consumer<StateModel>(
+            builder: (context, value, child) {
+              return CircularProgressIndicator(
+                strokeWidth: 5,
+                value: stateModel.uploadTotalLength > 0
+                    ? stateModel.uploadedLength / stateModel.uploadTotalLength
+                    : 0,
+              );
+            },
+          ),
+        ),
       ),
     );
 
@@ -319,7 +333,6 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           "Remote storage is not setted,please set it first");
       return;
     }
-    stateModel.setUploadState(true);
     final entity = asset.local!;
     try {
       await storage.uploadAssetEntity(entity);
@@ -331,7 +344,6 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
       print(e);
       SnackBarManager.showSnackBar(e.toString());
     } finally {
-      stateModel.setUploadState(false);
       loadingDialog.remove();
     }
   }
@@ -343,7 +355,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
       backgroundColor: Colors.black,
       appBar: showAppBar
           ? AppBar(
-              backgroundColor: const Color.fromARGB(32, 0, 0, 0),
+              backgroundColor: const Color.fromARGB(64, 0, 0, 0),
               elevation: 0,
               iconTheme: const IconThemeData(color: Colors.white),
               actions: [

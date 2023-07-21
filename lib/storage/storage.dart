@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:grpc/grpc.dart';
 import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
 import 'package:date_format/date_format.dart';
+import 'package:img_syncer/state_model.dart';
 import 'package:path/path.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -48,15 +49,24 @@ class RemoteStorage {
       minHeight: thumbnailSize,
       quality: 90,
     );
+    int uploaded = 0;
+    final imgLen = await file.length();
+    // final thumbLen = thumbnailData!.length;
+    final totalLen = imgLen;
+    stateModel.setUploadState(true);
+    stateModel.updateUploadProgress(uploaded, totalLen);
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
     req.headers['Image-Date'] = dateStr;
-    req.contentLength = await file.length();
+    req.contentLength = imgLen;
     file.openRead().listen((chunk) {
+      uploaded += chunk.length;
+      stateModel.updateUploadProgress(uploaded, totalLen);
       req.sink.add(chunk);
     }, onDone: () {
       req.sink.close();
     });
     final response = await req.send();
+    stateModel.setUploadState(false);
     if (response.statusCode != 200) {
       throw Exception("upload failed: ${response.statusCode}");
     }
@@ -94,10 +104,18 @@ class RemoteStorage {
     if (thumbnailData == null) {
       throw Exception("asset thumbnail is null");
     }
+    int uploaded = 0;
+    final imgLen = await file.length();
+    final thumbLen = thumbnailData!.length;
+    final totalLen = imgLen + thumbLen;
+    stateModel.setUploadState(true);
+    stateModel.updateUploadProgress(uploaded, totalLen);
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
     req.headers['Image-Date'] = dateStr;
     req.contentLength = await file.length();
     file.openRead().listen((chunk) {
+      uploaded += chunk.length;
+      stateModel.updateUploadProgress(uploaded, totalLen);
       req.sink.add(chunk);
     }, onDone: () {
       req.sink.close();
@@ -105,6 +123,7 @@ class RemoteStorage {
     final response = await req.send();
     if (response.statusCode != 200) {
       final body = await response.stream.bytesToString();
+      stateModel.setUploadState(false);
       throw Exception("upload failed: [${response.statusCode}] $body");
     }
 
@@ -115,7 +134,10 @@ class RemoteStorage {
         'Image-Date': dateStr,
       },
     );
+    stateModel.updateUploadProgress(uploaded + thumbLen, totalLen);
+    stateModel.setUploadState(false);
     if (thumbRsp.statusCode != 200) {
+      stateModel.setUploadState(false);
       throw Exception("upload thumbnail failed: ${thumbRsp.statusCode}");
     }
   }

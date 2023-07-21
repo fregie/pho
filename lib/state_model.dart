@@ -55,6 +55,11 @@ class StateModel extends ChangeNotifier {
   bool isDownloading = false;
   List<String> notSyncedIDs = [];
 
+  int uploadedLength = 0;
+  int uploadTotalLength = 0;
+  int downloadedLength = 0;
+  int downloadTotalLength = 0;
+
   bool get isSelectionMode => _isSelectionMode;
 
   void setUploadState(bool state) {
@@ -63,9 +68,21 @@ class StateModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateUploadProgress(int uploaded, int total) {
+    uploadedLength = uploaded;
+    uploadTotalLength = total;
+    notifyListeners();
+  }
+
   void setDownloadState(bool state) {
     if (isDownloading == state) return;
     isDownloading = state;
+    notifyListeners();
+  }
+
+  void updateDownloadProgress(int downloaded, int total) {
+    downloadedLength = downloaded;
+    downloadTotalLength = total;
     notifyListeners();
   }
 

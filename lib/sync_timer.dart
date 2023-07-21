@@ -34,7 +34,6 @@ Future<void> reloadAutoSyncTimer() async {
     }
     if (stateModel.isUploading || stateModel.isDownloading) return;
     await refreshUnsynchronizedPhotos();
-    stateModel.setUploadState(true);
     Map ids = {};
     for (final id in stateModel.notSyncedIDs) {
       ids[id] = true;
@@ -52,7 +51,6 @@ Future<void> reloadAutoSyncTimer() async {
         continue;
       }
     }
-    stateModel.setUploadState(false);
     eventBus.fire(RemoteRefreshEvent());
   });
 }

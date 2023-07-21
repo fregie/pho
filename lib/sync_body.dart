@@ -272,7 +272,6 @@ class SyncBodyState extends State<SyncBody> {
     for (final id in stateModel.notSyncedIDs) {
       ids[id] = true;
     }
-    stateModel.setUploadState(true);
     for (var asset in all) {
       if (_needStopSync) {
         break;
@@ -298,7 +297,6 @@ class SyncBodyState extends State<SyncBody> {
         uploadState[id] = i18n.uploaded;
       });
     }
-    stateModel.setUploadState(false);
     setState(() {
       syncing = false;
     });

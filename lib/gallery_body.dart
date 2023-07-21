@@ -303,7 +303,6 @@ class GalleryBodyState extends State<GalleryBody>
         assets.add(all[key]);
       }
     });
-    stateModel.setUploadState(true);
     for (var asset in assets) {
       final entity = asset.local!;
       try {
@@ -312,7 +311,6 @@ class GalleryBodyState extends State<GalleryBody>
         SnackBarManager.showSnackBar("${i18n.uploadFailed}: $e");
       }
     }
-    stateModel.setUploadState(false);
     SnackBarManager.showSnackBar(
         "${i18n.successfullyUpload} ${assets.length} ${i18n.photos}");
     eventBus.fire(RemoteRefreshEvent());
