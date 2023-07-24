@@ -29,7 +29,8 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
   }
 
   Future<List<AssetPathEntity>> getAlbums() async {
-    await requestPermission();
+    final re = await requestPermission();
+    if (!re) return [];
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
         type: RequestType.common, hasAll: true);
     // sort by asset count by assetCountAsync

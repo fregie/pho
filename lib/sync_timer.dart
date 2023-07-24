@@ -7,6 +7,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:img_syncer/storage/storage.dart';
 import 'package:img_syncer/event_bus.dart';
 import 'package:path/path.dart';
+import 'package:img_syncer/global.dart';
 
 Timer? autoSyncTimer;
 
@@ -57,7 +58,8 @@ Future<void> reloadAutoSyncTimer() async {
 
 Future<List<AssetEntity>> getPhotos() async {
   List<AssetEntity> all = [];
-  await requestPermission();
+  final re = await requestPermission();
+  if (!re) return all;
   final List<AssetPathEntity> paths =
       await PhotoManager.getAssetPathList(type: RequestType.common);
   for (var path in paths) {

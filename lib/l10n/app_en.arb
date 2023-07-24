@@ -58,5 +58,8 @@
   "baiduNetdisk": "Baidu Netdisk",
   "baiduNetdiskLogin": "Baidu Netdisk Login",
   "refreshingPleaseWait": "Comparing your local and cloud photos, if there are many photos, it may take some time. Please be patient......",
-  "setRemoteStroage": "Please set cloud storage first"
+  "setRemoteStroage": "Please set cloud storage first",
+  "needPermision": "Need permission to access photos",
+  "gotoSystemSetting": "You can go to system settings to change the permission",
+  "openSetting": "Open settings"
 }

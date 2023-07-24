@@ -134,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // }
     SnackBarManager.init(context);
     initI18n(context);
+    initRequestPermission(context);
     return Consumer<StateModel>(
       builder: (context, model, child) => Scaffold(
         appBar: appBar,

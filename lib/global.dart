@@ -10,6 +10,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:async';
 
 late String httpBaseUrl;
 late int httpPort;
@@ -31,7 +32,8 @@ class Global {
       if (localFolder != null && localFolder.isNotEmpty) {
         settingModel.setLocalFolder(localFolder);
       } else {
-        await requestPermission();
+        final re = await requestPermission();
+        if (!re) return;
         final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
             type: RequestType.common, hasAll: true);
         // ignore: deprecated_member_use
@@ -177,4 +179,52 @@ late AppLocalizations i18n;
 
 void initI18n(BuildContext context) {
   i18n = AppLocalizations.of(context);
+}
+
+Completer<bool>? requesttingPermission;
+BuildContext? requestPermissionContext;
+void initRequestPermission(BuildContext context) {
+  requestPermissionContext = context;
+}
+
+Future<bool> requestPermission() async {
+  bool result = false;
+  if (requesttingPermission != null) {
+    result = await requesttingPermission!.future;
+    return result;
+  }
+  requesttingPermission = Completer<bool>();
+  //权限申请
+  final PermissionState ps = await PhotoManager.requestPermissionExtend();
+  if (ps == PermissionState.authorized) {
+    result = true;
+  } else {
+    result = false;
+    if (requestPermissionContext != null) {
+      showDialog(
+          context: requestPermissionContext!,
+          builder: (BuildContext context) => AlertDialog(
+                title: Text(i18n.needPermision),
+                content: Text(i18n.gotoSystemSetting),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(i18n.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      PhotoManager.openSetting();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(i18n.openSetting),
+                  ),
+                ],
+              ));
+    }
+  }
+  requesttingPermission?.complete(result);
+  requesttingPermission = null;
+  return result;
 }

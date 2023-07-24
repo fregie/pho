@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
 import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
+import 'package:img_syncer/global.dart';
 
 SettingModel settingModel = SettingModel();
 AssetModel assetModel = AssetModel();
@@ -142,7 +143,8 @@ class AssetModel extends ChangeNotifier {
     }
     localGetting = Completer<bool>();
     final offset = localAssets.length;
-    await requestPermission();
+    final re = await requestPermission();
+    if (!re) return;
     final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
       type: RequestType.common,
       hasAll: true,
@@ -250,7 +252,8 @@ Future<void> scanFile(String filePath) async {
 
 Future<void> refreshUnsynchronizedPhotos() async {
   final localFloder = settingModel.localFolder;
-  await requestPermission();
+  final re = await requestPermission();
+  if (!re) return;
   final List<AssetPathEntity> paths =
       await PhotoManager.getAssetPathList(type: RequestType.common);
   for (var path in paths) {
@@ -298,19 +301,4 @@ Future<void> refreshUnsynchronizedPhotos() async {
       }
     }
   }
-}
-
-Completer<bool>? requesttingPermission;
-Future<void> requestPermission() async {
-  if (requesttingPermission != null) {
-    await requesttingPermission!.future;
-    return;
-  }
-  requesttingPermission = Completer<bool>();
-  //权限申请
-  final PermissionState ps = await PhotoManager.requestPermissionExtend();
-  if (ps != PermissionState.authorized) {
-    exit(1);
-  }
-  requesttingPermission?.complete(true);
 }
