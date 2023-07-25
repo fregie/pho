@@ -27,9 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Allow save photos</string>
+	<string>Allow access to photos to save photos to your library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Pho need to read your photos to work</string>
+	<string>Allow access to photos to upload photos from your library.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

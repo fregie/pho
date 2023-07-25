@@ -107,7 +107,7 @@ class AssetModel extends ChangeNotifier {
   List<Asset> localAssets = [];
   List<Asset> remoteAssets = [];
   int columCount = 3;
-  int pageSize = 50;
+  int pageSize = 100;
   bool localHasMore = true;
   bool remoteHasMore = true;
   Completer<bool>? localGetting;

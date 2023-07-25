@@ -35,6 +35,9 @@ server-ios: protobuf
 apk:
 	flutter build apk --release --obfuscate --split-debug-info=./debug-info
 
+ipa:
+	flutter build ipa --no-tree-shake-icons --obfuscate --split-debug-info=./debug-info
+
 .PHONY: test
 test:
 	docker-compose -f test/docker-compose.yml up -d --build
