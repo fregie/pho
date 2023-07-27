@@ -437,12 +437,13 @@ class GalleryBodyState extends State<GalleryBody>
             children: [
               Icon(
                 icon,
-                size: 30,
+                size: 24,
                 color: isEnable ? Colors.black : Colors.grey,
               ),
               Text(text,
-                  style:
-                      TextStyle(color: isEnable ? Colors.black : Colors.grey)),
+                  style: TextStyle(
+                      color: isEnable ? Colors.black : Colors.grey,
+                      fontSize: 12)),
             ],
           ),
         ),
