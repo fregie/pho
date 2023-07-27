@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/proto/img_syncer.pb.dart';
 import 'package:img_syncer/state_model.dart';
@@ -7,8 +7,7 @@ import 'package:img_syncer/storage/storage.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:img_syncer/gallery_viewer_route.dart';
 import 'package:img_syncer/asset.dart';
-import 'component.dart';
-import 'event_bus.dart';
+import 'package:img_syncer/event_bus.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +17,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:img_syncer/global.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:vibration/vibration.dart';
+import 'package:img_syncer/choose_album_route.dart';
+import 'package:img_syncer/setting_storage_route.dart';
 
 class GalleryBody extends StatefulWidget {
   const GalleryBody({Key? key, required this.useLocal}) : super(key: key);
@@ -35,6 +37,7 @@ class GalleryBodyState extends State<GalleryBody>
   final ScrollController _scrollController = ScrollController();
   final _scrollSubject = PublishSubject<double>();
   int columCount = 4;
+  double scrollOffset = 0;
 
   final Map<int, bool> _selectedIndices = {};
 
@@ -46,12 +49,15 @@ class GalleryBodyState extends State<GalleryBody>
   void initState() {
     super.initState();
     _scrollSubject.stream
-        .debounceTime(const Duration(milliseconds: 100))
+        .debounceTime(const Duration(milliseconds: 150))
         .listen((scrollPosition) {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 2000) {
         getPhotos();
       }
+      setState(() {
+        scrollOffset = scrollPosition;
+      });
     });
     _scrollController.addListener(() {
       _scrollSubject.add(_scrollController.position.pixels);
@@ -89,7 +95,7 @@ class GalleryBodyState extends State<GalleryBody>
 
   bool _isRefreshing = false;
   Future<void> refresh() async {
-    if (stateModel.isDownloading || stateModel.isUploading) {
+    if (stateModel.isDownloading() || stateModel.isUploading()) {
       return;
     }
     if (_isRefreshing) {
@@ -97,16 +103,16 @@ class GalleryBodyState extends State<GalleryBody>
     }
     _isRefreshing = true;
     if (widget.useLocal) {
-      await assetModel.refreshLocal();
+      assetModel.refreshLocal();
     } else {
-      await assetModel.refreshRemote();
+      assetModel.refreshRemote();
     }
-    if (mounted &&
-        !widget.useLocal &&
-        assetModel.remoteAssets.isEmpty &&
-        assetModel.remoteLastError != null) {
-      SnackBarManager.showSnackBar(assetModel.remoteLastError!);
-    }
+    // if (mounted &&
+    //     !widget.useLocal &&
+    //     assetModel.remoteAssets.isEmpty &&
+    //     assetModel.remoteLastError != null) {
+    //   SnackBarManager.showSnackBar(assetModel.remoteLastError!);
+    // }
     _isRefreshing = false;
   }
 
@@ -118,7 +124,11 @@ class GalleryBodyState extends State<GalleryBody>
     }
   }
 
-  void toggleSelection(int index) {
+  void toggleSelection(int index) async {
+    final hasVibrator = await Vibration.hasVibrator();
+    if (hasVibrator!) {
+      Vibration.vibrate(duration: 10);
+    }
     if (_selectedIndices[index] == null) {
       _selectedIndices[index] = true;
     } else {
@@ -158,8 +168,8 @@ class GalleryBodyState extends State<GalleryBody>
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text("${i18n.deleteThisPhotos}?"),
-        content: Text(i18n.cantBeUndone),
+        title: Text("${l10n.deleteThisPhotos}?"),
+        content: Text(l10n.cantBeUndone),
         actions: <Widget>[
           TextButton(
             onPressed: () {
@@ -188,16 +198,16 @@ class GalleryBodyState extends State<GalleryBody>
                 SnackBarManager.showSnackBar(e.toString());
               }
               SnackBarManager.showSnackBar(
-                  '${i18n.delete} ${toDelete.length} ${i18n.photos}.');
+                  '${l10n.delete} ${toDelete.length} ${l10n.photos}.');
               clearSelection();
               setState(() {});
               Navigator.of(context).pop();
             },
-            child: Text(i18n.yes),
+            child: Text(l10n.yes),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(i18n.cancel),
+            child: Text(l10n.cancel),
           ),
         ],
       ),
@@ -232,17 +242,8 @@ class GalleryBodyState extends State<GalleryBody>
     if (widget.useLocal || !stateModel.isSelectionMode) {
       return;
     }
-    // 检查并请求存储权限
-    // PermissionStatus status = await Permission.photos.status;
-    // if (!status.isGranted) {
-    //   status = await Permission.photos.request();
-    //   if (!status.isGranted) {
-    //     SnackBarManager.showSnackBar(i18n.permissionDenied);
-    //     return;
-    //   }
-    // }
     if (settingModel.localFolderAbsPath == null) {
-      SnackBarManager.showSnackBar(i18n.setLocalFirst);
+      SnackBarManager.showSnackBar(l10n.setLocalFirst);
       return;
     }
     final all =
@@ -254,13 +255,17 @@ class GalleryBodyState extends State<GalleryBody>
       }
     });
     int count = 0;
-    stateModel.setDownloadState(true);
     try {
       for (var asset in assets) {
         if (asset.name() == null) {
           continue;
         }
-        final data = await asset.imageDataAsync();
+        Uint8List data;
+        if (!asset.isVideo()) {
+          data = await asset.imageDataAsync();
+        } else {
+          data = await asset.remote!.imageData();
+        }
         if (Platform.isAndroid) {
           final absPath = '${settingModel.localFolderAbsPath}/${asset.name()}';
           final file = File(absPath);
@@ -279,10 +284,9 @@ class GalleryBodyState extends State<GalleryBody>
         count++;
       }
     } catch (e) {
-      SnackBarManager.showSnackBar("${i18n.downloadFailed}: $e");
+      SnackBarManager.showSnackBar("${l10n.downloadFailed}: $e");
     }
-    stateModel.setDownloadState(false);
-    SnackBarManager.showSnackBar("${i18n.download} $count ${i18n.photos}");
+    SnackBarManager.showSnackBar("${l10n.download} $count ${l10n.photos}");
     eventBus.fire(LocalRefreshEvent());
     clearSelection();
   }
@@ -292,7 +296,7 @@ class GalleryBodyState extends State<GalleryBody>
       return;
     }
     if (!settingModel.isRemoteStorageSetted) {
-      SnackBarManager.showSnackBar(i18n.storageNotSetted);
+      SnackBarManager.showSnackBar(l10n.storageNotSetted);
       return;
     }
     final all =
@@ -308,11 +312,11 @@ class GalleryBodyState extends State<GalleryBody>
       try {
         await storage.uploadAssetEntity(entity);
       } catch (e) {
-        SnackBarManager.showSnackBar("${i18n.uploadFailed}: $e");
+        SnackBarManager.showSnackBar("${l10n.uploadFailed}: $e");
       }
     }
     SnackBarManager.showSnackBar(
-        "${i18n.successfullyUpload} ${assets.length} ${i18n.photos}");
+        "${l10n.successfullyUpload} ${assets.length} ${l10n.photos}");
     eventBus.fire(RemoteRefreshEvent());
 
     clearSelection();
@@ -342,23 +346,23 @@ class GalleryBodyState extends State<GalleryBody>
                         child: Row(
                           children: [
                             _bottomSheetIconButtun(
-                                Icons.share_outlined, i18n.share, _shareAsset),
+                                Icons.share_outlined, l10n.share, _shareAsset),
                             _bottomSheetIconButtun(Icons.delete_outline,
-                                i18n.delete, () => _showDeleteDialog(context)),
+                                l10n.delete, () => _showDeleteDialog(context)),
                             if (widget.useLocal)
                               _bottomSheetIconButtun(
                                   Icons.cloud_upload_outlined,
-                                  i18n.upload,
+                                  l10n.upload,
                                   uploadSelected,
-                                  isEnable: !model.isDownloading &&
-                                      !model.isUploading),
+                                  isEnable: !model.isDownloading() &&
+                                      !model.isUploading()),
                             if (!widget.useLocal)
                               _bottomSheetIconButtun(
                                   Icons.cloud_download_outlined,
-                                  i18n.download,
+                                  l10n.download,
                                   downloadSelected,
-                                  isEnable: !model.isDownloading &&
-                                      !model.isUploading),
+                                  isEnable: !model.isDownloading() &&
+                                      !model.isUploading()),
                           ],
                         ),
                       )),
@@ -374,11 +378,6 @@ class GalleryBodyState extends State<GalleryBody>
     return Consumer<StateModel>(
       builder: (context, model, child) {
         String text = 'Pho';
-        if (model.isUploading) {
-          text = '${i18n.uploading}...';
-        } else if (model.isDownloading) {
-          text = '${i18n.downloading}...';
-        }
         return SliverAppBar(
           pinned: false,
           snap: false,
@@ -451,6 +450,234 @@ class GalleryBodyState extends State<GalleryBody>
     );
   }
 
+  Widget contentBuilder(BuildContext context, AssetModel model, Widget? child) {
+    final all = widget.useLocal ? model.localAssets : model.remoteAssets;
+    var children = <Widget>[];
+    final totalwidth = MediaQuery.of(context).size.width - columCount * 2;
+    final totalHeight = MediaQuery.of(context).size.height;
+    final imgWidth = totalwidth / columCount;
+    final imgHeight = imgWidth;
+
+    var currentChildren = <Widget>[];
+    DateTime? currentDateTime;
+    double currentScrollOffset = 0;
+    for (int i = 0; i < all.length; i++) {
+      if (all[i].name() == null) {
+        continue;
+      }
+      final date = all[i].dateCreated();
+      if (currentDateTime == null ||
+          date.year != currentDateTime.year ||
+          date.month != currentDateTime.month ||
+          date.day != currentDateTime.day) {
+        children.add(Wrap(
+          spacing: 2, // 主轴(水平)方向间距
+          runSpacing: 2.0, // 纵轴（垂直）方向间距
+          alignment: WrapAlignment.start,
+          children: currentChildren,
+        ));
+        currentScrollOffset -= 2;
+        currentChildren = <Widget>[];
+        DateFormat format = DateFormat('yyyy MMMM d${l10n.chineseday}  EEEEE',
+            Localizations.localeOf(context).languageCode);
+        children.add(Container(
+          height: 55,
+          padding: const EdgeInsets.all(15),
+          child: Text(
+            format.format(date),
+            style: const TextStyle(
+                color: Color.fromARGB(255, 87, 87, 87), fontSize: 16),
+          ),
+        ));
+        currentScrollOffset += 55;
+      }
+      bool needLoadThumbnail = false;
+      if (currentScrollOffset > scrollOffset - (2 * totalHeight) &&
+          currentScrollOffset < scrollOffset + (3 * totalHeight)) {
+        // print("current offset: $currentScrollOffset");
+        // print("scrollOffset: $scrollOffset");
+        needLoadThumbnail = true;
+        if (!all[i].loadThumbnailFinished()) {
+          all[i].thumbnailDataAsync().then((value) => setState(() {}));
+        }
+      }
+      var child = GestureDetector(
+          onTap: () async {
+            if (stateModel.isSelectionMode) {
+              toggleSelection(i);
+            } else {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  opaque: false,
+                  transitionDuration: const Duration(milliseconds: 300),
+                  reverseTransitionDuration: const Duration(milliseconds: 300),
+                  transitionsBuilder: (BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  pageBuilder: (BuildContext context, _, __) =>
+                      GalleryViewerRoute(
+                    useLocal: widget.useLocal,
+                    originIndex: i,
+                  ),
+                ),
+              );
+            }
+          },
+          onLongPress: () {
+            if (!stateModel.isSelectionMode) {
+              toggleSelection(i);
+            }
+          },
+          child: Stack(
+            children: [
+              // image
+              Container(
+                  width: imgWidth,
+                  height: imgHeight,
+                  padding: const EdgeInsets.all(0),
+                  child: Hero(
+                    tag:
+                        "asset_${all[i].hasLocal ? "local" : "remote"}_${all[i].path()}",
+                    child: needLoadThumbnail && all[i].loadThumbnailFinished()
+                        ? Image(
+                            image: all[i].thumbnailProvider(),
+                            fit: BoxFit.cover)
+                        : Container(color: Colors.grey),
+                    flightShuttleBuilder: (BuildContext flightContext,
+                        Animation<double> animation,
+                        HeroFlightDirection flightDirection,
+                        BuildContext fromHeroContext,
+                        BuildContext toHeroContext) {
+                      // 自定义过渡动画小部件
+                      return AnimatedBuilder(
+                        animation: animation,
+                        builder: (BuildContext context, Widget? child) {
+                          return Opacity(
+                              opacity: animation.value,
+                              child: all[i].loadThumbnailFinished()
+                                  ? Image(
+                                      image: all[i].thumbnailProvider(),
+                                      fit: BoxFit.contain,
+                                    )
+                                  : Container(color: Colors.grey));
+                        },
+                      );
+                    },
+                  )),
+              Consumer<StateModel>(builder: (context, stateModel, child) {
+                double percent = 0;
+                if (!widget.useLocal) {
+                  percent = stateModel.getDownloadPercent(all[i].name()!);
+                } else {
+                  percent = stateModel.getUploadPercent(all[i].local!.id);
+                }
+                if (percent > 0) {
+                  return Positioned(
+                    bottom: 2,
+                    right: 4,
+                    width: 20,
+                    height: 20,
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Icon(
+                              widget.useLocal
+                                  ? Icons.arrow_upward_outlined
+                                  : Icons.arrow_downward_outlined,
+                              color: Colors.white,
+                              size: 16),
+                        ),
+                        CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                          value: percent,
+                        )
+                      ],
+                    ),
+                  );
+                }
+                var color = Colors.transparent;
+                if (widget.useLocal &&
+                    stateModel.notSyncedIDs.isNotEmpty &&
+                    !stateModel.notSyncedIDs.contains(all[i].local!.id)) {
+                  color = Colors.white;
+                }
+                return Positioned(
+                  bottom: 2,
+                  right: 4,
+                  child: Icon(
+                    Icons.cloud_done_outlined,
+                    color: color,
+                    size: 16,
+                  ),
+                );
+              }),
+              // video icon
+              if (all[i].isVideo())
+                const Positioned(
+                  top: 4,
+                  right: 4,
+                  child: Icon(
+                    Icons.play_circle_fill,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              // selection
+              if (stateModel.isSelectionMode)
+                Positioned(
+                  top: 2,
+                  left: 2,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Checkbox(
+                        value: _selectedIndices[i] ?? false,
+                        onChanged: (value) {
+                          toggleSelection(i);
+                        },
+                        fillColor: MaterialStateProperty.all(
+                            Theme.of(context).colorScheme.secondary),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ));
+      currentChildren.add(child);
+      if (currentChildren.length % columCount == 1) {
+        currentScrollOffset += imgHeight + 2;
+      }
+      currentDateTime = all[i].dateCreated();
+
+      if (i == all.length - 1) {
+        children.add(Wrap(
+          spacing: 2, // 主轴(水平)方向间距
+          runSpacing: 2.0, // 纵轴（垂直）方向间距
+          alignment: WrapAlignment.start,
+          children: currentChildren,
+        ));
+      }
+    }
+    return SliverList.list(
+      children: children,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -464,188 +691,9 @@ class GalleryBodyState extends State<GalleryBody>
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 appBar(),
-                SliverToBoxAdapter(child: GestureDetector(
-                  child: Consumer<AssetModel>(builder: (context, model, child) {
-                    final all = widget.useLocal
-                        ? model.localAssets
-                        : model.remoteAssets;
-                    var children = <Widget>[];
-                    final totalwidth =
-                        MediaQuery.of(context).size.width - columCount * 2;
+                Consumer<AssetModel>(builder: contentBuilder),
+              ]),
 
-                    var currentChildren = <Widget>[];
-                    DateTime? currentDateTime;
-                    for (int i = 0; i < all.length; i++) {
-                      if (all[i].name() == null) {
-                        continue;
-                      }
-                      final date = all[i].dateCreated();
-                      if (currentDateTime == null ||
-                          date.year != currentDateTime.year ||
-                          date.month != currentDateTime.month ||
-                          date.day != currentDateTime.day) {
-                        children.add(Wrap(
-                          spacing: 2, // 主轴(水平)方向间距
-                          runSpacing: 2.0, // 纵轴（垂直）方向间距
-                          alignment: WrapAlignment.start,
-                          children: currentChildren,
-                        ));
-                        currentChildren = <Widget>[];
-                        DateFormat format = DateFormat(
-                            'yyyy MMMM d${i18n.chineseday}  EEEEE',
-                            Localizations.localeOf(context).languageCode);
-                        children.add(Container(
-                          padding: const EdgeInsets.all(15),
-                          child: Text(
-                            format.format(date),
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 87, 87, 87),
-                                fontSize: 16),
-                          ),
-                        ));
-                      }
-                      var child = GestureDetector(
-                          onTap: () {
-                            if (stateModel.isSelectionMode) {
-                              toggleSelection(i);
-                            } else {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => GalleryViewerRoute(
-                              //       useLocal: widget.useLocal,
-                              //       originIndex: i,
-                              //     ),
-                              //   ),
-                              // );
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  opaque: false,
-                                  transitionDuration:
-                                      const Duration(milliseconds: 300),
-                                  reverseTransitionDuration:
-                                      const Duration(milliseconds: 300),
-                                  transitionsBuilder: (BuildContext context,
-                                      Animation<double> animation,
-                                      Animation<double> secondaryAnimation,
-                                      Widget child) {
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    );
-                                  },
-                                  pageBuilder: (BuildContext context, _, __) =>
-                                      GalleryViewerRoute(
-                                    useLocal: widget.useLocal,
-                                    originIndex: i,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          onLongPress: () {
-                            if (!stateModel.isSelectionMode) {
-                              toggleSelection(i);
-                            }
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                  width: totalwidth / columCount,
-                                  height: totalwidth / columCount,
-                                  padding: const EdgeInsets.all(0),
-                                  child: Hero(
-                                    tag:
-                                        "asset_${all[i].hasLocal ? "local" : "remote"}_${all[i].path()}",
-                                    child: Image(
-                                        image: all[i].thumbnailProvider(),
-                                        fit: BoxFit.cover),
-                                    flightShuttleBuilder:
-                                        (BuildContext flightContext,
-                                            Animation<double> animation,
-                                            HeroFlightDirection flightDirection,
-                                            BuildContext fromHeroContext,
-                                            BuildContext toHeroContext) {
-                                      // 自定义过渡动画小部件
-                                      return AnimatedBuilder(
-                                        animation: animation,
-                                        builder: (BuildContext context,
-                                            Widget? child) {
-                                          return Opacity(
-                                            opacity: animation.value,
-                                            child: Image(
-                                              image: all[i].thumbnailProvider(),
-                                              fit: BoxFit.contain,
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  )),
-                              if (all[i].isVideo())
-                                const Positioned(
-                                  top: 2,
-                                  right: 2,
-                                  child: Icon(
-                                    Icons.play_circle_outline,
-                                    color: Colors.white,
-                                    size: 23,
-                                  ),
-                                ),
-                              if (stateModel.isSelectionMode)
-                                Positioned(
-                                  top: 2,
-                                  left: 2,
-                                  child: Container(
-                                    width: 20,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.transparent,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Center(
-                                      child: Checkbox(
-                                        value: _selectedIndices[i] ?? false,
-                                        onChanged: (value) {
-                                          toggleSelection(i);
-                                        },
-                                        fillColor: MaterialStateProperty.all(
-                                            Theme.of(context)
-                                                .colorScheme
-                                                .secondary),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ));
-                      currentChildren.add(child);
-                      currentDateTime = all[i].dateCreated();
-
-                      if (i == all.length - 1) {
-                        children.add(Wrap(
-                          spacing: 2, // 主轴(水平)方向间距
-                          runSpacing: 2.0, // 纵轴（垂直）方向间距
-                          alignment: WrapAlignment.start,
-                          children: currentChildren,
-                        ));
-                      }
-                    }
-
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: children,
-                    );
-                  }),
-                )),
-              ]
-              //'assets/images/batgirl_artwork-2560x1440.jpg'
-              ),
           // 回到顶部按钮
           Positioned(
             bottom: 20,
@@ -653,26 +701,26 @@ class GalleryBodyState extends State<GalleryBody>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (!widget.useLocal)
-                  FloatingActionButton(
-                    heroTag: "upload",
-                    onPressed: () async {
-                      final ImagePicker picker = ImagePicker();
-                      final XFile? image =
-                          await picker.pickImage(source: ImageSource.gallery);
-                      if (image == null) {
-                        return;
-                      } else {
-                        try {
-                          await storage.uploadXFile(image);
-                        } catch (e) {
-                          SnackBarManager.showSnackBar(e.toString());
-                        }
-                      }
-                    },
-                    tooltip: 'Upload',
-                    child: const Icon(Icons.add),
-                  ),
+                // if (!widget.useLocal)
+                //   FloatingActionButton(
+                //     heroTag: "upload",
+                //     onPressed: () async {
+                //       final ImagePicker picker = ImagePicker();
+                //       final XFile? image =
+                //           await picker.pickImage(source: ImageSource.gallery);
+                //       if (image == null) {
+                //         return;
+                //       } else {
+                //         try {
+                //           await storage.uploadXFile(image);
+                //         } catch (e) {
+                //           SnackBarManager.showSnackBar(e.toString());
+                //         }
+                //       }
+                //     },
+                //     tooltip: 'Upload',
+                //     child: const Icon(Icons.add),
+                //   ),
                 Offstage(
                   offstage: !_showToTopBtn,
                   child: Container(
@@ -691,4 +739,32 @@ class GalleryBodyState extends State<GalleryBody>
       ),
     );
   }
+}
+
+Widget chooseAlbumButtun(BuildContext context) {
+  return IconButton(
+    icon: const Icon(Icons.photo_album),
+    color: Theme.of(context).iconTheme.color,
+    tooltip: 'Choose album',
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ChooseAlbumRoute()),
+      );
+    },
+  );
+}
+
+Widget setRemoteStorageButtun(BuildContext context) {
+  return IconButton(
+    icon: const Icon(Icons.settings),
+    color: Theme.of(context).iconTheme.color,
+    tooltip: 'Set remote storage',
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const SettingStorageRoute()),
+      );
+    },
+  );
 }

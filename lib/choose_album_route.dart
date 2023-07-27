@@ -83,7 +83,7 @@ class ChooseAlbumRouteState extends State<ChooseAlbumRoute> {
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           iconTheme: Theme.of(context).iconTheme,
           elevation: 0,
-          title: Text(i18n.chooseAlbum,
+          title: Text(l10n.chooseAlbum,
               style: Theme.of(context).textTheme.titleLarge),
         ),
         body: CustomScrollView(
@@ -167,7 +167,7 @@ class AlbumCard extends StatelessWidget {
                           future: path.assetCountAsync,
                           builder: (context, snapshot) => Text(
                               snapshot.hasData
-                                  ? "${snapshot.data} ${i18n.pics}"
+                                  ? "${snapshot.data} ${l10n.pics}"
                                   : 'unknown count pics',
                               style: Theme.of(context).textTheme.bodySmall),
                         ),
@@ -186,7 +186,7 @@ class AlbumCard extends StatelessWidget {
                           });
                           Navigator.pop(context);
                         },
-                        child: Text(i18n.choose),
+                        child: Text(l10n.choose),
                       ),
                     ),
                   ],

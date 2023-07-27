@@ -1,7 +1,5 @@
 // ignore_for_file: deprecated_member_use
-
 import 'dart:io';
-import 'package:path/path.dart';
 import 'package:date_format/date_format.dart';
 
 import 'package:flutter/material.dart';
@@ -50,41 +48,73 @@ class SettingModel extends ChangeNotifier {
   }
 }
 
+class transmitState {
+  int transmitted = 0;
+  int total = 0;
+}
+
 class StateModel extends ChangeNotifier {
   bool _isSelectionMode = false;
-  bool isUploading = false;
-  bool isDownloading = false;
   List<String> notSyncedIDs = [];
 
-  int uploadedLength = 0;
-  int uploadTotalLength = 0;
-  int downloadedLength = 0;
-  int downloadTotalLength = 0;
+  Map<String, transmitState> uploadProgress = {};
+  Map<String, transmitState> downloadProgress = {};
 
   bool get isSelectionMode => _isSelectionMode;
 
-  void setUploadState(bool state) {
-    if (isUploading == state) return;
-    isUploading = state;
+  void updateUploadProgress(String id, int transmitted, int total) {
+    if (!uploadProgress.containsKey(id)) {
+      uploadProgress[id] = transmitState();
+    }
+    uploadProgress[id]!.transmitted = transmitted;
+    uploadProgress[id]!.total = total;
     notifyListeners();
   }
 
-  void updateUploadProgress(int uploaded, int total) {
-    uploadedLength = uploaded;
-    uploadTotalLength = total;
+  void finishUpload(String id, bool success) {
+    uploadProgress.remove(id);
+    if (success) {
+      notSyncedIDs.remove(id);
+    }
     notifyListeners();
   }
 
-  void setDownloadState(bool state) {
-    if (isDownloading == state) return;
-    isDownloading = state;
+  void updateDownloadProgress(String id, int transmitted, int total) {
+    if (!downloadProgress.containsKey(id)) {
+      downloadProgress[id] = transmitState();
+    }
+    downloadProgress[id]!.transmitted = transmitted;
+    downloadProgress[id]!.total = total;
     notifyListeners();
   }
 
-  void updateDownloadProgress(int downloaded, int total) {
-    downloadedLength = downloaded;
-    downloadTotalLength = total;
+  void finishDownload(String id, bool success) {
+    downloadProgress.remove(id);
     notifyListeners();
+  }
+
+  double getUploadPercent(String id) {
+    if (!uploadProgress.containsKey(id)) {
+      return 0;
+    }
+    final state = uploadProgress[id]!;
+    return state.transmitted / state.total;
+  }
+
+  double getDownloadPercent(String id) {
+    if (!downloadProgress.containsKey(id)) {
+      return 0;
+    }
+    final state = downloadProgress[id]!;
+    return state.transmitted / state.total;
+  }
+
+  bool isUploading() {
+    return uploadProgress.isNotEmpty;
+  }
+
+  bool isDownloading() {
+    return downloadProgress.isNotEmpty;
   }
 
   void setSelectionMode(bool mode) {
@@ -106,8 +136,8 @@ class AssetModel extends ChangeNotifier {
   }
   List<Asset> localAssets = [];
   List<Asset> remoteAssets = [];
-  int columCount = 3;
-  int pageSize = 100;
+  int columCount = 4;
+  int pageSize = 10000;
   bool localHasMore = true;
   bool remoteHasMore = true;
   Completer<bool>? localGetting;
@@ -187,9 +217,12 @@ class AssetModel extends ChangeNotifier {
           }
           await asset.getLocalFile();
           localAssets.add(asset);
-          notifyListeners();
-          asset.thumbnailDataAsync().then((value) => notifyListeners());
+          // asset.thumbnailDataAsync().then((value) => notifyListeners());
+          if (i % 100 == 0) {
+            notifyListeners();
+          }
         }
+        notifyListeners();
       }
     }
 
@@ -214,12 +247,12 @@ class AssetModel extends ChangeNotifier {
         try {
           final asset = Asset(remote: image);
           remoteAssets.add(asset);
-          notifyListeners();
-          asset.thumbnailDataAsync().then((value) => notifyListeners());
+          // asset.thumbnailDataAsync().then((value) => notifyListeners());
         } catch (e) {
           print(e);
         }
       }
+      notifyListeners();
     } catch (e) {
       remoteLastError = e.toString();
     }

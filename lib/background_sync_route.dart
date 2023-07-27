@@ -54,13 +54,13 @@ class _BackgroundSyncSettingRouteState
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         iconTheme: Theme.of(context).iconTheme,
         elevation: 0,
-        title: Text(i18n.backgroundSync,
+        title: Text(l10n.backgroundSync,
             style: Theme.of(context).textTheme.titleLarge),
       ),
       body: ListView(
         children: [
           ListTile(
-            title: Text(i18n.enableBackgroundSync),
+            title: Text(l10n.enableBackgroundSync),
             trailing: Switch(
               value: _backgroundSyncEnabled,
               onChanged: (value) async {
@@ -74,7 +74,7 @@ class _BackgroundSyncSettingRouteState
             ),
           ),
           ListTile(
-            title: Text(i18n.syncOnlyOnWifi),
+            title: Text(l10n.syncOnlyOnWifi),
             trailing: Switch(
               value: _backgroundSyncWifiOnly,
               onChanged: (value) async {
@@ -88,7 +88,7 @@ class _BackgroundSyncSettingRouteState
             ),
           ),
           ListTile(
-            title: Text(i18n.syncInterval),
+            title: Text(l10n.syncInterval),
             trailing: DropdownButton<Duration>(
               value: _backgroundSyncInterval,
               items: [
@@ -98,35 +98,35 @@ class _BackgroundSyncSettingRouteState
                 // ),
                 DropdownMenuItem(
                   value: const Duration(minutes: 10),
-                  child: Text('10 ${i18n.minite}'),
+                  child: Text('10 ${l10n.minite}'),
                 ),
                 DropdownMenuItem(
                   value: const Duration(hours: 1),
-                  child: Text('1 ${i18n.hour}'),
+                  child: Text('1 ${l10n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: const Duration(hours: 3),
-                  child: Text('3 ${i18n.hour}'),
+                  child: Text('3 ${l10n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: const Duration(hours: 6),
-                  child: Text('6 ${i18n.hour}'),
+                  child: Text('6 ${l10n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: const Duration(hours: 12),
-                  child: Text('12 ${i18n.hour}'),
+                  child: Text('12 ${l10n.hour}'),
                 ),
                 DropdownMenuItem(
                   value: const Duration(days: 1),
-                  child: Text('1 ${i18n.day}'),
+                  child: Text('1 ${l10n.day}'),
                 ),
                 DropdownMenuItem(
                   value: const Duration(days: 3),
-                  child: Text('3 ${i18n.day}'),
+                  child: Text('3 ${l10n.day}'),
                 ),
                 DropdownMenuItem(
                   value: const Duration(days: 7),
-                  child: Text('1 ${i18n.week}'),
+                  child: Text('1 ${l10n.week}'),
                 ),
               ],
               onChanged: (value) async {

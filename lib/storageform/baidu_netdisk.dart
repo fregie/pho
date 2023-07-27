@@ -38,7 +38,7 @@ class BaiduNetdiskFormState extends State<BaiduNetdiskForm> {
               }
             : null,
         child: Text(
-          i18n.save,
+          l10n.save,
           textAlign: TextAlign.center,
           style: const TextStyle(height: 1.0),
         ),
@@ -54,7 +54,7 @@ class BaiduNetdiskFormState extends State<BaiduNetdiskForm> {
       children: [
         FilledButton(
           child: Text(
-            i18n.baiduNetdiskLogin,
+            l10n.baiduNetdiskLogin,
             textAlign: TextAlign.center,
             style: const TextStyle(height: 1.0),
           ),
@@ -67,7 +67,7 @@ class BaiduNetdiskFormState extends State<BaiduNetdiskForm> {
                 .then((StartBaiduNetdiskLoginResponse resp) {
               rsp = resp;
               if (rsp!.success) {
-                SnackBarManager.showSnackBar(i18n.testSuccess);
+                SnackBarManager.showSnackBar(l10n.testSuccess);
                 setState(() {
                   loginSuccess = true;
                 });

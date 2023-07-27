@@ -53,20 +53,16 @@ class RemoteStorage {
     final imgLen = await file.length();
     // final thumbLen = thumbnailData!.length;
     final totalLen = imgLen;
-    stateModel.setUploadState(true);
-    stateModel.updateUploadProgress(uploaded, totalLen);
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
     req.headers['Image-Date'] = dateStr;
     req.contentLength = imgLen;
     file.openRead().listen((chunk) {
       uploaded += chunk.length;
-      stateModel.updateUploadProgress(uploaded, totalLen);
       req.sink.add(chunk);
     }, onDone: () {
       req.sink.close();
     });
     final response = await req.send();
-    stateModel.setUploadState(false);
     if (response.statusCode != 200) {
       throw Exception("upload failed: ${response.statusCode}");
     }
@@ -108,22 +104,21 @@ class RemoteStorage {
     final imgLen = await file.length();
     final thumbLen = thumbnailData!.length;
     final totalLen = imgLen + thumbLen;
-    stateModel.setUploadState(true);
-    stateModel.updateUploadProgress(uploaded, totalLen);
+    stateModel.updateUploadProgress(asset.id, uploaded, totalLen);
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
     req.headers['Image-Date'] = dateStr;
     req.contentLength = await file.length();
     file.openRead().listen((chunk) {
       uploaded += chunk.length;
-      stateModel.updateUploadProgress(uploaded, totalLen);
+      stateModel.updateUploadProgress(asset.id, uploaded, totalLen);
       req.sink.add(chunk);
     }, onDone: () {
       req.sink.close();
     });
     final response = await req.send();
     if (response.statusCode != 200) {
+      stateModel.finishUpload(asset.id, false);
       final body = await response.stream.bytesToString();
-      stateModel.setUploadState(false);
       throw Exception("upload failed: [${response.statusCode}] $body");
     }
 
@@ -134,12 +129,12 @@ class RemoteStorage {
         'Image-Date': dateStr,
       },
     );
-    stateModel.updateUploadProgress(uploaded + thumbLen, totalLen);
-    stateModel.setUploadState(false);
+    stateModel.updateUploadProgress(asset.id, uploaded + thumbLen, totalLen);
     if (thumbRsp.statusCode != 200) {
-      stateModel.setUploadState(false);
+      stateModel.finishUpload(asset.id, false);
       throw Exception("upload thumbnail failed: ${thumbRsp.statusCode}");
     }
+    stateModel.finishUpload(asset.id, true);
   }
 
   // @protected
@@ -247,9 +242,15 @@ class RemoteImage {
     if (response.statusCode != 200) {
       throw Exception("get image failed: ${response.statusCode}");
     }
+    stateModel.updateDownloadProgress(
+        basename(path), 0, response.contentLength!);
+    int downloaded = 0;
     await for (var data in response.stream) {
+      stateModel.updateDownloadProgress(
+          basename(path), downloaded += data.length, response.contentLength!);
       yield data as Uint8List;
     }
+    stateModel.finishDownload(basename(path), true);
   }
 
   Future<Uint8List> imageData() async {

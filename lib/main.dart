@@ -164,15 +164,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 destinations: <Widget>[
                   NavigationDestination(
                     icon: const Icon(Icons.phone_android),
-                    label: i18n.local,
+                    label: l10n.local,
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.cloud),
-                    label: i18n.cloud,
+                    label: l10n.cloud,
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.cloud_sync),
-                    label: i18n.sync,
+                    label: l10n.sync,
                   ),
                 ],
               ),

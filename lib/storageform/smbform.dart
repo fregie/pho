@@ -125,9 +125,9 @@ class _SMBFormState extends State<SMBForm> {
 
   Widget smbForm(BuildContext context) {
     List<Widget> children = [
-      input(i18n.samvbaServerAddress, smbAddrController, null),
-      input(i18n.username, smbUsernameController, null),
-      input(i18n.password, smbPasswordController, null),
+      input(l10n.samvbaServerAddress, smbAddrController, null),
+      input(l10n.username, smbUsernameController, null),
+      input(l10n.password, smbPasswordController, null),
       Container(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: TextFormField(
@@ -138,7 +138,7 @@ class _SMBFormState extends State<SMBForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: i18n.share,
+            labelText: l10n.share,
             suffixIcon: IconButton(
               icon: const Icon(Icons.open_in_browser),
               onPressed: () => refreshShare().then((available) {
@@ -165,7 +165,7 @@ class _SMBFormState extends State<SMBForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: i18n.rootPath,
+            labelText: l10n.rootPath,
             helperText: "eg: storage/photos (no '/' or '\\' at the start)",
             suffixIcon: smbShareController!.text == ""
                 ? null
@@ -407,13 +407,13 @@ class _SMBFormState extends State<SMBForm> {
         onPressed: () {
           testStorage().then((value) {
             if (testSuccess) {
-              SnackBarManager.showSnackBar(i18n.testSuccess);
+              SnackBarManager.showSnackBar(l10n.testSuccess);
             } else {
               showErrorDialog(errormsg!);
             }
           });
         },
-        child: Text(i18n.testStorage),
+        child: Text(l10n.testStorage),
       ),
     );
   }
@@ -439,7 +439,7 @@ class _SMBFormState extends State<SMBForm> {
                 Navigator.pop(context);
               }
             : null,
-        child: Text(i18n.save),
+        child: Text(l10n.save),
       ),
     );
   }
@@ -448,7 +448,7 @@ class _SMBFormState extends State<SMBForm> {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(i18n.connectFailed),
+        title: Text(l10n.connectFailed),
         content: Text(msg),
         actions: <Widget>[
           TextButton(

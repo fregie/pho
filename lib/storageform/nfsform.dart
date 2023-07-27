@@ -115,7 +115,7 @@ class NFSFormState extends State<NFSForm> {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(i18n.connectFailed),
+        title: Text(l10n.connectFailed),
         content: Text(msg),
         actions: <Widget>[
           TextButton(
@@ -135,13 +135,13 @@ class NFSFormState extends State<NFSForm> {
         onPressed: () {
           testStorage().then((value) {
             if (testSuccess) {
-              SnackBarManager.showSnackBar(i18n.testSuccess);
+              SnackBarManager.showSnackBar(l10n.testSuccess);
             } else {
               showErrorDialog(errormsg!);
             }
           });
         },
-        child: Text(i18n.testStorage),
+        child: Text(l10n.testStorage),
       ),
     );
   }
@@ -166,7 +166,7 @@ class NFSFormState extends State<NFSForm> {
                 Navigator.pop(context);
               }
             : null,
-        child: Text(i18n.save),
+        child: Text(l10n.save),
       ),
     );
   }
@@ -199,7 +199,7 @@ class NFSFormState extends State<NFSForm> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                labelText: i18n.rootPath,
+                labelText: l10n.rootPath,
                 helperText: "eg: /path/photo",
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.open_in_browser),
@@ -243,7 +243,7 @@ class NFSFormState extends State<NFSForm> {
                 Container(
                   padding: const EdgeInsets.fromLTRB(20, 30, 20, 10),
                   child: Text(
-                    i18n.selectRoot,
+                    l10n.selectRoot,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -251,7 +251,7 @@ class NFSFormState extends State<NFSForm> {
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "${i18n.currentPath}: $currentPath",
+                    "${l10n.currentPath}: $currentPath",
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -318,7 +318,7 @@ class NFSFormState extends State<NFSForm> {
                       width: 120,
                       height: 55,
                       child: OutlinedButton(
-                        child: Text(i18n.cancel),
+                        child: Text(l10n.cancel),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
@@ -329,7 +329,7 @@ class NFSFormState extends State<NFSForm> {
                       width: 120,
                       height: 55,
                       child: FilledButton(
-                        child: Text(i18n.save),
+                        child: Text(l10n.save),
                         onPressed: () {
                           rootPathController!.text = currentPath;
                           Navigator.of(context).pop();

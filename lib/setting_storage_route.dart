@@ -64,7 +64,7 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           iconTheme: Theme.of(context).iconTheme,
           elevation: 0,
-          title: Text(i18n.storageSetting,
+          title: Text(l10n.storageSetting,
               style: Theme.of(context).textTheme.titleLarge),
         ),
         body: Center(
@@ -76,11 +76,11 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
                 readOnly: true,
                 controller: TextEditingController(
                     text: driveName[currentDrive] == "BaiduNetdisk"
-                        ? i18n.baiduNetdisk
+                        ? l10n.baiduNetdisk
                         : driveName[currentDrive]),
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: i18n.remoteStorageType,
+                    labelText: l10n.remoteStorageType,
                     suffixIcon: PopupMenuButton<String>(
                       icon: const Icon(Icons.arrow_drop_down),
                       itemBuilder: (BuildContext context) {
@@ -88,7 +88,7 @@ class SettingStorageRouteState extends State<SettingStorageRoute> {
                             .map((String value) => PopupMenuItem<String>(
                                   value: value,
                                   child: Text(value == "BaiduNetdisk"
-                                      ? i18n.baiduNetdisk
+                                      ? l10n.baiduNetdisk
                                       : value),
                                 ))
                             .toList();

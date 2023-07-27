@@ -68,6 +68,7 @@ class Global {
               if (rsp.success) {
                 logger.i("set drive smb success");
                 settingModel.setRemoteStorageSetted(true);
+                refreshUnsynchronizedPhotos();
               } else {
                 settingModel.setRemoteStorageSetted(false);
                 assetModel.remoteLastError = rsp.message;
@@ -92,6 +93,7 @@ class Global {
               if (rsp.success) {
                 logger.i("set drive webdav success");
                 settingModel.setRemoteStorageSetted(true);
+                refreshUnsynchronizedPhotos();
               } else {
                 settingModel.setRemoteStorageSetted(false);
                 assetModel.remoteLastError = rsp.message;
@@ -112,6 +114,7 @@ class Global {
               if (rsp.success) {
                 logger.i("set drive nfs success");
                 settingModel.setRemoteStorageSetted(true);
+                refreshUnsynchronizedPhotos();
               } else {
                 settingModel.setRemoteStorageSetted(false);
                 assetModel.remoteLastError = rsp.message;
@@ -175,10 +178,10 @@ class SnackBarManager {
   }
 }
 
-late AppLocalizations i18n;
+late AppLocalizations l10n;
 
 void initI18n(BuildContext context) {
-  i18n = AppLocalizations.of(context);
+  l10n = AppLocalizations.of(context);
 }
 
 Completer<bool>? requesttingPermission;
@@ -204,21 +207,21 @@ Future<bool> requestPermission() async {
       showDialog(
           context: requestPermissionContext!,
           builder: (BuildContext context) => AlertDialog(
-                title: Text(i18n.needPermision),
-                content: Text(i18n.gotoSystemSetting),
+                title: Text(l10n.needPermision),
+                content: Text(l10n.gotoSystemSetting),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text(i18n.cancel),
+                    child: Text(l10n.cancel),
                   ),
                   TextButton(
                     onPressed: () {
                       PhotoManager.openSetting();
                       Navigator.of(context).pop();
                     },
-                    child: Text(i18n.openSetting),
+                    child: Text(l10n.openSetting),
                   ),
                 ],
               ));

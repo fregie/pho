@@ -48,7 +48,9 @@ class _VideoRouteState extends State<VideoRoute> {
     }
     await videoPlayerController.initialize();
     Widget customControls = const MaterialControls();
+    var controlsSafeAreaMinimum = const EdgeInsets.all(0);
     if (Platform.isIOS || Platform.isMacOS) {
+      controlsSafeAreaMinimum = const EdgeInsets.fromLTRB(0, 30, 0, 20);
       customControls = const CupertinoControls(
           backgroundColor: Color.fromARGB(255, 82, 82, 82),
           iconColor: Colors.white);
@@ -62,7 +64,7 @@ class _VideoRouteState extends State<VideoRoute> {
       customControls: customControls,
       allowFullScreen: false,
       allowMuting: false,
-      controlsSafeAreaMinimum: const EdgeInsets.fromLTRB(0, 30, 0, 20),
+      controlsSafeAreaMinimum: controlsSafeAreaMinimum,
     );
     setState(() {
       isInitialized = true;

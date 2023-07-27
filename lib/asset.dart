@@ -179,6 +179,10 @@ class Asset extends ImageProvider<Asset> {
     return false;
   }
 
+  bool loadThumbnailFinished() {
+    return _thumbnailData != null;
+  }
+
   ImageProvider thumbnailProvider() {
     if (_thumbnailData != null && _thumbnailData!.isNotEmpty) {
       return MemoryImage(_thumbnailData!);
@@ -197,7 +201,7 @@ class Asset extends ImageProvider<Asset> {
     Uint8List? data;
     if (hasLocal) {
       data = await local!
-          .thumbnailDataWithSize(const ThumbnailSize.square(400), quality: 100);
+          .thumbnailDataWithSize(const ThumbnailSize.square(200), quality: 80);
     }
     if (hasRemote) {
       data = await remote!.thumbnail();
@@ -302,7 +306,6 @@ class Asset extends ImageProvider<Asset> {
       imageWidth = getLocal()!.width;
       imageHeight = getLocal()!.height;
       imageSize = data.length / 1024 / 1024;
-      final title = await getLocal()!.titleAsync;
       _isSizeInfoReadedFinished = true;
     } else {
       compute(img.decodeImage, data).then((image) {

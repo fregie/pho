@@ -33,7 +33,7 @@ Future<void> reloadAutoSyncTimer() async {
         return;
       }
     }
-    if (stateModel.isUploading || stateModel.isDownloading) return;
+    if (stateModel.isUploading() || stateModel.isDownloading()) return;
     await refreshUnsynchronizedPhotos();
     Map ids = {};
     for (final id in stateModel.notSyncedIDs) {

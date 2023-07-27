@@ -251,26 +251,26 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
       return;
     }
     OverlayEntry loadingDialog = OverlayEntry(
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
+      builder: (context) => Center(
+        child: Consumer<StateModel>(
+          builder: (context, stateModel, child) => CircularProgressIndicator(
+            strokeWidth: 5,
+            value: stateModel.getDownloadPercent(asset.name()!),
+          ),
+        ),
       ),
     );
 
     // 将加载对话框添加到Overlay中
     Overlay.of(context).insert(loadingDialog);
-    // 检查并请求存储权限
-    // PermissionStatus status = await Permission.photos.status;
-    // if (!status.isGranted) {
-    //   status = await Permission.photos.request();
-    //   if (!status.isGranted) {
-    //     SnackBarManager.showSnackBar("Permission denied");
-    //     return;
-    //   }
-    // }
-    stateModel.setDownloadState(true);
     try {
       if (asset.name() != null) {
-        final data = await asset.imageDataAsync();
+        Uint8List data;
+        if (!asset.isVideo()) {
+          data = await asset.imageDataAsync();
+        } else {
+          data = await asset.remote!.imageData();
+        }
         if (Platform.isAndroid) {
           final absPath = '${settingModel.localFolderAbsPath}/${asset.name()}';
           final file = File(absPath);
@@ -285,12 +285,6 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
           await file.writeAsBytes(data);
           await file.setLastModified(asset.dateCreated());
           await GallerySaver.saveImage(savePath, toDcim: true);
-          // final result = await ImageGallerySaver.saveImage(data,
-          //     quality: 100, name: asset.name());
-          // if (!result['isSuccess']) {
-          //   print("save image failed");
-          //   SnackBarManager.showSnackBar("save image failed");
-          // }
         }
       }
       SnackBarManager.showSnackBar("Download ${asset.name()} success");
@@ -298,7 +292,6 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
     } catch (e) {
       SnackBarManager.showSnackBar(e.toString());
     } finally {
-      stateModel.setDownloadState(false);
       loadingDialog.remove();
     }
   }
@@ -316,9 +309,7 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
             builder: (context, value, child) {
               return CircularProgressIndicator(
                 strokeWidth: 5,
-                value: stateModel.uploadTotalLength > 0
-                    ? stateModel.uploadedLength / stateModel.uploadTotalLength
-                    : 0,
+                value: stateModel.getUploadPercent(asset.local!.id),
               );
             },
           ),
@@ -370,28 +361,34 @@ class GalleryViewerRouteState extends State<GalleryViewerRoute> {
                     Share.shareXFiles([
                       XFile.fromData(data,
                           name: all[currentIndex].name(),
-                          mimeType: all[currentIndex].mimeType())
+                          mimeType: all[currentIndex].mimeType()),
                     ]);
                   },
                 ),
                 if (!all[currentIndex].isLocal())
-                  Consumer<StateModel>(
-                    builder: (context, model, child) => IconButton(
-                      icon: const Icon(Icons.download_outlined),
-                      onPressed: () => model.isDownloading || model.isUploading
-                          ? null
-                          : download(all[currentIndex]),
-                    ),
-                  ),
+                  Consumer<StateModel>(builder: (context, model, child) {
+                    return IconButton(
+                      icon: const Icon(Icons.cloud_download_outlined),
+                      onPressed: () =>
+                          model.isDownloading() || model.isUploading()
+                              ? null
+                              : download(all[currentIndex]),
+                    );
+                  }),
                 if (all[currentIndex].isLocal())
-                  Consumer<StateModel>(
-                    builder: (context, model, child) => IconButton(
-                      icon: const Icon(Icons.cloud_upload_outlined),
-                      onPressed: () => model.isDownloading || model.isUploading
-                          ? null
-                          : upload(all[currentIndex]),
-                    ),
-                  ),
+                  Consumer<StateModel>(builder: (context, stateModel, child) {
+                    return IconButton(
+                      icon: stateModel.notSyncedIDs.isNotEmpty &&
+                              !stateModel.notSyncedIDs
+                                  .contains(all[currentIndex].local!.id)
+                          ? const Icon(Icons.cloud_done_outlined)
+                          : const Icon(Icons.cloud_upload_outlined),
+                      onPressed: () =>
+                          stateModel.isDownloading() || stateModel.isUploading()
+                              ? null
+                              : upload(all[currentIndex]),
+                    );
+                  }),
                 IconButton(
                   icon: const Icon(Icons.info_outline),
                   onPressed: () {

@@ -37,20 +37,24 @@ class SyncBodyState extends State<SyncBody> {
   bool syncing = false;
   bool refreshing = false;
   bool _needStopSync = false;
-  Map<String, String> uploadState = {};
   int toUpload = 0;
+
+  double scrollOffset = 0;
 
   @override
   void initState() {
     super.initState();
     getPhotos().then((value) => loadMore());
     _scrollSubject.stream
-        .debounceTime(const Duration(milliseconds: 100))
+        .debounceTime(const Duration(milliseconds: 150))
         .listen((scrollPosition) {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 1500) {
         loadMore();
       }
+      setState(() {
+        scrollOffset = scrollPosition;
+      });
     });
     _scrollController.addListener(() {
       _scrollSubject.add(_scrollController.position.pixels);
@@ -63,11 +67,11 @@ class SyncBodyState extends State<SyncBody> {
   @override
   void didUpdateWidget(SyncBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // if (all.isEmpty) {
-    //   getPhotos().then((value) => loadMore());
-    // } else if (toShow.isEmpty) {
-    //   loadMore();
-    // }
+    if (all.isEmpty) {
+      getPhotos().then((value) => loadMore());
+    } else if (toShow.isEmpty) {
+      loadMore();
+    }
   }
 
   @override
@@ -101,10 +105,8 @@ class SyncBodyState extends State<SyncBody> {
           continue;
         }
         final a = Asset(local: asset);
-        await a.getLocalFile();
-        await a.thumbnailDataAsync();
         toShow.add(a);
-        if (count >= originLength + pageSize) {
+        if (count >= originLength + 2000) {
           break;
         }
       }
@@ -190,7 +192,7 @@ class SyncBodyState extends State<SyncBody> {
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
                         const SizedBox(width: 10),
-                        Text(i18n.localFolder),
+                        Text(l10n.localFolder),
                       ],
                     ),
                   ),
@@ -216,7 +218,7 @@ class SyncBodyState extends State<SyncBody> {
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
                         const SizedBox(width: 10),
-                        Text(i18n.cloudStorage),
+                        Text(l10n.cloudStorage),
                       ],
                     ),
                   ),
@@ -248,7 +250,7 @@ class SyncBodyState extends State<SyncBody> {
                             Icons.cloud_sync_outlined,
                           ),
                           const SizedBox(width: 10),
-                          Text(i18n.backgroundSync),
+                          Text(l10n.backgroundSync),
                         ],
                       ),
                     ),
@@ -281,21 +283,15 @@ class SyncBodyState extends State<SyncBody> {
       if (ids[id] != true) {
         continue;
       }
-      setState(() {
-        uploadState[id] = i18n.uploading;
-      });
       try {
         await storage.uploadAssetEntity(asset);
       } catch (e) {
         print(e);
-        setState(() {
-          uploadState[id] = "${i18n.uploadFailed}: $e";
-        });
+        SnackBarManager.showSnackBar("${l10n.uploadFailed}: $e");
         continue;
       }
       setState(() {
         toUpload -= 1;
-        uploadState[id] = i18n.uploaded;
       });
     }
     setState(() {
@@ -314,7 +310,7 @@ class SyncBodyState extends State<SyncBody> {
       appBar: AppBar(
         centerTitle: false,
         title: Text(
-          i18n.cloudSync,
+          l10n.cloudSync,
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         actions: [
@@ -322,7 +318,7 @@ class SyncBodyState extends State<SyncBody> {
             padding: const EdgeInsets.fromLTRB(0, 0, 5, 5),
             alignment: Alignment.bottomRight,
             child: Text(
-              "$toUpload ${i18n.notSync}",
+              "$toUpload ${l10n.notSync}",
               style: const TextStyle(color: Colors.grey),
             ),
           ),
@@ -338,8 +334,8 @@ class SyncBodyState extends State<SyncBody> {
             elevation: 2,
             onPressed: () => syncing ||
                     refreshing ||
-                    model.isDownloading ||
-                    model.isUploading
+                    model.isDownloading() ||
+                    model.isUploading()
                 ? null
                 : refreshUnsynchronized(),
             child: refreshing ? CircularProgress() : const Icon(Icons.refresh),
@@ -360,15 +356,15 @@ class SyncBodyState extends State<SyncBody> {
                   }
                   if (syncing ||
                       refreshing ||
-                      model.isDownloading ||
-                      model.isUploading) {
+                      model.isDownloading() ||
+                      model.isUploading()) {
                     stopSync();
                   } else {
                     syncPhotos();
                   }
                 },
                 icon: syncing ? CircularProgress() : const Icon(Icons.sync),
-                label: Text(syncing ? i18n.stop : i18n.sync)),
+                label: Text(syncing ? l10n.stop : l10n.sync)),
           ),
         ],
       ),
@@ -381,7 +377,7 @@ class SyncBodyState extends State<SyncBody> {
               Container(
                 padding: const EdgeInsets.fromLTRB(15, 0, 10, 0),
                 child: Text(
-                  i18n.unsynchronizedPhotos,
+                  l10n.unsynchronizedPhotos,
                   style: const TextStyle(
                     fontSize: 13,
                   ),
@@ -402,7 +398,7 @@ class SyncBodyState extends State<SyncBody> {
               padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
               child: Center(
                 heightFactor: 10,
-                child: Text(i18n.setRemoteStroage,
+                child: Text(l10n.setRemoteStroage,
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -414,7 +410,7 @@ class SyncBodyState extends State<SyncBody> {
                   padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
                   child: Center(
                     heightFactor: 10,
-                    child: Text(i18n.refreshingPleaseWait,
+                    child: Text(l10n.refreshingPleaseWait,
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -426,17 +422,60 @@ class SyncBodyState extends State<SyncBody> {
                     controller: _scrollController,
                     itemCount: toShow.length,
                     itemBuilder: (context, index) {
+                      final totalHeight = MediaQuery.of(context).size.height;
+                      final currentScrollOffset =
+                          72 * index; // ListTile's height
+                      bool needLoadThumbnail = false;
+                      if (currentScrollOffset >
+                              scrollOffset - (2 * totalHeight) &&
+                          currentScrollOffset <
+                              scrollOffset + (3 * totalHeight)) {
+                        needLoadThumbnail = true;
+                        if (!toShow[index].loadThumbnailFinished()) {
+                          toShow[index]
+                              .thumbnailDataAsync()
+                              .then((value) => setState(() {}));
+                        }
+                      }
                       return ListTile(
                         leading: SizedBox(
                           width: 60,
                           height: 60,
-                          child: Image(
-                              image: toShow[index].thumbnailProvider(),
-                              fit: BoxFit.cover),
+                          child: needLoadThumbnail &&
+                                  toShow[index].loadThumbnailFinished()
+                              ? Image(
+                                  image: toShow[index].thumbnailProvider(),
+                                  fit: BoxFit.cover)
+                              : Container(color: Colors.grey),
                         ),
                         title: Text(toShow[index].name()!),
-                        subtitle: Text(uploadState[toShow[index].local!.id] ??
-                            i18n.notUploaded),
+                        subtitle: needLoadThumbnail
+                            ? Consumer<StateModel>(
+                                builder: (context, stateModel, child) {
+                                  final percent = stateModel.getUploadPercent(
+                                      toShow[index].local!.id);
+                                  if (percent > 0) {
+                                    return Container(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0, 0, 10, 0),
+                                      child: LinearProgressIndicator(
+                                          value: percent),
+                                    );
+                                  }
+                                  if (stateModel.notSyncedIDs
+                                      .contains(toShow[index].local!.id)) {
+                                    return Text(l10n.notUploaded,
+                                        style: const TextStyle(
+                                            color: Colors.grey));
+                                  }
+                                  return Text(
+                                    l10n.uploaded,
+                                    style: const TextStyle(
+                                        color: Color.fromARGB(255, 75, 154, 0)),
+                                  );
+                                },
+                              )
+                            : Container(),
                       );
                     },
                   ),
@@ -452,7 +491,6 @@ class SyncBodyState extends State<SyncBody> {
       setState(() {
         all = [];
         toShow = [];
-        uploadState = {};
         toUpload = 0;
       });
     });
