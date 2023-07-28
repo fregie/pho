@@ -108,10 +108,10 @@ class ImgSyncerClient extends $grpc.Client {
     return $createUnaryCall(_$delete, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.FilterNotUploadedResponse> filterNotUploaded(
-      $0.FilterNotUploadedRequest request,
+  $grpc.ResponseStream<$0.FilterNotUploadedResponse> filterNotUploaded(
+      $async.Stream<$0.FilterNotUploadedRequest> request,
       {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$filterNotUploaded, request, options: options);
+    return $createStreamingCall(_$filterNotUploaded, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.SetDriveSMBResponse> setDriveSMB(
@@ -197,9 +197,9 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
     $addMethod($grpc.ServiceMethod<$0.FilterNotUploadedRequest,
             $0.FilterNotUploadedResponse>(
         'FilterNotUploaded',
-        filterNotUploaded_Pre,
-        false,
-        false,
+        filterNotUploaded,
+        true,
+        true,
         ($core.List<$core.int> value) =>
             $0.FilterNotUploadedRequest.fromBuffer(value),
         ($0.FilterNotUploadedResponse value) => value.writeToBuffer()));
@@ -305,12 +305,6 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
     return delete(call, await request);
   }
 
-  $async.Future<$0.FilterNotUploadedResponse> filterNotUploaded_Pre(
-      $grpc.ServiceCall call,
-      $async.Future<$0.FilterNotUploadedRequest> request) async {
-    return filterNotUploaded(call, await request);
-  }
-
   $async.Future<$0.SetDriveSMBResponse> setDriveSMB_Pre($grpc.ServiceCall call,
       $async.Future<$0.SetDriveSMBRequest> request) async {
     return setDriveSMB(call, await request);
@@ -373,8 +367,9 @@ abstract class ImgSyncerServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.ListByDateRequest request);
   $async.Future<$0.DeleteResponse> delete(
       $grpc.ServiceCall call, $0.DeleteRequest request);
-  $async.Future<$0.FilterNotUploadedResponse> filterNotUploaded(
-      $grpc.ServiceCall call, $0.FilterNotUploadedRequest request);
+  $async.Stream<$0.FilterNotUploadedResponse> filterNotUploaded(
+      $grpc.ServiceCall call,
+      $async.Stream<$0.FilterNotUploadedRequest> request);
   $async.Future<$0.SetDriveSMBResponse> setDriveSMB(
       $grpc.ServiceCall call, $0.SetDriveSMBRequest request);
   $async.Future<$0.ListDriveSMBSharesResponse> listDriveSMBShares(

@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:io';
 import 'package:date_format/date_format.dart';
-
+import 'package:grpc/grpc.dart';
 import 'package:flutter/material.dart';
 import 'event_bus.dart';
 import 'package:img_syncer/asset.dart';
@@ -55,6 +55,7 @@ class transmitState {
 
 class StateModel extends ChangeNotifier {
   bool _isSelectionMode = false;
+  bool refreshingUnsynchronized = false;
   List<String> notSyncedIDs = [];
 
   Map<String, transmitState> uploadProgress = {};
@@ -127,6 +128,12 @@ class StateModel extends ChangeNotifier {
     notSyncedIDs = ids;
     notifyListeners();
   }
+
+  void setRefreshingUnsynchronized(bool refreshing) {
+    if (refreshingUnsynchronized == refreshing) return;
+    refreshingUnsynchronized = refreshing;
+    notifyListeners();
+  }
 }
 
 class AssetModel extends ChangeNotifier {
@@ -137,7 +144,7 @@ class AssetModel extends ChangeNotifier {
   List<Asset> localAssets = [];
   List<Asset> remoteAssets = [];
   int columCount = 4;
-  int pageSize = 10000;
+  int pageSize = 500;
   bool localHasMore = true;
   bool remoteHasMore = true;
   Completer<bool>? localGetting;
@@ -223,6 +230,9 @@ class AssetModel extends ChangeNotifier {
           }
         }
         notifyListeners();
+        if (stateModel.notSyncedIDs.isEmpty) {
+          refreshUnsynchronizedPhotos();
+        }
       }
     }
 
@@ -231,6 +241,7 @@ class AssetModel extends ChangeNotifier {
   }
 
   Future<void> getRemotePhotos() async {
+    await checkServer();
     if (remoteGetting != null) {
       await remoteGetting!.future;
       return;
@@ -284,9 +295,28 @@ Future<void> scanFile(String filePath) async {
 }
 
 Future<void> refreshUnsynchronizedPhotos() async {
-  final localFloder = settingModel.localFolder;
+  await checkServer();
+  if (!settingModel.isRemoteStorageSetted) {
+    stateModel.setNotSyncedPhotos([]);
+    return;
+  }
   final re = await requestPermission();
   if (!re) return;
+  stateModel.setRefreshingUnsynchronized(true);
+  stateModel.setNotSyncedPhotos([]);
+  final requests = StreamController<FilterNotUploadedRequest>();
+  final responses = storage.cli.filterNotUploaded(requests.stream);
+  await Future.wait([
+    sendFilterNotUploadedRequests(requests),
+    receiveResponses(responses),
+  ]);
+
+  stateModel.setRefreshingUnsynchronized(false);
+}
+
+Future<void> sendFilterNotUploadedRequests(
+    StreamController<FilterNotUploadedRequest> requests) async {
+  final localFloder = settingModel.localFolder;
   final List<AssetPathEntity> paths =
       await PhotoManager.getAssetPathList(type: RequestType.common);
   for (var path in paths) {
@@ -300,38 +330,62 @@ Future<void> refreshUnsynchronizedPhotos() async {
           ),
         ],
       ));
-      FilterNotUploadedRequest req = FilterNotUploadedRequest(
-          photos: List<FilterNotUploadedRequestInfo>.empty(growable: true));
       int offset = 0;
-      int pageSize = 100;
+      int pageSize = 50;
 
       while (true) {
+        FilterNotUploadedRequest req = FilterNotUploadedRequest(
+            photos: List<FilterNotUploadedRequestInfo>.empty(growable: true));
         final List<AssetEntity> assets = await newpath!
             .getAssetListRange(start: offset, end: offset + pageSize);
         if (assets.isEmpty) {
+          req.isFinished = true;
           break;
         }
+        var futures = <Future<FilterNotUploadedRequestInfo>>[];
         for (var asset in assets) {
-          var date = asset.createDateTime;
-          if (date.isBefore(DateTime(1990, 1, 1))) {
-            date = asset.modifiedDateTime;
-          }
-          final dateStr = formatDate(
-              date, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
-          req.photos.add(FilterNotUploadedRequestInfo(
-            id: asset.id,
-            name: await asset.titleAsync,
-            date: dateStr,
-          ));
+          futures.add(_createFilterNotUploadedRequestInfo(asset));
         }
+        req.photos.addAll(await Future.wait(futures));
         offset += pageSize;
+        requests.add(req);
       }
-      final rsp = await storage.cli.filterNotUploaded(req);
-      if (rsp.success) {
-        stateModel.setNotSyncedPhotos(rsp.notUploaedIDs);
-      } else {
-        throw Exception("Refresh unsynchronized photos failed: ${rsp.message}");
-      }
+      // final rsp = await storage.cli.filterNotUploaded(req);
+      // if (rsp.success) {
+      //   stateModel.setNotSyncedPhotos(rsp.notUploaedIDs);
+      // } else {
+      //   throw Exception("Refresh unsynchronized photos failed: ${rsp.message}");
+      // }
     }
   }
+  await requests.close();
+}
+
+Future<void> receiveResponses(
+    ResponseStream<FilterNotUploadedResponse> responses) async {
+  await for (var response in responses) {
+    if (!response.success) {
+      print('Error: ${response.message}');
+      SnackBarManager.showSnackBar("Error: ${response.message}");
+      continue;
+    }
+    stateModel
+        .setNotSyncedPhotos(stateModel.notSyncedIDs + response.notUploaedIDs);
+  }
+}
+
+Future<FilterNotUploadedRequestInfo> _createFilterNotUploadedRequestInfo(
+    asset) async {
+  var date = asset.createDateTime;
+  if (date.isBefore(DateTime(1990, 1, 1))) {
+    date = asset.modifiedDateTime;
+  }
+  final dateStr =
+      formatDate(date, [yyyy, ':', mm, ':', dd, ' ', HH, ':', nn, ':', ss]);
+  var name = await asset.titleAsync;
+  return FilterNotUploadedRequestInfo(
+    id: asset.id,
+    name: name,
+    date: dateStr,
+  );
 }

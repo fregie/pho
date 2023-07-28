@@ -35,6 +35,7 @@ class RemoteStorage {
   }
 
   Future<void> uploadXFile(XFile file) async {
+    await checkServer();
     final name = basename(file.path);
     final date = await file.lastModified();
     final dateStr =
@@ -79,12 +80,13 @@ class RemoteStorage {
   }
 
   Future<void> uploadAssetEntity(AssetEntity asset) async {
+    await checkServer();
     final file = await asset.originFile;
     if (file == null) {
       throw Exception("asset file is null");
     }
-    print("upload ${basename(file.path)}");
     final name = await asset.titleAsync;
+    // print("upload $name");
     var date = asset.createDateTime;
     if (date.isBefore(DateTime(1990, 1, 1))) {
       date = asset.modifiedDateTime;

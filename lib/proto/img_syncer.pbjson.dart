@@ -70,11 +70,12 @@ const FilterNotUploadedRequest$json = const {
   '1': 'FilterNotUploadedRequest',
   '2': const [
     const {'1': 'photos', '3': 1, '4': 3, '5': 11, '6': '.img_syncer.FilterNotUploadedRequestInfo', '10': 'photos'},
+    const {'1': 'isFinished', '3': 2, '4': 1, '5': 8, '10': 'isFinished'},
   ],
 };
 
 /// Descriptor for `FilterNotUploadedRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List filterNotUploadedRequestDescriptor = $convert.base64Decode('ChhGaWx0ZXJOb3RVcGxvYWRlZFJlcXVlc3QSQAoGcGhvdG9zGAEgAygLMiguaW1nX3N5bmNlci5GaWx0ZXJOb3RVcGxvYWRlZFJlcXVlc3RJbmZvUgZwaG90b3M=');
+final $typed_data.Uint8List filterNotUploadedRequestDescriptor = $convert.base64Decode('ChhGaWx0ZXJOb3RVcGxvYWRlZFJlcXVlc3QSQAoGcGhvdG9zGAEgAygLMiguaW1nX3N5bmNlci5GaWx0ZXJOb3RVcGxvYWRlZFJlcXVlc3RJbmZvUgZwaG90b3MSHgoKaXNGaW5pc2hlZBgCIAEoCFIKaXNGaW5pc2hlZA==');
 @$core.Deprecated('Use filterNotUploadedResponseDescriptor instead')
 const FilterNotUploadedResponse$json = const {
   '1': 'FilterNotUploadedResponse',
@@ -82,11 +83,12 @@ const FilterNotUploadedResponse$json = const {
     const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
     const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
     const {'1': 'notUploaedIDs', '3': 3, '4': 3, '5': 9, '10': 'notUploaedIDs'},
+    const {'1': 'isFinished', '3': 4, '4': 1, '5': 8, '10': 'isFinished'},
   ],
 };
 
 /// Descriptor for `FilterNotUploadedResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List filterNotUploadedResponseDescriptor = $convert.base64Decode('ChlGaWx0ZXJOb3RVcGxvYWRlZFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSGAoHbWVzc2FnZRgCIAEoCVIHbWVzc2FnZRIkCg1ub3RVcGxvYWVkSURzGAMgAygJUg1ub3RVcGxvYWVkSURz');
+final $typed_data.Uint8List filterNotUploadedResponseDescriptor = $convert.base64Decode('ChlGaWx0ZXJOb3RVcGxvYWRlZFJlc3BvbnNlEhgKB3N1Y2Nlc3MYASABKAhSB3N1Y2Nlc3MSGAoHbWVzc2FnZRgCIAEoCVIHbWVzc2FnZRIkCg1ub3RVcGxvYWVkSURzGAMgAygJUg1ub3RVcGxvYWVkSURzEh4KCmlzRmluaXNoZWQYBCABKAhSCmlzRmluaXNoZWQ=');
 @$core.Deprecated('Use setDriveSMBRequestDescriptor instead')
 const SetDriveSMBRequest$json = const {
   '1': 'SetDriveSMBRequest',

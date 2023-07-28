@@ -52,7 +52,7 @@ class GalleryBodyState extends State<GalleryBody>
         .debounceTime(const Duration(milliseconds: 150))
         .listen((scrollPosition) {
       if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 2000) {
+          _scrollController.position.maxScrollExtent - 4000) {
         getPhotos();
       }
       setState(() {

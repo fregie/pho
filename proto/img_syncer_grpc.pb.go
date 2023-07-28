@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ImgSyncerClient interface {
 	ListByDate(ctx context.Context, in *ListByDateRequest, opts ...grpc.CallOption) (*ListByDateResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
-	FilterNotUploaded(ctx context.Context, in *FilterNotUploadedRequest, opts ...grpc.CallOption) (*FilterNotUploadedResponse, error)
+	FilterNotUploaded(ctx context.Context, opts ...grpc.CallOption) (ImgSyncer_FilterNotUploadedClient, error)
 	// SAMBA Drive
 	SetDriveSMB(ctx context.Context, in *SetDriveSMBRequest, opts ...grpc.CallOption) (*SetDriveSMBResponse, error)
 	ListDriveSMBShares(ctx context.Context, in *ListDriveSMBSharesRequest, opts ...grpc.CallOption) (*ListDriveSMBSharesResponse, error)
@@ -62,13 +62,35 @@ func (c *imgSyncerClient) Delete(ctx context.Context, in *DeleteRequest, opts ..
 	return out, nil
 }
 
-func (c *imgSyncerClient) FilterNotUploaded(ctx context.Context, in *FilterNotUploadedRequest, opts ...grpc.CallOption) (*FilterNotUploadedResponse, error) {
-	out := new(FilterNotUploadedResponse)
-	err := c.cc.Invoke(ctx, "/img_syncer.ImgSyncer/FilterNotUploaded", in, out, opts...)
+func (c *imgSyncerClient) FilterNotUploaded(ctx context.Context, opts ...grpc.CallOption) (ImgSyncer_FilterNotUploadedClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ImgSyncer_ServiceDesc.Streams[0], "/img_syncer.ImgSyncer/FilterNotUploaded", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &imgSyncerFilterNotUploadedClient{stream}
+	return x, nil
+}
+
+type ImgSyncer_FilterNotUploadedClient interface {
+	Send(*FilterNotUploadedRequest) error
+	Recv() (*FilterNotUploadedResponse, error)
+	grpc.ClientStream
+}
+
+type imgSyncerFilterNotUploadedClient struct {
+	grpc.ClientStream
+}
+
+func (x *imgSyncerFilterNotUploadedClient) Send(m *FilterNotUploadedRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *imgSyncerFilterNotUploadedClient) Recv() (*FilterNotUploadedResponse, error) {
+	m := new(FilterNotUploadedResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *imgSyncerClient) SetDriveSMB(ctx context.Context, in *SetDriveSMBRequest, opts ...grpc.CallOption) (*SetDriveSMBResponse, error) {
@@ -167,7 +189,7 @@ func (c *imgSyncerClient) StartBaiduNetdiskLogin(ctx context.Context, in *StartB
 type ImgSyncerServer interface {
 	ListByDate(context.Context, *ListByDateRequest) (*ListByDateResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
-	FilterNotUploaded(context.Context, *FilterNotUploadedRequest) (*FilterNotUploadedResponse, error)
+	FilterNotUploaded(ImgSyncer_FilterNotUploadedServer) error
 	// SAMBA Drive
 	SetDriveSMB(context.Context, *SetDriveSMBRequest) (*SetDriveSMBResponse, error)
 	ListDriveSMBShares(context.Context, *ListDriveSMBSharesRequest) (*ListDriveSMBSharesResponse, error)
@@ -194,8 +216,8 @@ func (UnimplementedImgSyncerServer) ListByDate(context.Context, *ListByDateReque
 func (UnimplementedImgSyncerServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedImgSyncerServer) FilterNotUploaded(context.Context, *FilterNotUploadedRequest) (*FilterNotUploadedResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FilterNotUploaded not implemented")
+func (UnimplementedImgSyncerServer) FilterNotUploaded(ImgSyncer_FilterNotUploadedServer) error {
+	return status.Errorf(codes.Unimplemented, "method FilterNotUploaded not implemented")
 }
 func (UnimplementedImgSyncerServer) SetDriveSMB(context.Context, *SetDriveSMBRequest) (*SetDriveSMBResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDriveSMB not implemented")
@@ -276,22 +298,30 @@ func _ImgSyncer_Delete_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ImgSyncer_FilterNotUploaded_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FilterNotUploadedRequest)
-	if err := dec(in); err != nil {
+func _ImgSyncer_FilterNotUploaded_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ImgSyncerServer).FilterNotUploaded(&imgSyncerFilterNotUploadedServer{stream})
+}
+
+type ImgSyncer_FilterNotUploadedServer interface {
+	Send(*FilterNotUploadedResponse) error
+	Recv() (*FilterNotUploadedRequest, error)
+	grpc.ServerStream
+}
+
+type imgSyncerFilterNotUploadedServer struct {
+	grpc.ServerStream
+}
+
+func (x *imgSyncerFilterNotUploadedServer) Send(m *FilterNotUploadedResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *imgSyncerFilterNotUploadedServer) Recv() (*FilterNotUploadedRequest, error) {
+	m := new(FilterNotUploadedRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(ImgSyncerServer).FilterNotUploaded(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/img_syncer.ImgSyncer/FilterNotUploaded",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImgSyncerServer).FilterNotUploaded(ctx, req.(*FilterNotUploadedRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 func _ImgSyncer_SetDriveSMB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -490,10 +520,6 @@ var ImgSyncer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ImgSyncer_Delete_Handler,
 		},
 		{
-			MethodName: "FilterNotUploaded",
-			Handler:    _ImgSyncer_FilterNotUploaded_Handler,
-		},
-		{
 			MethodName: "SetDriveSMB",
 			Handler:    _ImgSyncer_SetDriveSMB_Handler,
 		},
@@ -534,6 +560,13 @@ var ImgSyncer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ImgSyncer_StartBaiduNetdiskLogin_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "FilterNotUploaded",
+			Handler:       _ImgSyncer_FilterNotUploaded_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "proto/img_syncer.proto",
 }

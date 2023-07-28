@@ -11,8 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
+import 'dart:io';
 
 late String httpBaseUrl;
+late int grpcPort;
 late int httpPort;
 
 class Global {
@@ -24,6 +26,7 @@ class Global {
         return;
       }
       httpBaseUrl = "http://127.0.0.1:${ports[1]}";
+      grpcPort = int.parse(ports[0]);
       httpPort = int.parse(ports[1]);
       storage = RemoteStorage("127.0.0.1", int.parse(ports[0]));
       // storage = RemoteStorage("192.168.100.235", 50051);
@@ -42,113 +45,133 @@ class Global {
           settingModel.setLocalFolder(paths[0].name);
         }
       }
-      var drive = prefs.getString("drive");
-      drive ??= "SMB";
-      switch (getDrive(drive)) {
-        case Drive.smb:
-          final addr = prefs.getString("addr");
-          final username = prefs.getString("username");
-          final password = prefs.getString("password");
-          final share = prefs.getString("share");
-          final root = prefs.getString("rootPath");
-          if (addr != null &&
-              username != null &&
-              password != null &&
-              share != null &&
-              root != null) {
-            storage.cli
-                .setDriveSMB(SetDriveSMBRequest(
-              addr: addr,
-              username: username,
-              password: password,
-              share: share,
-              root: root,
-            ))
-                .then((rsp) {
-              if (rsp.success) {
-                logger.i("set drive smb success");
-                settingModel.setRemoteStorageSetted(true);
-                refreshUnsynchronizedPhotos();
-              } else {
-                settingModel.setRemoteStorageSetted(false);
-                assetModel.remoteLastError = rsp.message;
-              }
-            });
-          }
-          break;
-        case Drive.webDav:
-          final url = prefs.getString('webdav_url');
-          final username = prefs.getString('webdav_username');
-          final password = prefs.getString('webdav_password');
-          final root = prefs.getString('webdav_root_path');
-          if (url != null && root != null) {
-            storage.cli
-                .setDriveWebdav(SetDriveWebdavRequest(
-              addr: url,
-              username: username,
-              password: password,
-              root: root,
-            ))
-                .then((rsp) {
-              if (rsp.success) {
-                logger.i("set drive webdav success");
-                settingModel.setRemoteStorageSetted(true);
-                refreshUnsynchronizedPhotos();
-              } else {
-                settingModel.setRemoteStorageSetted(false);
-                assetModel.remoteLastError = rsp.message;
-              }
-            });
-          }
-          break;
-        case Drive.nfs:
-          final addr = prefs.getString('nfs_url');
-          final root = prefs.getString('nfs_root_path');
-          if (addr != null && root != null) {
-            storage.cli
-                .setDriveNFS(SetDriveNFSRequest(
-              addr: addr,
-              root: root,
-            ))
-                .then((rsp) {
-              if (rsp.success) {
-                logger.i("set drive nfs success");
-                settingModel.setRemoteStorageSetted(true);
-                refreshUnsynchronizedPhotos();
-              } else {
-                settingModel.setRemoteStorageSetted(false);
-                assetModel.remoteLastError = rsp.message;
-              }
-            });
-          }
-          break;
-        case Drive.baiduNetdisk:
-          final refreshToken = prefs.getString("baidu_refresh_token");
-          final accessToken = prefs.getString("baidu_access_token");
-          final expiresAt = prefs.getInt("baidu_expires_at");
-          if (refreshToken == null || refreshToken == "") {
-            break;
-          }
-          final temporaryDir = await getTemporaryDirectory();
-          print("temp dir: ${temporaryDir.path}");
-          storage.cli
-              .setDriveBaiduNetDisk(SetDriveBaiduNetDiskRequest(
-            refreshToken: refreshToken,
-            accessToken: accessToken,
-            tmpDir: temporaryDir.path,
-          ))
-              .then((rsp) {
-            if (rsp.success) {
-              logger.i("set drive baidu netdisk success");
-              settingModel.setRemoteStorageSetted(true);
-            } else {
-              settingModel.setRemoteStorageSetted(false);
-              assetModel.remoteLastError = rsp.message;
-            }
-          });
-      }
+      await initDrive();
       reloadAutoSyncTimer();
     });
+  }
+}
+
+DateTime? lastAliveTime;
+Future<void> checkServer() async {
+  if (lastAliveTime != null &&
+      DateTime.now().difference(lastAliveTime!) < const Duration(seconds: 60)) {
+    return;
+  }
+  try {
+    var socket = await Socket.connect('127.0.0.1', grpcPort);
+    socket.destroy();
+    lastAliveTime = DateTime.now();
+  } catch (e) {
+    print("connect 127.0.0.1:$grpcPort failed: $e");
+    print("reboot server");
+    final portsStr = await runServer();
+    final ports = portsStr.split(",");
+    if (ports.length != 2) {
+      logger.e("grpc server start failed");
+      return;
+    }
+    httpBaseUrl = "http://127.0.0.1:${ports[1]}";
+    grpcPort = int.parse(ports[0]);
+    httpPort = int.parse(ports[1]);
+    storage = RemoteStorage("127.0.0.1", int.parse(ports[0]));
+    await initDrive();
+  }
+}
+
+Future<void> initDrive() async {
+  final prefs = await SharedPreferences.getInstance();
+  var drive = prefs.getString("drive");
+  drive ??= "SMB";
+  switch (getDrive(drive)) {
+    case Drive.smb:
+      final addr = prefs.getString("addr");
+      final username = prefs.getString("username");
+      final password = prefs.getString("password");
+      final share = prefs.getString("share");
+      final root = prefs.getString("rootPath");
+      if (addr != null &&
+          username != null &&
+          password != null &&
+          share != null &&
+          root != null) {
+        final rsp = await storage.cli.setDriveSMB(SetDriveSMBRequest(
+          addr: addr,
+          username: username,
+          password: password,
+          share: share,
+          root: root,
+        ));
+        if (rsp.success) {
+          print("set drive smb success");
+          settingModel.setRemoteStorageSetted(true);
+        } else {
+          settingModel.setRemoteStorageSetted(false);
+          assetModel.remoteLastError = rsp.message;
+        }
+      }
+      break;
+    case Drive.webDav:
+      final url = prefs.getString('webdav_url');
+      final username = prefs.getString('webdav_username');
+      final password = prefs.getString('webdav_password');
+      final root = prefs.getString('webdav_root_path');
+      if (url != null && root != null) {
+        final rsp = await storage.cli.setDriveWebdav(SetDriveWebdavRequest(
+          addr: url,
+          username: username,
+          password: password,
+          root: root,
+        ));
+        if (rsp.success) {
+          logger.i("set drive webdav success");
+          settingModel.setRemoteStorageSetted(true);
+          // refreshUnsynchronizedPhotos();
+        } else {
+          settingModel.setRemoteStorageSetted(false);
+          assetModel.remoteLastError = rsp.message;
+        }
+      }
+      break;
+    case Drive.nfs:
+      final addr = prefs.getString('nfs_url');
+      final root = prefs.getString('nfs_root_path');
+      if (addr != null && root != null) {
+        final rsp = await storage.cli.setDriveNFS(SetDriveNFSRequest(
+          addr: addr,
+          root: root,
+        ));
+        if (rsp.success) {
+          logger.i("set drive nfs success");
+          settingModel.setRemoteStorageSetted(true);
+          // refreshUnsynchronizedPhotos();
+        } else {
+          settingModel.setRemoteStorageSetted(false);
+          assetModel.remoteLastError = rsp.message;
+        }
+      }
+      break;
+    case Drive.baiduNetdisk:
+      final refreshToken = prefs.getString("baidu_refresh_token");
+      final accessToken = prefs.getString("baidu_access_token");
+      final expiresAt = prefs.getInt("baidu_expires_at");
+      if (refreshToken == null || refreshToken == "") {
+        break;
+      }
+      final temporaryDir = await getTemporaryDirectory();
+      print("temp dir: ${temporaryDir.path}");
+      final rsp =
+          await storage.cli.setDriveBaiduNetDisk(SetDriveBaiduNetDiskRequest(
+        refreshToken: refreshToken,
+        accessToken: accessToken,
+        tmpDir: temporaryDir.path,
+      ));
+      if (rsp.success) {
+        logger.i("set drive baidu netdisk success");
+        settingModel.setRemoteStorageSetted(true);
+      } else {
+        settingModel.setRemoteStorageSetted(false);
+        assetModel.remoteLastError = rsp.message;
+      }
   }
 }
 

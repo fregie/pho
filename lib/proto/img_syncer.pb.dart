@@ -334,16 +334,21 @@ class FilterNotUploadedRequestInfo extends $pb.GeneratedMessage {
 class FilterNotUploadedRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FilterNotUploadedRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'img_syncer'), createEmptyInstance: create)
     ..pc<FilterNotUploadedRequestInfo>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'photos', $pb.PbFieldType.PM, subBuilder: FilterNotUploadedRequestInfo.create)
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isFinished', protoName: 'isFinished')
     ..hasRequiredFields = false
   ;
 
   FilterNotUploadedRequest._() : super();
   factory FilterNotUploadedRequest({
     $core.Iterable<FilterNotUploadedRequestInfo>? photos,
+    $core.bool? isFinished,
   }) {
     final _result = create();
     if (photos != null) {
       _result.photos.addAll(photos);
+    }
+    if (isFinished != null) {
+      _result.isFinished = isFinished;
     }
     return _result;
   }
@@ -370,6 +375,15 @@ class FilterNotUploadedRequest extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<FilterNotUploadedRequestInfo> get photos => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.bool get isFinished => $_getBF(1);
+  @$pb.TagNumber(2)
+  set isFinished($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasIsFinished() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIsFinished() => clearField(2);
 }
 
 class FilterNotUploadedResponse extends $pb.GeneratedMessage {
@@ -377,6 +391,7 @@ class FilterNotUploadedResponse extends $pb.GeneratedMessage {
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
     ..pPS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notUploaedIDs', protoName: 'notUploaedIDs')
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isFinished', protoName: 'isFinished')
     ..hasRequiredFields = false
   ;
 
@@ -385,6 +400,7 @@ class FilterNotUploadedResponse extends $pb.GeneratedMessage {
     $core.bool? success,
     $core.String? message,
     $core.Iterable<$core.String>? notUploaedIDs,
+    $core.bool? isFinished,
   }) {
     final _result = create();
     if (success != null) {
@@ -395,6 +411,9 @@ class FilterNotUploadedResponse extends $pb.GeneratedMessage {
     }
     if (notUploaedIDs != null) {
       _result.notUploaedIDs.addAll(notUploaedIDs);
+    }
+    if (isFinished != null) {
+      _result.isFinished = isFinished;
     }
     return _result;
   }
@@ -439,6 +458,15 @@ class FilterNotUploadedResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $core.List<$core.String> get notUploaedIDs => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.bool get isFinished => $_getBF(3);
+  @$pb.TagNumber(4)
+  set isFinished($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasIsFinished() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearIsFinished() => clearField(4);
 }
 
 class SetDriveSMBRequest extends $pb.GeneratedMessage {

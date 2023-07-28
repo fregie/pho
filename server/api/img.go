@@ -3,9 +3,8 @@ package api
 import (
 	"context"
 	"fmt"
-	"os"
+	"io"
 	"path/filepath"
-	"runtime/pprof"
 	"time"
 
 	pb "github.com/fregie/img_syncer/proto"
@@ -69,52 +68,66 @@ func (a *api) Delete(ctx context.Context, req *pb.DeleteRequest) (rsp *pb.Delete
 	return
 }
 
-func (a *api) FilterNotUploaded(ctx context.Context, req *pb.FilterNotUploadedRequest) (rsp *pb.FilterNotUploadedResponse, err error) {
-	rsp = &pb.FilterNotUploadedResponse{Success: true}
-	if len(req.Photos) == 0 {
-		rsp.Success, rsp.Message = false, "param error: names is empty"
-		return
-	}
+func (a *api) FilterNotUploaded(stream pb.ImgSyncer_FilterNotUploadedServer) error {
 	all := make(map[string]bool)
 	a.im.RangeByDate(time.Now(), func(path string, size int64) bool {
 		name := filepath.Base(path)
 		all[name] = true
 		return true
 	})
-	rsp.NotUploaedIDs = make([]string, 0, 100)
-	for _, info := range req.Photos {
-		t, err := time.Parse("2006:01:02 15:04:05", info.Date)
+	for {
+		r, err := stream.Recv()
 		if err != nil {
-			continue
+			if err == io.EOF {
+				break
+			}
+			return err
 		}
-		if !all[encodeName(t, info.Name)] {
-			rsp.NotUploaedIDs = append(rsp.NotUploaedIDs, info.Id)
+		rsp := &pb.FilterNotUploadedResponse{Success: true, IsFinished: r.IsFinished}
+		rsp.NotUploaedIDs = make([]string, 0, len(r.Photos))
+		for _, info := range r.Photos {
+			t, err := time.Parse("2006:01:02 15:04:05", info.Date)
+			if err != nil {
+				continue
+			}
+			if !all[encodeName(t, info.Name)] {
+				rsp.NotUploaedIDs = append(rsp.NotUploaedIDs, info.Id)
+			}
+		}
+		if err := stream.Send(rsp); err != nil {
+			return err
+		}
+		if rsp.IsFinished {
+			break
 		}
 	}
-	return
+	return nil
 }
 
-func saveGoroutineProfile() {
-	f, err := os.Create("goroutine_profile.out")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create goroutine profile file: %v\n", err)
-		return
-	}
-	defer f.Close()
-
-	p := pprof.Lookup("goroutine")
-	if p == nil {
-		fmt.Fprintf(os.Stderr, "Failed to find goroutine profile\n")
-		return
-	}
-
-	err = p.WriteTo(f, 1)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to write goroutine profile: %v\n", err)
-	} else {
-		fmt.Println("Goroutine profile saved to goroutine_profile.out")
-	}
-}
+// func (a *api) FilterNotUploaded(ctx context.Context, req *pb.FilterNotUploadedRequest) (rsp *pb.FilterNotUploadedResponse, err error) {
+// 	rsp = &pb.FilterNotUploadedResponse{Success: true}
+// 	if len(req.Photos) == 0 {
+// 		rsp.Success, rsp.Message = false, "param error: names is empty"
+// 		return
+// 	}
+// 	all := make(map[string]bool)
+// 	a.im.RangeByDate(time.Now(), func(path string, size int64) bool {
+// 		name := filepath.Base(path)
+// 		all[name] = true
+// 		return true
+// 	})
+// 	rsp.NotUploaedIDs = make([]string, 0, 100)
+// 	for _, info := range req.Photos {
+// 		t, err := time.Parse("2006:01:02 15:04:05", info.Date)
+// 		if err != nil {
+// 			continue
+// 		}
+// 		if !all[encodeName(t, info.Name)] {
+// 			rsp.NotUploaedIDs = append(rsp.NotUploaedIDs, info.Id)
+// 		}
+// 	}
+// 	return
+// }
 
 func isVideo(name string) bool {
 	ext := filepath.Ext(name)

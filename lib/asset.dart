@@ -39,7 +39,7 @@ class Asset extends ImageProvider<Asset> {
 
   Asset({this.local, this.remote}) {
     if (local != null) {
-      getLocalFile();
+      // getLocalFile();
       hasLocal = true;
     }
     if (remote != null) {
@@ -49,6 +49,10 @@ class Asset extends ImageProvider<Asset> {
 
   bool isLocal() {
     return hasLocal;
+  }
+
+  bool hasGotTitle() {
+    return localTitle != null;
   }
 
   Future<File?> getLocalFile() async {

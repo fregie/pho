@@ -6,7 +6,7 @@ option go_package = "github.com/fregie/img_syncer/proto";
 service ImgSyncer {
   rpc ListByDate (ListByDateRequest) returns (ListByDateResponse) {}
   rpc Delete (DeleteRequest) returns (DeleteResponse) {}
-  rpc FilterNotUploaded (FilterNotUploadedRequest) returns (FilterNotUploadedResponse) {}
+  rpc FilterNotUploaded (stream FilterNotUploadedRequest) returns (stream FilterNotUploadedResponse) {}
   // SAMBA Drive
   rpc SetDriveSMB (SetDriveSMBRequest) returns (SetDriveSMBResponse) {}
   rpc ListDriveSMBShares (ListDriveSMBSharesRequest) returns (ListDriveSMBSharesResponse) {}
@@ -55,11 +55,13 @@ message FilterNotUploadedRequestInfo {
 
 message FilterNotUploadedRequest {
   repeated FilterNotUploadedRequestInfo photos = 1;
+  bool isFinished = 2;
 }
 message FilterNotUploadedResponse {
   bool success = 1;
   string message = 2;
   repeated string notUploaedIDs = 3;
+  bool isFinished = 4;
 }
 
 message SetDriveSMBRequest {

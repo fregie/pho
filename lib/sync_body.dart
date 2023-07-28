@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -32,25 +33,23 @@ class SyncBodyState extends State<SyncBody> {
 
   @protected
   int pageSize = 20;
-  List<AssetEntity> all = [];
-  List<Asset> toShow = [];
+  List<Asset> all = [];
+  // List<Asset> toShow = [];
   bool syncing = false;
-  bool refreshing = false;
   bool _needStopSync = false;
-  int toUpload = 0;
 
   double scrollOffset = 0;
 
   @override
   void initState() {
     super.initState();
-    getPhotos().then((value) => loadMore());
+    getPhotos();
     _scrollSubject.stream
         .debounceTime(const Duration(milliseconds: 150))
         .listen((scrollPosition) {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 1500) {
-        loadMore();
+        // loadMore();
       }
       setState(() {
         scrollOffset = scrollPosition;
@@ -68,9 +67,7 @@ class SyncBodyState extends State<SyncBody> {
   void didUpdateWidget(SyncBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (all.isEmpty) {
-      getPhotos().then((value) => loadMore());
-    } else if (toShow.isEmpty) {
-      loadMore();
+      getPhotos();
     }
   }
 
@@ -81,55 +78,60 @@ class SyncBodyState extends State<SyncBody> {
     _scrollSubject.close();
   }
 
-  bool _isLoadingMore = false;
-  Future<void> loadMore() async {
-    if (syncing) {
-      return;
-    }
-    if (_isLoadingMore) {
-      return;
-    }
-    _isLoadingMore = true;
-    toUpload = stateModel.notSyncedIDs.length;
-    Map ids = {};
-    for (final id in stateModel.notSyncedIDs) {
-      ids[id] = true;
-    }
-    int count = 0;
-    int originLength = toShow.length;
-    for (var asset in all) {
-      final id = asset.id;
-      if (ids[id] == true) {
-        count++;
-        if (count <= originLength) {
-          continue;
-        }
-        final a = Asset(local: asset);
-        toShow.add(a);
-        if (count >= originLength + 2000) {
-          break;
-        }
-      }
-    }
+  // bool _isLoadingMore = false;
+  // Future<void> loadMore() async {
+  //   if (_isGettingPhotos != null) {
+  //     await _isGettingPhotos!.future;
+  //   }
+  //   if (syncing) {
+  //     return;
+  //   }
+  //   if (_isLoadingMore) {
+  //     return;
+  //   }
+  //   _isLoadingMore = true;
+  //   toUpload = stateModel.notSyncedIDs.length;
+  //   Map ids = {};
+  //   for (final id in stateModel.notSyncedIDs) {
+  //     ids[id] = true;
+  //   }
+  //   int count = 0;
+  //   int originLength = toShow.length;
+  //   for (var asset in all) {
+  //     final id = asset.id;
+  //     if (ids[id] == true) {
+  //       count++;
+  //       if (count <= originLength) {
+  //         continue;
+  //       }
+  //       final a = Asset(local: asset);
+  //       await a.getLocalFile();
+  //       toShow.add(a);
+  //       if (count >= originLength + 2000) {
+  //         break;
+  //       }
+  //     }
+  //   }
 
-    setState(() {
-      _isLoadingMore = false;
-    });
-  }
+  //   setState(() {
+  //     _isLoadingMore = false;
+  //   });
+  // }
 
-  bool _isGettingPhotos = false;
+  Completer<bool>? _isGettingPhotos = null;
   Future<void> getPhotos() async {
-    if (_isGettingPhotos) {
+    if (_isGettingPhotos != null) {
+      await _isGettingPhotos!.future;
       return;
     }
-    _isGettingPhotos = true;
+    _isGettingPhotos = Completer();
     all.clear();
     final re = await requestPermission();
     if (!re) return;
-    final List<AssetPathEntity> paths =
-        await PhotoManager.getAssetPathList(type: RequestType.common);
+    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
+        type: RequestType.common, hasAll: true);
     for (var path in paths) {
-      if (path.name == widget.localFolder) {
+      if (path.name == settingModel.localFolder) {
         final newpath = await path.fetchPathProperties(
             filterOptionGroup: FilterOptionGroup(
           orders: [
@@ -140,24 +142,24 @@ class SyncBodyState extends State<SyncBody> {
           ],
         ));
         int assetOffset = 0;
-        int assetPageSize = 100;
+        int assetPageSize = 300;
         while (true) {
           final List<AssetEntity> assets = await newpath!.getAssetListRange(
               start: assetOffset, end: assetOffset + assetPageSize);
           if (assets.isEmpty) {
             break;
           }
-          for (var asset in assets) {
-            all.add(asset);
+          for (var i = 0; i < assets.length; i++) {
+            all.add(Asset(local: assets[i]));
           }
           assetOffset += assetPageSize;
         }
         break;
       }
     }
-    setState(() {
-      _isGettingPhotos = false;
-    });
+    setState(() {});
+    _isGettingPhotos!.complete(true);
+    _isGettingPhotos = null;
   }
 
   Widget settingRows() {
@@ -279,26 +281,22 @@ class SyncBodyState extends State<SyncBody> {
       if (_needStopSync) {
         break;
       }
-      final id = asset.id;
+      final id = asset.local!.id;
       if (ids[id] != true) {
         continue;
       }
       try {
-        await storage.uploadAssetEntity(asset);
+        await storage.uploadAssetEntity(asset.local!);
       } catch (e) {
         print(e);
         SnackBarManager.showSnackBar("${l10n.uploadFailed}: $e");
         continue;
       }
-      setState(() {
-        toUpload -= 1;
-      });
     }
     setState(() {
       syncing = false;
     });
     eventBus.fire(RemoteRefreshEvent());
-    refreshUnsynchronizedPhotos();
   }
 
   void stopSync() {
@@ -306,6 +304,67 @@ class SyncBodyState extends State<SyncBody> {
   }
 
   Widget columnBuilder(BuildContext context, StateModel model, Widget? child) {
+    Map notUploadedIds = {};
+    for (final id in stateModel.notSyncedIDs) {
+      notUploadedIds[id] = true;
+    }
+    List<Widget> listChildren = [];
+    double currentScrollOffset = 0;
+    for (var asset in all) {
+      final id = asset.local!.id;
+      if (notUploadedIds[id] != true) {
+        continue;
+      }
+      final totalHeight = MediaQuery.of(context).size.height;
+      bool needLoadThumbnail = false;
+      if (currentScrollOffset > scrollOffset - (2 * totalHeight) &&
+          currentScrollOffset < scrollOffset + (3 * totalHeight)) {
+        needLoadThumbnail = true;
+        if (!asset.loadThumbnailFinished()) {
+          asset.thumbnailDataAsync().then((value) => setState(() {}));
+        }
+        if (!asset.hasGotTitle()) {
+          asset.getLocalFile().then((value) => setState(() {}));
+        }
+      }
+      Widget child = ListTile(
+        leading: SizedBox(
+          width: 60,
+          height: 60,
+          child: needLoadThumbnail && asset.loadThumbnailFinished()
+              ? Image(image: asset.thumbnailProvider(), fit: BoxFit.cover)
+              : Container(color: Colors.grey),
+        ),
+        title: Text(
+          asset.name()!,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: needLoadThumbnail
+            ? Consumer<StateModel>(
+                builder: (context, stateModel, child) {
+                  final percent = stateModel.getUploadPercent(asset.local!.id);
+                  if (percent > 0) {
+                    return Container(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                      child: LinearProgressIndicator(value: percent),
+                    );
+                  }
+                  if (stateModel.notSyncedIDs.contains(asset.local!.id)) {
+                    return Text(l10n.notUploaded,
+                        style: const TextStyle(color: Colors.grey));
+                  }
+                  return Text(
+                    l10n.uploaded,
+                    style:
+                        const TextStyle(color: Color.fromARGB(255, 75, 154, 0)),
+                  );
+                },
+              )
+            : Container(),
+      );
+      listChildren.add(child);
+      currentScrollOffset += 72; // ListTile's height
+    }
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -318,7 +377,7 @@ class SyncBodyState extends State<SyncBody> {
             padding: const EdgeInsets.fromLTRB(0, 0, 5, 5),
             alignment: Alignment.bottomRight,
             child: Text(
-              "$toUpload ${l10n.notSync}",
+              "${listChildren.length} ${l10n.notSync}",
               style: const TextStyle(color: Colors.grey),
             ),
           ),
@@ -333,12 +392,14 @@ class SyncBodyState extends State<SyncBody> {
             // label: const Text('Refresh'),
             elevation: 2,
             onPressed: () => syncing ||
-                    refreshing ||
+                    model.refreshingUnsynchronized ||
                     model.isDownloading() ||
                     model.isUploading()
                 ? null
                 : refreshUnsynchronized(),
-            child: refreshing ? CircularProgress() : const Icon(Icons.refresh),
+            child: model.refreshingUnsynchronized
+                ? CircularProgress()
+                : const Icon(Icons.refresh),
           ),
           Container(
             padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
@@ -355,7 +416,7 @@ class SyncBodyState extends State<SyncBody> {
                     return;
                   }
                   if (syncing ||
-                      refreshing ||
+                      model.refreshingUnsynchronized ||
                       model.isDownloading() ||
                       model.isUploading()) {
                     stopSync();
@@ -405,7 +466,7 @@ class SyncBodyState extends State<SyncBody> {
                     )),
               ),
             ),
-          refreshing
+          model.refreshingUnsynchronized && listChildren.isEmpty
               ? Container(
                   padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
                   child: Center(
@@ -418,68 +479,10 @@ class SyncBodyState extends State<SyncBody> {
                   ),
                 )
               : Flexible(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: toShow.length,
-                    itemBuilder: (context, index) {
-                      final totalHeight = MediaQuery.of(context).size.height;
-                      final currentScrollOffset =
-                          72 * index; // ListTile's height
-                      bool needLoadThumbnail = false;
-                      if (currentScrollOffset >
-                              scrollOffset - (2 * totalHeight) &&
-                          currentScrollOffset <
-                              scrollOffset + (3 * totalHeight)) {
-                        needLoadThumbnail = true;
-                        if (!toShow[index].loadThumbnailFinished()) {
-                          toShow[index]
-                              .thumbnailDataAsync()
-                              .then((value) => setState(() {}));
-                        }
-                      }
-                      return ListTile(
-                        leading: SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: needLoadThumbnail &&
-                                  toShow[index].loadThumbnailFinished()
-                              ? Image(
-                                  image: toShow[index].thumbnailProvider(),
-                                  fit: BoxFit.cover)
-                              : Container(color: Colors.grey),
-                        ),
-                        title: Text(toShow[index].name()!),
-                        subtitle: needLoadThumbnail
-                            ? Consumer<StateModel>(
-                                builder: (context, stateModel, child) {
-                                  final percent = stateModel.getUploadPercent(
-                                      toShow[index].local!.id);
-                                  if (percent > 0) {
-                                    return Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 0, 10, 0),
-                                      child: LinearProgressIndicator(
-                                          value: percent),
-                                    );
-                                  }
-                                  if (stateModel.notSyncedIDs
-                                      .contains(toShow[index].local!.id)) {
-                                    return Text(l10n.notUploaded,
-                                        style: const TextStyle(
-                                            color: Colors.grey));
-                                  }
-                                  return Text(
-                                    l10n.uploaded,
-                                    style: const TextStyle(
-                                        color: Color.fromARGB(255, 75, 154, 0)),
-                                  );
-                                },
-                              )
-                            : Container(),
-                      );
-                    },
-                  ),
-                ),
+                  child: ListView(
+                  controller: _scrollController,
+                  children: listChildren,
+                )),
         ],
       ),
     );
@@ -488,11 +491,7 @@ class SyncBodyState extends State<SyncBody> {
   @override
   Widget build(BuildContext context) {
     Provider.of<SettingModel>(context, listen: true).addListener(() {
-      setState(() {
-        all = [];
-        toShow = [];
-        toUpload = 0;
-      });
+      getPhotos();
     });
     return Consumer<StateModel>(
       builder: columnBuilder,
@@ -515,15 +514,9 @@ class SyncBodyState extends State<SyncBody> {
       stateModel.setNotSyncedPhotos([]);
       return;
     }
-    setState(() {
-      refreshing = true;
-      toShow = [];
-    });
-    await refreshUnsynchronizedPhotos();
-    await getPhotos();
-    await loadMore();
-    setState(() {
-      refreshing = false;
-    });
+    await Future.wait([
+      refreshUnsynchronizedPhotos(),
+      getPhotos(),
+    ]);
   }
 }
