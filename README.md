@@ -12,8 +12,8 @@ Pho - 一个用于查看和上传照片的无服务端应用
 </p>
 
 ### 安装
-目前仅支持安卓端.  
-[点我下载apk](https://github.com/fregie/pho/releases)
+安卓: [点我下载apk](https://github.com/fregie/pho/releases)  
+IOS: [App store](https://apps.apple.com/cn/app/pho-%E5%90%8C%E6%AD%A5%E7%85%A7%E7%89%87%E5%88%B0nas-%E7%BD%91%E7%9B%98/id6451428709)
 
 ### 介绍
 该应用的目的是替代手机上的自带相册应用,并且能够将照片同步到网络储存.  
@@ -47,7 +47,7 @@ Pho - 一个用于查看和上传照片的无服务端应用
 - [x] 支持上传/浏览视频
 - [x] 支持NFS
 - [x] 支持百度网盘
-- [ ] 支持IOS端
+- [x] 支持IOS端
 - [ ] 支持desktop端
 - [x] 支持中文
 

@@ -12,8 +12,9 @@ Pho - A serverless application for viewing and uploading photos
 </p>
 
 ### Installation
-Currently only supported on Android devices.  
-[Click here to download the APK](https://github.com/fregie/pho/releases)
+Android: [Click here to download the APK](https://github.com/fregie/pho/releases)  
+IOS: [App store](https://apps.apple.com/cn/app/pho-%E5%90%8C%E6%AD%A5%E7%85%A7%E7%89%87%E5%88%B0nas-%E7%BD%91%E7%9B%98/id6451428709)
+
 
 ### Introduction
 The primary objective of this application is to serve as a replacement for the native photo gallery application on smartphones. It also offers the capability to synchronize photos with online storage.  
@@ -46,8 +47,8 @@ Pho is a simple app designed for viewing and synchronizing photos to cloud stora
 - [x] Support zooming in/out of images
 - [x] Support uploading/browsing videos
 - [x] Support NFS
-- [ ] Support Alibaba Cloud Drive
-- [ ] Support iOS
+- [x] Support Baidu net disk
+- [x] Support iOS
 - [ ] Support web version
 - [x] Add Chinese
 
