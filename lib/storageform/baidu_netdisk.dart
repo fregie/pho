@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:img_syncer/event_bus.dart';
 import 'package:img_syncer/proto/img_syncer.pbgrpc.dart';
@@ -75,8 +77,12 @@ class BaiduNetdiskFormState extends State<BaiduNetdiskForm> {
             });
             final Uri authUrl = Uri.parse(
                 'http://openapi.baidu.com/oauth/2.0/authorize?response_type=code&client_id=8wylQfdIzIpNFOGHZSnOOQ98QLDFvl1U&redirect_uri=http://localhost.pho.tools:$httpPort/baidu/callback&scope=basic,netdisk&device_id=34906909&display=mobile');
-            if (!await launchUrl(authUrl,
-                mode: LaunchMode.externalApplication)) {
+            LaunchMode mode = LaunchMode.externalApplication;
+            if (Platform.isIOS) {
+              mode = LaunchMode.inAppWebView;
+            }
+            final success = await launchUrl(authUrl, mode: mode);
+            if (!success) {
               throw Exception('Could not launch $authUrl');
             }
           },
