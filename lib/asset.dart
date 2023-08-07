@@ -188,8 +188,12 @@ class Asset extends ImageProvider<Asset> {
   }
 
   ImageProvider thumbnailProvider() {
-    if (_thumbnailData != null && _thumbnailData!.isNotEmpty) {
-      return MemoryImage(_thumbnailData!);
+    try {
+      if (_thumbnailData != null && _thumbnailData!.isNotEmpty) {
+        return MemoryImage(_thumbnailData!);
+      }
+    } catch (e) {
+      print(e);
     }
     return Image.asset("assets/images/gray.jpg").image;
   }
@@ -210,8 +214,8 @@ class Asset extends ImageProvider<Asset> {
     if (hasRemote) {
       data = await remote!.thumbnail();
     }
-    if (data == null || data.isEmpty) {
-      final brokenData = await rootBundle.load("assets/images/broken.png");
+    if (data == null || data.isEmpty || !await isValidImage(data)) {
+      final brokenData = await rootBundle.load("assets/images/gray.jpg");
       _thumbnailDataCompleter!.complete(brokenData.buffer.asUint8List());
       return brokenData.buffer.asUint8List();
     } else {
@@ -397,6 +401,15 @@ class Asset extends ImageProvider<Asset> {
 
   @override
   ImageStreamCompleter loadBuffer(Asset key, DecoderBufferCallback decode) {
+    if (extension(path()) == ".gif") {
+      return MultiFrameImageStreamCompleter(
+        codec: _loadAsyncMultiFrame(key, decode),
+        scale: 1,
+        informationCollector: () sync* {
+          yield ErrorDescription('Image provider: ${describeIdentity(key)}');
+        },
+      );
+    }
     return OneFrameImageStreamCompleter(_loadAsync(key, decode));
   }
 
@@ -405,11 +418,66 @@ class Asset extends ImageProvider<Asset> {
     if (data.isEmpty) {
       data = await thumbnailDataAsync();
     }
-    final ui.Codec codec = await ui.instantiateImageCodec(data);
-    final ui.FrameInfo fi = await codec.getNextFrame();
-    return ImageInfo(image: fi.image);
+    try {
+      final ui.Codec codec = await ui.instantiateImageCodec(data);
+      final ui.FrameInfo fi = await codec.getNextFrame();
+      return ImageInfo(image: fi.image);
+    } catch (e) {
+      print(e);
+    }
+    return await loadImage("assets/images/gray.jpg");
+  }
+
+  Future<ui.Codec> _loadAsyncMultiFrame(
+      Asset key, DecoderBufferCallback decode) async {
+    Uint8List data = await imageDataAsync();
+    if (data.isEmpty) {
+      data = await thumbnailDataAsync();
+    }
+    try {
+      final ui.Codec codec = await ui.instantiateImageCodec(data);
+      return codec;
+    } catch (e) {
+      print(e);
+    }
+    // If the data is invalid, you might want to load a fallback image.
+    // For this, you'll need to load the bytes for the fallback image and instantiate the codec for that.
+    // However, be careful, as this is a potential infinite loop if the fallback image fails to load too.
+    data = await _loadFallbackImageData();
+    return ui.instantiateImageCodec(data);
+  }
+
+  Future<Uint8List> _loadFallbackImageData() async {
+    ByteData data = await rootBundle.load("assets/images/gray.jpg");
+    return data.buffer.asUint8List();
   }
 
   @override
   String toString() => 'Asset(local: $local, remote: $remote)';
+}
+
+Future<ImageInfo> loadImage(String path) async {
+  final Completer<ImageInfo> completer = Completer();
+  final ImageProvider provider = AssetImage(path);
+  final ImageStream stream = provider.resolve(ImageConfiguration.empty);
+  final listener = ImageStreamListener((ImageInfo info, bool _) {
+    if (!completer.isCompleted) {
+      completer.complete(info);
+    }
+  });
+
+  stream.addListener(listener);
+  completer.future.then((_) => stream.removeListener(listener));
+
+  return completer.future;
+}
+
+Future<bool> isValidImage(Uint8List imageData) async {
+  try {
+    final codec =
+        await PaintingBinding.instance.instantiateImageCodec(imageData);
+    return codec != null;
+  } catch (e) {
+    return false;
+  }
 }

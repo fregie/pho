@@ -250,7 +250,7 @@ func (d *BaiduNetdisk) Upload(path string, reader io.ReadCloser, size int64, las
 	blockMd5 := md5.New()
 	blockList := make([]string, 0)
 	buf := make([]byte, 4*1024*1024)
-	tmpFilePath := filepath.Join(d.tmpFileDir, "baidu_tmp")
+	tmpFilePath := filepath.Join(d.tmpFileDir, fmt.Sprintf("baidu_tmp_%s", filepath.Base(fullPath)))
 	tmpFile, err := os.OpenFile(tmpFilePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0644)
 	if err != nil {
 		return fmt.Errorf("open temp file error: %v", err)
@@ -462,22 +462,24 @@ func (d *BaiduNetdisk) dlinkCacher() {
 				fsIDs = append(fsIDs, fsID)
 			}
 			if len(fsIDs) >= 100 {
-				err := d.cacheDlinks(fsIDs)
-				if err != nil {
-					log.Printf("cache dlinks error: %v", err)
-					continue
-				}
-				fsIDs = fsIDs[:0]
+				go func(fsIDs []string) {
+					err := d.cacheDlinks(fsIDs)
+					if err != nil {
+						log.Printf("cache dlinks error: %v", err)
+					}
+				}(fsIDs)
+				fsIDs = make([]string, 0, 100)
 				ticker.Reset(2 * time.Second)
 			}
 		case <-ticker.C:
 			if len(fsIDs) > 0 {
-				err := d.cacheDlinks(fsIDs)
-				if err != nil {
-					log.Printf("cache dlinks error: %v", err)
-					continue
-				}
-				fsIDs = fsIDs[:0]
+				go func(fsIDs []string) {
+					err := d.cacheDlinks(fsIDs)
+					if err != nil {
+						log.Printf("cache dlinks error: %v", err)
+					}
+				}(fsIDs)
+				fsIDs = make([]string, 0, 100)
 			}
 		}
 	}

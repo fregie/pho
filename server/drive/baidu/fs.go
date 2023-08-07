@@ -134,7 +134,7 @@ func (d *BaiduNetdisk) cacheDir() error {
 		children:   make(map[string]*fsNode),
 	}
 	start := 0
-	limit := 1000
+	limit := 2000
 	for {
 		reqUrl := fmt.Sprintf("http://pan.baidu.com/rest/2.0/xpan/multimedia?method=listall&path=%s&access_token=%s&web=1&recursion=1&start=%d&limit=%d", d.rootPath, d.AccessToken(), start, limit)
 		req, err := http.NewRequest("GET", reqUrl, nil)
@@ -193,6 +193,9 @@ func (d *BaiduNetdisk) cacheDir() error {
 							ServerFilename: name,
 							Path:           "/" + strings.Join(eles[:j+1], "/"),
 						}
+						if len(v.info.Path) > 0 && v.info.Path[0] != '/' {
+							v.info.Path = "/" + v.info.Path
+						}
 					}
 					currentDir.children[name] = v
 				}
@@ -205,6 +208,7 @@ func (d *BaiduNetdisk) cacheDir() error {
 		if rsp.HasMore == 0 {
 			break
 		}
+		start = rsp.Cursor
 	}
 	return nil
 }
