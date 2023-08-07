@@ -159,6 +159,7 @@ class AssetModel extends ChangeNotifier {
     localHasMore = true;
     localAssets = [];
     notifyListeners();
+    stateModel.setNotSyncedPhotos([]);
     await getLocalPhotos();
   }
 
@@ -170,6 +171,7 @@ class AssetModel extends ChangeNotifier {
     remoteAssets = [];
     notifyListeners();
     remoteGetting = null;
+    stateModel.setNotSyncedPhotos([]);
     await getRemotePhotos();
   }
 

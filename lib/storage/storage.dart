@@ -107,6 +107,20 @@ class RemoteStorage {
     final thumbLen = thumbnailData!.length;
     final totalLen = imgLen + thumbLen;
     stateModel.updateUploadProgress(asset.id, uploaded, totalLen);
+
+    final thumbRsp = await http.post(
+      Uri.parse("$httpBaseUrl/thumbnail/$name"),
+      body: thumbnailData,
+      headers: {
+        'Image-Date': dateStr,
+      },
+    );
+    stateModel.updateUploadProgress(asset.id, uploaded + thumbLen, totalLen);
+    if (thumbRsp.statusCode != 200) {
+      stateModel.finishUpload(asset.id, false);
+      throw Exception("upload thumbnail failed: ${thumbRsp.statusCode}");
+    }
+
     var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
     req.headers['Image-Date'] = dateStr;
     req.contentLength = await file.length();
@@ -122,19 +136,6 @@ class RemoteStorage {
       stateModel.finishUpload(asset.id, false);
       final body = await response.stream.bytesToString();
       throw Exception("upload failed: [${response.statusCode}] $body");
-    }
-
-    final thumbRsp = await http.post(
-      Uri.parse("$httpBaseUrl/thumbnail/$name"),
-      body: thumbnailData,
-      headers: {
-        'Image-Date': dateStr,
-      },
-    );
-    stateModel.updateUploadProgress(asset.id, uploaded + thumbLen, totalLen);
-    if (thumbRsp.statusCode != 200) {
-      stateModel.finishUpload(asset.id, false);
-      throw Exception("upload thumbnail failed: ${thumbRsp.statusCode}");
     }
     stateModel.finishUpload(asset.id, true);
   }

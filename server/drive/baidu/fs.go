@@ -119,14 +119,12 @@ type fsNode struct {
 	UpdateTime time.Time
 }
 
-func (d *BaiduNetdisk) cacheDir() error {
-	ok := d.cacheRLock.TryLock()
-	if !ok {
-		d.cacheRLock.RLock()
-		d.cacheRLock.RUnlock()
+func (d *BaiduNetdisk) cacheDir(force bool) error {
+	d.cacheRLock.Lock()
+	defer d.cacheRLock.Unlock()
+	if !force && d.fsCache != nil && time.Since(d.fsCache.UpdateTime) < 10*time.Minute {
 		return nil
 	}
-	defer d.cacheRLock.Unlock()
 	d.fsCache = &fsNode{
 		name:       "",
 		isDir:      true,
@@ -215,7 +213,7 @@ func (d *BaiduNetdisk) cacheDir() error {
 
 func (d *BaiduNetdisk) getFsID(fullPath string) (uint64, error) {
 	if d.getRootFsNode() == nil {
-		err := d.cacheDir()
+		err := d.cacheDir(false)
 		if err != nil {
 			return 0, fmt.Errorf("cache dir error: %v", err)
 		}
@@ -231,7 +229,7 @@ RETRY:
 		v, ok := currentDir.children[name]
 		if !ok {
 			if !retried {
-				err := d.cacheDir()
+				err := d.cacheDir(true)
 				if err != nil {
 					return 0, fmt.Errorf("cache dir error: %v", err)
 				}
@@ -258,7 +256,7 @@ func (d *BaiduNetdisk) rangeFullDir(fullDir string, deal func(fs.FileInfo) bool)
 	eles := strings.Split(fullDir, "/")
 	currentDir := d.getRootFsNode()
 	if currentDir == nil || time.Since(currentDir.UpdateTime) > 10*time.Minute {
-		err := d.cacheDir()
+		err := d.cacheDir(true)
 		if err != nil {
 			log.Printf("cache dir error: %v", err)
 			goto NOCACHE

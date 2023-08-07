@@ -437,7 +437,7 @@ func (d *BaiduNetdisk) Range(dir string, deal func(fs.FileInfo) bool) error {
 	}
 	fullpath := filepath.ToSlash(filepath.Join(d.rootPath, dir))
 	if fullpath == d.rootPath {
-		d.cacheDir()
+		d.cacheDir(true)
 	}
 	err := d.rangeFullDir(fullpath, deal)
 	return err
