@@ -134,7 +134,7 @@ func (d *BaiduNetdisk) cacheDir(force bool) error {
 	start := 0
 	limit := 2000
 	for {
-		reqUrl := fmt.Sprintf("http://pan.baidu.com/rest/2.0/xpan/multimedia?method=listall&path=%s&access_token=%s&web=1&recursion=1&start=%d&limit=%d", d.rootPath, d.AccessToken(), start, limit)
+		reqUrl := fmt.Sprintf("http://pan.baidu.com/rest/2.0/xpan/multimedia?method=listall&path=%s&access_token=%s&web=1&recursion=1&start=%d&limit=%d&order=time", d.rootPath, d.AccessToken(), start, limit)
 		req, err := http.NewRequest("GET", reqUrl, nil)
 		if err != nil {
 			return fmt.Errorf("create request error: %v", err)
