@@ -99,10 +99,3 @@ IOS: [App store](https://apps.apple.com/cn/app/pho-%E5%90%8C%E6%AD%A5%E7%85%A7%E
 
 ### 加入QQ交流反馈群
 <img src="assets/pho-qq-group.jpg" width="400">
-
-### 支持开发者
-如果你觉得这个项目对你有帮助,可以请我喝杯咖啡.这将给予我很大动力继续开发维护这个项目.
-<p>
-<img src="assets/pay_qr/alipay_qr.jpg" width="250">
-<img src="assets/pay_qr/wechat_qr.png" width="250">
-</p>
