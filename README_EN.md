@@ -12,8 +12,12 @@ Pho - A serverless application for viewing and uploading photos
 </p>
 
 ### Installation
-Android: [Click here to download the APK](https://github.com/fregie/pho/releases)  
-IOS: [App store](https://apps.apple.com/cn/app/pho-%E5%90%8C%E6%AD%A5%E7%85%A7%E7%89%87%E5%88%B0nas-%E7%BD%91%E7%9B%98/id6451428709)
+
+[Download APK](https://github.com/fregie/pho/releases) 
+
+[Google Play](https://play.google.com/store/apps/details?id=com.fregie.pho)  
+
+[App store](https://apps.apple.com/cn/app/pho-%E5%90%8C%E6%AD%A5%E7%85%A7%E7%89%87%E5%88%B0nas-%E7%BD%91%E7%9B%98/id6451428709)
 
 
 ### Introduction
