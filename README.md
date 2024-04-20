@@ -101,6 +101,3 @@ Pho - 一个用于查看和上传照片的无服务端应用
 ### Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=fregie/pho&type=Date)](https://star-history.com/#fregie/pho&Date)
-
-### 加入QQ交流反馈群
-<img src="assets/pho-qq-group.jpg" width="400">
