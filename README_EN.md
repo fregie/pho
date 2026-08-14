@@ -106,7 +106,7 @@ Directory Structure Diagram:
 
 ### Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=fregie/pho&type=Date)](https://star-history.com/#fregie/pho&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=fregie/pho&type=Date)](https://star-history.dera.page/#fregie/pho&Date)
 
 ### Join QQ group
 <img src="assets/pho-qq-group.jpg" width="400">
