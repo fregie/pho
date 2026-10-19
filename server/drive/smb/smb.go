@@ -197,6 +197,10 @@ func (s *Smb) Upload(path string, content io.ReadCloser, size int64, lastModifie
 	_, copyErr := io.Copy(f, content)
 	closeErr := f.Close()
 	if copyErr != nil {
+		// 删除残缺文件，防止 FilterNotUploaded 按名匹配将其标记为已上传（issue #83/#82）
+		if rmErr := s.fs.Remove(fullPath); rmErr != nil {
+			log.Printf("remove partial file failed (non-fatal): %v", rmErr)
+		}
 		return fmt.Errorf("copy error: %v", copyErr)
 	}
 	if closeErr != nil {

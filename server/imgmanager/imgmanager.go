@@ -192,6 +192,31 @@ func (im *ImgManager) genPath(name string, date time.Time, options Options) stri
 	return path
 }
 
+// sizeCheckReader 校验 reader 实际产出的字节数与声明一致。
+// 防止截断上传（reader 提前 EOF）被当作完整文件保存为损坏文件（issue #83/#82）。
+// 实现 io.ReadCloser：Close 透传到底层 reader，保证 GCM 加密 pipe 能被正常关闭。
+type sizeCheckReader struct {
+	r    io.Reader
+	n    int64
+	want int64
+}
+
+func (s *sizeCheckReader) Read(p []byte) (int, error) {
+	n, err := s.r.Read(p)
+	s.n += int64(n)
+	if err == io.EOF && s.n != s.want {
+		return n, fmt.Errorf("upload size mismatch: got %d bytes, declared %d", s.n, s.want)
+	}
+	return n, err
+}
+
+func (s *sizeCheckReader) Close() error {
+	if c, ok := s.r.(io.Closer); ok {
+		return c.Close()
+	}
+	return nil
+}
+
 func (im *ImgManager) Upload(content io.Reader, contentSize int64, name string, date time.Time, opts ...OptionFunc) error {
 	var options Options
 	for _, opt := range opts {
@@ -211,7 +236,7 @@ func (im *ImgManager) Upload(content io.Reader, contentSize int64, name string, 
 	}
 	d, unlock := im.drive()
 	defer unlock()
-	e := d.Upload(path, io.NopCloser(reader), contentSize, date)
+	e := d.Upload(path, &sizeCheckReader{r: reader, want: contentSize}, contentSize, date)
 	if e != nil {
 		im.logger.Println("Error uploading:", e)
 		return fmt.Errorf("error uploading: %w", e)
@@ -239,7 +264,7 @@ func (im *ImgManager) UploadThumbnail(thumbnailContent io.Reader, thumbnailSize 
 	d, unlock := im.drive()
 	defer unlock()
 	e := d.Upload(filepath.Join(defaultThumbnailDir, path),
-		io.NopCloser(reader), thumbnailSize, date)
+		&sizeCheckReader{r: reader, want: thumbnailSize}, thumbnailSize, date)
 	if e != nil {
 		im.logger.Printf("Error uploading %s: %s", path, e)
 		return fmt.Errorf("error uploading %s thumbnail: %w", path, e)
@@ -266,7 +291,7 @@ func (im *ImgManager) UploadLiveVideo(content io.Reader, size int64, name string
 	}
 	d, unlock := im.drive()
 	defer unlock()
-	e := d.Upload(path, io.NopCloser(reader), size, date)
+	e := d.Upload(path, &sizeCheckReader{r: reader, want: size}, size, date)
 	if e != nil {
 		im.logger.Printf("Error uploading %s: %s", path, e)
 		return fmt.Errorf("error uploading %s thumbnail: %w", path, e)

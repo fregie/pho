@@ -29,6 +29,14 @@ String encryptionTypeName(EncryptionType type) {
 
 RemoteStorage storage = RemoteStorage("127.0.0.1", 10000);
 
+/// 上传完成后是否删除本地源文件：仅 iOS 且上传成功时删除。
+/// 原 finally 块无条件删除，同步失败时源文件会丢失（issue #83/#82）。
+bool shouldDeleteLocalFileAfterUpload({
+  required bool isIOS,
+  required bool uploadSucceeded,
+}) =>
+    isIOS && uploadSucceeded;
+
 /// 测试注入用的 override，非 null 时替换 storage 全局变量
 RemoteStorageClient? _storageOverride;
 RemoteStorageClient get storageClient => _storageOverride ?? storage;
@@ -129,19 +137,11 @@ class RemoteStorage implements RemoteStorageClient {
     }
     final thumbnailData =
         await asset.thumbnailDataWithSize(thumbnailSize, quality: 90);
-    if (thumbnailData == null) {
-      throw Exception("asset thumbnail is null");
-    }
+    // 缩略图生成失败（视频/HEIC 等）时降级：跳过缩略图继续上传原件（issue #64/#57）
     File? liveVideoFile;
     final imgLen = await file.length();
-    final thumbLen = thumbnailData.length;
+    final thumbLen = thumbnailData?.length ?? 0;
     int totalLen = imgLen + thumbLen;
-    if (asset.isLivePhoto) {
-      liveVideoFile = await asset.originFileWithSubtype;
-      if (liveVideoFile != null) {
-        totalLen += await liveVideoFile.length();
-      }
-    }
     stateModel.updateUploadProgress(asset.id, 1, totalLen);
     int maxRetries = 3;
     int retryCount = 0;
@@ -149,29 +149,43 @@ class RemoteStorage implements RemoteStorageClient {
     while (!succeeded) {
       int uploaded = 0;
       try {
-        // upload thumbnail
-        final thumbRsp = await http.post(
-          Uri.parse("$httpBaseUrl/thumbnail/$name"),
-          body: thumbnailData,
-          headers: {
-            'Image-Date': dateStr,
-            'Image-Is-Live-Photo': asset.isLivePhoto ? "true" : "false",
-            'Image-Encrypt-Type': settingModel.enableEncrypt
-                ? encryptionTypeName(settingModel.encryptionType)
-                : "None",
-            'Image-Encrypt-Password': settingModel.enableEncrypt
-                ? settingModel.encryptionPassword
-                : "",
-          },
-        );
-        stateModel.updateUploadProgress(
-            asset.id, uploaded + thumbLen, totalLen);
-        if (thumbRsp.statusCode != 200) {
-          stateModel.finishUpload(asset.id, false);
-          logger.addLog(
-              "upload $name thumbnail failed: ${thumbRsp.statusCode} ${thumbRsp.body}");
-          throw Exception(
-              "upload thumbnail failed: [${thumbRsp.statusCode}] ${thumbRsp.body}");
+        // live 视频在重试循环内重新获取：iCloud 优化存储下视频可能未下载，
+        // 首轮拿不到（返回 null），重试时可能已下载完成。
+        // 拿不到视频时不静默跳过——抛异常走 catch，失败则不加入 syncedIDs。
+        liveVideoFile = null;
+        if (asset.isLivePhoto) {
+          liveVideoFile = await asset.originFileWithSubtype;
+          if (liveVideoFile == null) {
+            throw Exception(
+                "live video file not available (iCloud not downloaded?)");
+          }
+          totalLen = imgLen + thumbLen + await liveVideoFile.length();
+        }
+        // upload thumbnail（缩略图缺失时跳过，不中止上传）
+        if (thumbnailData != null) {
+          final thumbRsp = await http.post(
+            Uri.parse("$httpBaseUrl/thumbnail/$name"),
+            body: thumbnailData,
+            headers: {
+              'Image-Date': dateStr,
+              'Image-Is-Live-Photo': asset.isLivePhoto ? "true" : "false",
+              'Image-Encrypt-Type': settingModel.enableEncrypt
+                  ? encryptionTypeName(settingModel.encryptionType)
+                  : "None",
+              'Image-Encrypt-Password': settingModel.enableEncrypt
+                  ? settingModel.encryptionPassword
+                  : "",
+            },
+          );
+          stateModel.updateUploadProgress(
+              asset.id, uploaded + thumbLen, totalLen);
+          if (thumbRsp.statusCode != 200) {
+            stateModel.finishUpload(asset.id, false);
+            logger.addLog(
+                "upload $name thumbnail failed: ${thumbRsp.statusCode} ${thumbRsp.body}");
+            throw Exception(
+                "upload thumbnail failed: [${thumbRsp.statusCode}] ${thumbRsp.body}");
+          }
         }
         // upload origin image
         var req = http.StreamedRequest("POST", Uri.parse("$httpBaseUrl/$name"));
@@ -187,7 +201,8 @@ class RemoteStorage implements RemoteStorageClient {
         req.contentLength = await file.length();
         file.openRead().listen((chunk) {
           uploaded += chunk.length;
-          stateModel.updateUploadProgress(asset.id, uploaded, totalLen);
+          stateModel.updateUploadProgress(
+              asset.id, uploaded + thumbLen, totalLen);
           req.sink.add(chunk);
         }, onDone: () {
           req.sink.close();
@@ -218,7 +233,8 @@ class RemoteStorage implements RemoteStorageClient {
           req.contentLength = await liveVideoFile.length();
           liveVideoFile.openRead().listen((chunk) {
             uploaded += chunk.length;
-            stateModel.updateUploadProgress(asset.id, uploaded, totalLen);
+            stateModel.updateUploadProgress(
+                asset.id, uploaded + thumbLen, totalLen);
             req.sink.add(chunk);
           }, onDone: () {
             req.sink.close();
@@ -243,7 +259,8 @@ class RemoteStorage implements RemoteStorageClient {
           rethrow;
         }
       } finally {
-        if (Platform.isIOS) {
+        if (shouldDeleteLocalFileAfterUpload(
+            isIOS: Platform.isIOS, uploadSucceeded: succeeded)) {
           Future.delayed(const Duration(milliseconds: 200), () {
             try {
               file.deleteSync();
@@ -341,34 +358,33 @@ class RemoteImage {
     }
   }
 
-  Future<Uint8List> thumbnail() async {
+  Future<Uint8List?> thumbnail() async {
     if (thumbnailData != null) {
-      return thumbnailData!;
+      return thumbnailData;
     }
     int maxRetries = 3;
     int retryCount = 0;
-    bool succeeded = false;
-    while (retryCount < maxRetries && !succeeded) {
+    while (retryCount < maxRetries) {
       try {
         var currentData = BytesBuilder();
         var dataStream = thumbnailStream();
         await for (var d in dataStream) {
           currentData.add(d);
         }
-        thumbnailData = currentData.takeBytes();
-        succeeded = true;
+        final bytes = currentData.takeBytes();
+        if (bytes.isEmpty) {
+          throw Exception("empty thumbnail");
+        }
+        thumbnailData = bytes;
+        return bytes;
       } catch (e) {
         logger.addLog("get $path thumbnail failed: $e");
         retryCount++;
         await Future.delayed(const Duration(milliseconds: 100));
       }
     }
-
-    if (!succeeded) {
-      final data = await rootBundle.load("assets/images/broken.png");
-      thumbnailData = data.buffer.asUint8List();
-    }
-    return thumbnailData!;
+    // 失败不写入缓存，交给调用方重试（issue #89）
+    return null;
   }
 
   Stream<Uint8List> dataStream({

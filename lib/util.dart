@@ -5,6 +5,14 @@ import 'package:img_syncer/logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+/// 按日期降序排序（issue #84：Android 上 photo_manager 枚举顺序与
+/// 显示日期不一致导致年份穿插）。提取为纯函数以便单元测试。
+List<T> sortByDateDesc<T>(List<T> items, DateTime Function(T) dateOf) {
+  final sorted = List<T>.of(items);
+  sorted.sort((a, b) => dateOf(b).compareTo(dateOf(a)));
+  return sorted;
+}
+
 bool isVideoByPath(String path) {
   if (extension(path).toLowerCase() == ".aes") {
     path = basenameWithoutExtension(path);

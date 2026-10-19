@@ -29,6 +29,8 @@ class Asset extends ImageProvider<Asset> {
   Completer<Uint8List>? _thumbnailDataCompleter;
   Uint8List? _thumbnailData;
   bool _isThumbnailDataValid = true;
+  bool _thumbnailLoadFailed = false;
+  DateTime? _thumbnailRetryAfter;
   Completer<Uint8List>? _dataAsyncCompleter;
   Uint8List? _data;
   bool _isDataValid = true;
@@ -262,7 +264,7 @@ class Asset extends ImageProvider<Asset> {
   }
 
   bool loadThumbnailFinished() {
-    return _thumbnailData != null;
+    return _thumbnailData != null || _thumbnailLoadFailed;
   }
 
   ImageProvider thumbnailProvider() {
@@ -273,7 +275,10 @@ class Asset extends ImageProvider<Asset> {
     } catch (e) {
       logger.addLog(e.toString());
     }
-    return Image.asset("assets/images/gray.jpg").image;
+    return Image.asset(_thumbnailLoadFailed
+            ? "assets/images/broken.png"
+            : "assets/images/gray.jpg")
+        .image;
   }
 
   Future<Uint8List> thumbnailDataAsync() async {
@@ -283,7 +288,12 @@ class Asset extends ImageProvider<Asset> {
     if (_thumbnailDataCompleter != null) {
       return _thumbnailDataCompleter!.future;
     }
-    _thumbnailDataCompleter = Completer<Uint8List>();
+    final retryAfter = _thumbnailRetryAfter;
+    if (retryAfter != null && DateTime.now().isBefore(retryAfter)) {
+      return _loadBrokenThumbnail();
+    }
+    final completer = Completer<Uint8List>();
+    _thumbnailDataCompleter = completer;
     Uint8List? data;
     if (hasLocal) {
       data = await local!
@@ -292,16 +302,32 @@ class Asset extends ImageProvider<Asset> {
     if (hasRemote) {
       data = await remote!.thumbnail();
     }
-    if (data == null || data.isEmpty) {
-      final brokenData = await rootBundle.load("assets/images/broken.png");
-      _thumbnailDataCompleter!.complete(brokenData.buffer.asUint8List());
-      return brokenData.buffer.asUint8List();
-    } else {
-      _isThumbnailDataValid = await isValidImage(data);
-      _thumbnailDataCompleter!.complete(data);
-      _thumbnailData = data;
-      return data;
+    // 失败或不可解码的缩略图不写入缓存，5 秒后允许重试（issue #89）
+    if (data == null || data.isEmpty || !await isValidImage(data)) {
+      _isThumbnailDataValid = false;
+      _thumbnailLoadFailed = true;
+      _thumbnailRetryAfter = DateTime.now().add(const Duration(seconds: 5));
+      if (identical(_thumbnailDataCompleter, completer)) {
+        _thumbnailDataCompleter = null;
+      }
+      final broken = await _loadBrokenThumbnail();
+      completer.complete(broken);
+      return broken;
     }
+    _isThumbnailDataValid = true;
+    _thumbnailLoadFailed = false;
+    _thumbnailRetryAfter = null;
+    _thumbnailData = data;
+    if (identical(_thumbnailDataCompleter, completer)) {
+      _thumbnailDataCompleter = null;
+    }
+    completer.complete(data);
+    return data;
+  }
+
+  Future<Uint8List> _loadBrokenThumbnail() async {
+    final broken = await rootBundle.load("assets/images/broken.png");
+    return broken.buffer.asUint8List();
   }
 
   Future<Uint8List> imageDataAsync({bool reportProgress = false}) async {

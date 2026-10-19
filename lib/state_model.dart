@@ -5,6 +5,7 @@ import 'package:date_format/date_format.dart';
 import 'package:grpc/grpc.dart';
 import 'package:flutter/material.dart';
 import 'package:img_syncer/logger/logger.dart';
+import 'package:img_syncer/util.dart';
 import 'event_bus.dart';
 import 'package:img_syncer/asset.dart';
 import 'dart:async';
@@ -425,6 +426,10 @@ class AssetModel extends ChangeNotifier {
         }
       }
     }
+
+    // 按拍摄日期降序重排，规避 Android 上 photo_manager 按 DATE_ADDED 枚举
+    // 与 dateCreated()（DATE_TAKEN）不一致导致的年份穿插（issue #84）
+    localAssets = sortByDateDesc(localAssets, (a) => a.dateCreated());
 
     localGetting?.complete(true);
     localGetting = null;

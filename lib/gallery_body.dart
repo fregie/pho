@@ -1213,7 +1213,6 @@ class GalleryBodyState extends State<GalleryBody>
               ],
 
               // selection
-              if (all[i].isLivePhoto())
               if (stateModel.isSelectionMode) ...[
                 if (_selectedIndices[i] ?? false)
                   Container(
@@ -1385,42 +1384,52 @@ class GalleryBodyState extends State<GalleryBody>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-      key: _refreshIndicatorKey,
-      onRefresh: refresh,
-      child: Stack(
-        children: [
-          CustomScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                if (widget.showAppBar) appBar(),
-                Consumer<AssetModel>(builder: contentBuilder),
-              ]),
-          if (!isDesktop())
-            Positioned(top: locaterOffset, right: 0, child: locater()),
-          // 回到顶部按钮
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Offstage(
-                  offstage: !_showToTopBtn,
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 10),
-                    child: FloatingActionButton.small(
-                      onPressed: _scrollToTop,
-                      heroTag: 'gallery_body_${widget.useLocal}_toTop',
-                      child: const Icon(Icons.arrow_upward),
+    return PopScope(
+      // 多选模式下拦截系统返回：先退出多选，避免直接退出应用（issue #86）
+      canPop: !stateModel.isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (stateModel.isSelectionMode) {
+          clearSelection();
+        }
+      },
+      child: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: refresh,
+        child: Stack(
+          children: [
+            CustomScrollView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  if (widget.showAppBar) appBar(),
+                  Consumer<AssetModel>(builder: contentBuilder),
+                ]),
+            if (!isDesktop())
+              Positioned(top: locaterOffset, right: 0, child: locater()),
+            // 回到顶部按钮
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Offstage(
+                    offstage: !_showToTopBtn,
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: FloatingActionButton.small(
+                        onPressed: _scrollToTop,
+                        heroTag: 'gallery_body_${widget.useLocal}_toTop',
+                        child: const Icon(Icons.arrow_upward),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
