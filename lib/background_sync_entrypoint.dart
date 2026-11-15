@@ -47,8 +47,11 @@ void backgroundSyncEntrypoint() async {
   // Headless isolate 没有 BuildContext，无法走 initI18n(context)；
   // 直接构造 localization 实例供 LocalNotifier.sendSyncCompleteNotification 使用，
   // 否则全局 `late AppLocalizations l10n` 会抛 LateInitializationError。
-  l10n = Platform.localeName.toLowerCase().startsWith('zh')
-      ? AppLocalizationsZh()
+  final localeName = Platform.localeName.toLowerCase();
+  l10n = localeName.startsWith('zh')
+      ? (localeName.endsWith('_tw')
+          ? AppLocalizationsZhTw()
+          : AppLocalizationsZh())
       : AppLocalizationsEn();
 
   // Step 3: 写 prefs 信号（entrypoint 跑过的可观测证据）
