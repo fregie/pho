@@ -441,3 +441,442 @@ class AppLocalizationsZh extends AppLocalizations {
     return '成功同步 $succeeded 张照片（$failed 张失败）';
   }
 }
+
+
+/// The translations for Chinese, as used in Taiwan (`zh_TW`).
+class AppLocalizationsZhTw extends AppLocalizationsZh {
+  AppLocalizationsZhTw() : super('zh_TW');
+
+  @override
+  String get local => '本機';
+
+  @override
+  String get cloud => '雲端';
+
+  @override
+  String get sync => '同步';
+
+  @override
+  String get cloudSync => '雲端同步';
+
+  @override
+  String get localFolder => '本機相簿';
+
+  @override
+  String get cloudStorage => '雲端設定';
+
+  @override
+  String get backgroundSync => '背景同步';
+
+  @override
+  String get notSync => '張照片尚未同步';
+
+  @override
+  String get unsynchronizedPhotos => '未同步照片';
+
+  @override
+  String get date => '日期';
+
+  @override
+  String get delete => '刪除';
+
+  @override
+  String get photos => '照片';
+
+  @override
+  String get deleteThisPhoto => '刪除這張照片？';
+
+  @override
+  String get deleteThisPhotos => '刪除選取的照片？';
+
+  @override
+  String get cantBeUndone => '此操作無法復原';
+
+  @override
+  String get download => '下載';
+
+  @override
+  String get upload => '上傳';
+
+  @override
+  String get success => '成功';
+
+  @override
+  String get pics => '照片';
+
+  @override
+  String get choose => '選擇';
+
+  @override
+  String get stop => '停止';
+
+  @override
+  String get uploading => '上傳中';
+
+  @override
+  String get downloading => '下載中';
+
+  @override
+  String get uploadFailed => '上傳失敗';
+
+  @override
+  String get uploaded => '已上傳';
+
+  @override
+  String get notUploaded => '未上傳';
+
+  @override
+  String get chooseAlbum => '選擇相簿';
+
+  @override
+  String get storageSetting => '網路儲存設定';
+
+  @override
+  String get remoteStorageType => '網路儲存類型';
+
+  @override
+  String get samvbaServerAddress => 'Samba 伺服器位址';
+
+  @override
+  String get username => '使用者名稱';
+
+  @override
+  String get password => '密碼';
+
+  @override
+  String get share => '分享';
+
+  @override
+  String get rootPath => '儲存根目錄(照片會儲存在此目錄下)';
+
+  @override
+  String get optional => '選填';
+
+  @override
+  String get testStorage => '測試連線';
+
+  @override
+  String get save => '儲存';
+
+  @override
+  String get enableBackgroundSync => '啟用背景同步';
+
+  @override
+  String get syncOnlyOnWifi => '僅在連接 Wi-Fi 時同步';
+
+  @override
+  String get syncInterval => '同步間隔';
+
+  @override
+  String get minite => '分鐘';
+
+  @override
+  String get hour => '小時';
+
+  @override
+  String get day => '天';
+
+  @override
+  String get week => '週';
+
+  @override
+  String get month => '月';
+
+  @override
+  String get year => '年';
+
+  @override
+  String get chineseday => '日';
+
+  @override
+  String get yes => '確認';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get permissionDenied => '權限不足';
+
+  @override
+  String get setLocalFirst => '請先設定本機相簿';
+
+  @override
+  String get downloadFailed => '下載失敗';
+
+  @override
+  String get storageNotSetted => '尚未設定網路儲存，請先設定網路儲存';
+
+  @override
+  String get successfullyUpload => '成功上傳';
+
+  @override
+  String get testSuccess => '連線成功，請點選儲存';
+
+  @override
+  String get connectFailed => '連線失敗';
+
+  @override
+  String get selectRoot => '選擇根目錄';
+
+  @override
+  String get currentPath => '目前目錄';
+
+  @override
+  String get refreshingPleaseWait =>
+      '正在交叉比對你本機和雲端的照片，首次執行或數量較多時可能耗時較久，請耐心等候……';
+
+  @override
+  String get setRemoteStroage => '請先點選雲端設定來設定網路儲存';
+
+  @override
+  String get needPermision => '需要存取相簿的權限';
+
+  @override
+  String get gotoSystemSetting => '瀏覽系統相簿需要授予相簿存取權限，如有需要請前往系統設定授予相簿的權限';
+
+  @override
+  String get openSetting => '開啟設定';
+
+  @override
+  String get advancedSetting => '進階設定';
+
+  @override
+  String get goToSet => '前往設定';
+
+  @override
+  String get streamFallbackDownload => '串流播放失敗，正在下載後播放';
+
+  @override
+  String get dataDirWarning => '修改目錄結構只會影響之後上傳的檔案，不會變更已上傳的檔案';
+
+  @override
+  String get dirType01 => '依日期多層級';
+
+  @override
+  String get dirType02 => '依日期單層級';
+
+  @override
+  String get tapToSet => '點選以設定';
+
+  @override
+  String get longPressToCancel => '長按取消設定';
+
+  @override
+  String get jumpTo => '快速跳至';
+
+  @override
+  String get jumpToByDate => '依日期跳至';
+
+  @override
+  String get onlyCamera => '僅相機拍攝';
+
+  @override
+  String get unlockAllAdvancedFeatures => '解鎖所有進階功能';
+
+  @override
+  String get browseInRecents => '請在「最近項目」中瀏覽';
+
+  @override
+  String get failedTooMany => '失敗次數過多， 已暫停同步';
+
+  @override
+  String get refreshing => '正在取得照片，請耐心等候……';
+
+  @override
+  String get settings => '設定';
+
+  @override
+  String get desktopStorageSettingDesc => '設定網路儲存以瀏覽你用 Pho 備份的照片';
+
+  @override
+  String get zoomIn => '放大檢視';
+
+  @override
+  String get zoomOut => '縮小檢視';
+
+  @override
+  String get about => '應用程式資訊';
+
+  @override
+  String get appVersion => '應用程式版本';
+
+  @override
+  String get releaseStorage => '釋放儲存空間';
+
+  @override
+  String get deleteSynced => '刪除已同步的照片';
+
+  @override
+  String get youHaveSynced => '您已經同步了';
+
+  @override
+  String get photosInCloud => '張照片或影片';
+
+  @override
+  String get canDeleteNow => '現在可以刪除它們以節省空間';
+
+  @override
+  String get canBrowserAnyTime => '您可以隨時在雲端儲存中以原始畫質瀏覽它們';
+
+  @override
+  String get pleaseConfirmBeforeDelete => '請務必確認你已經在雲端儲存中備份了這些照片，否則刪除後將無法復原';
+
+  @override
+  String get installHEVCExtention =>
+      '如果 HEIC 或 HEVC 格式無法正常顯示，請在 Microsoft Store 安裝「HEVC 影片擴充功能」';
+
+  @override
+  String get openMSStore => '安裝';
+
+  @override
+  String get clearCache => '清除快取';
+
+  @override
+  String get clearCacheDescription => '此操作只會清除圖片快取，不會刪除你的任何設定，確定要清除快取嗎？';
+
+  @override
+  String get clearCacheSuccess => '清除快取成功';
+
+  @override
+  String get clearCacheFailed => '清除快取失敗';
+
+  @override
+  String get offline => '離線';
+
+  @override
+  String get noLocalPhotos => '找不到照片';
+
+  @override
+  String get noCloudPhotos => '沒有雲端照片';
+
+  @override
+  String get refreshUnsynchronizedPhotos => '重新整理未同步照片';
+
+  @override
+  String get onboardingWelcome => '歡迎使用 Pho';
+
+  @override
+  String get onboardingWelcomeDesc => '你的無伺服器照片同步工具';
+
+  @override
+  String get onboardingSyncTitle => '同步到你的儲存空間';
+
+  @override
+  String get onboardingSyncDesc => '支援 SMB、WebDAV 和 NFS，照片依日期自動整理';
+
+  @override
+  String get onboardingPrivacyTitle => '你的資料由你做主';
+
+  @override
+  String get onboardingPrivacyDesc => '無伺服器、無資料庫，檔案直接儲存在你的網路儲存空間中';
+
+  @override
+  String get onboardingSkip => '略過';
+
+  @override
+  String get onboardingNext => '下一步';
+
+  @override
+  String get onboardingGetStarted => '開始使用';
+
+  @override
+  String get onboardingPermissionTitle => '需要相簿存取權限';
+
+  @override
+  String get onboardingPermissionDesc => 'Pho 需要存取你的相簿以瀏覽和同步照片';
+
+  @override
+  String get onboardingGrantPermission => '授予權限';
+
+  @override
+  String get onboardingLater => '稍後設定';
+
+  @override
+  String get onboardingStorageTitle => '設定雲端儲存（選填）';
+
+  @override
+  String get onboardingStorageDesc => '你可以現在設定，或稍後在設定中調整';
+
+  @override
+  String get onboardingSetupStorage => '設定儲存空間';
+
+  @override
+  String get onboardingComplete => '完成';
+
+  @override
+  String get settingsBasic => '基本';
+
+  @override
+  String get settingsUtilities => '實用工具';
+
+  @override
+  String get monthlyPlan => '月訂閱';
+
+  @override
+  String get yearlyPlan => '年訂閱';
+
+  @override
+  String get lifetimePlan => '終身買斷';
+
+  @override
+  String perMonth(Object price) {
+    return '$price/月';
+  }
+
+  @override
+  String perYear(Object price) {
+    return '$price/年';
+  }
+
+  @override
+  String get oneTime => '一次付費';
+
+  @override
+  String savePercent(Object percent) {
+    return '省 $percent%';
+  }
+
+  @override
+  String get recommended => '推薦';
+
+  @override
+  String get bestValue => '最划算';
+
+  @override
+  String get mostFlexible => '最靈活';
+
+  @override
+  String get subscribe => '訂閱';
+
+  @override
+  String get termsOfUse => '使用條款';
+
+  @override
+  String get iosBackgroundSyncDescription => 'iOS 背景同步由系統在充電時自動排程，無需手動設定間隔';
+
+  @override
+  String get notificationDenied => '通知權限未開啟，同步正常但不會有提醒';
+
+  @override
+  String get backgroundRefreshDisabledTitle => '背景 App 重新整理已關閉';
+
+  @override
+  String get backgroundRefreshDisabledDesc =>
+      '背景同步將無法觸發。請前往 設定 -> Pho 開啟背景 App 重新整理，再前往 設定 -> 一般 -> 背景 App 重新整理 確認全域已開啟';
+
+  @override
+  String get backgroundRefreshDisabledAction => '開啟 Pho 設定';
+
+  @override
+  String get bgSyncSuccessNotificationTitle => 'Pho 背景同步';
+
+  @override
+  String bgSyncSuccessNotificationBody(int count) {
+    return '成功同步 $count 張照片';
+  }
+
+  @override
+  String bgSyncSuccessNotificationBodyWithFailures(int succeeded, int failed) {
+    return '成功同步 $succeeded 張照片（$failed 張失敗）';
+  }
+}
